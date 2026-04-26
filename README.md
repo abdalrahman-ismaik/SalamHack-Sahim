@@ -1,4 +1,4 @@
-# sSsahim (سهم) — Arabic Investment Intelligence
+# $ahim (سهم) — Arabic Investment Intelligence
 
 > An AI-powered investment readiness platform for MENA stocks, built for SalamHack 2024.
 
