@@ -28,12 +28,12 @@
 
 ### Backend
 
-```bash
+```powershell
 cd backend
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
-cp .env.example .env      # fill in API keys
+Copy-Item .env.example .env   # fill in API keys
 uvicorn app.main:app --reload
 ```
 
@@ -41,10 +41,10 @@ API available at `http://localhost:8000`. Health check: `GET /api/health`.
 
 ### Frontend
 
-```bash
+```powershell
 cd frontend
 npm install
-cp .env.local.example .env.local
+Copy-Item .env.local.example .env.local
 # Set NEXT_PUBLIC_API_URL=http://localhost:8000
 npm run dev
 ```
@@ -67,7 +67,7 @@ App at `http://localhost:3000`.
 
 ## Running Tests
 
-```bash
+```powershell
 cd backend
 pytest tests/unit/ -v --cov=app
 ```
