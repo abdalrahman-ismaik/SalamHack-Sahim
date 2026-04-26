@@ -1,10 +1,8 @@
-"""OpenAI news analysis agent.
+"""Gemini news analysis agent.
 
-Uses GPT-4o-mini with response_format={"type":"json_object"}.
+Uses gemini-2.0-flash (free tier: 1,500 req/day) with JSON response mode.
 10s asyncio.wait_for hard timeout (T049).
 4-field Arabic JSON output.
-
-NEVER uses the Responses API — Chat Completions only.
 """
 
 from __future__ import annotations
@@ -14,7 +12,8 @@ import json
 import logging
 from typing import Optional
 
-from openai import AsyncOpenAI
+from google import genai
+from google.genai import types
 
 from app.config import get_settings
 
@@ -37,7 +36,7 @@ async def analyse_news(
     articles: list[dict],
     company_name: Optional[str] = None,
 ) -> dict:
-    """Analyse news articles via GPT-4o-mini. Returns 4-field dict.
+    """Analyse news articles via Gemini 2.0 Flash. Returns 4-field dict.
 
     Falls back to neutral/empty on any error or timeout.
     """
@@ -46,8 +45,8 @@ async def analyse_news(
     if not articles:
         return _fallback_result()
 
-    if not settings.openai_api_key:
-        logger.warning("OPENAI_API_KEY not configured — returning neutral sentiment")
+    if not settings.gemini_api_key:
+        logger.warning("GEMINI_API_KEY not configured — returning neutral sentiment")
         return _fallback_result()
 
     name = company_name or ticker
@@ -57,36 +56,38 @@ async def analyse_news(
         for a in articles[:5]
     )
 
-    user_prompt = f"الشركة: {name} (رمز التداول: {ticker})\n\nالأخبار:\n{news_text}"
+    prompt = (
+        f"{_SYSTEM_PROMPT}\n\n"
+        f"الشركة: {name} (رمز التداول: {ticker})\n\nالأخبار:\n{news_text}"
+    )
 
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
+    client = genai.Client(api_key=settings.gemini_api_key)
 
     try:
         response = await asyncio.wait_for(
-            client.chat.completions.create(
-                model="gpt-4o-mini",
-                response_format={"type": "json_object"},
-                messages=[
-                    {"role": "system", "content": _SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ],
-                max_tokens=512,
-                temperature=0.2,
+            client.aio.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    max_output_tokens=512,
+                    temperature=0.2,
+                ),
             ),
             timeout=_AGENT_TIMEOUT,
         )
     except asyncio.TimeoutError:
-        logger.warning("OpenAI timeout for %s", ticker)
+        logger.warning("Gemini timeout for %s", ticker)
         return _fallback_result()
     except Exception as exc:
-        logger.warning("OpenAI error for %s: %s", ticker, exc)
+        logger.warning("Gemini error for %s: %s", ticker, exc)
         return _fallback_result()
 
     try:
-        content = response.choices[0].message.content or "{}"
+        content = response.text or "{}"
         data = json.loads(content)
-    except (json.JSONDecodeError, IndexError, KeyError) as exc:
-        logger.warning("Failed to parse OpenAI response for %s: %s", ticker, exc)
+    except (json.JSONDecodeError, ValueError) as exc:
+        logger.warning("Failed to parse Gemini response for %s: %s", ticker, exc)
         return _fallback_result()
 
     return {
@@ -97,6 +98,15 @@ async def analyse_news(
         "key_opportunities": data.get("key_opportunities", []),
     }
 
+
+def _fallback_result() -> dict:
+    return {
+        "sentiment": "neutral",
+        "summary_ar": "",
+        "summary_en": "",
+        "key_risks": [],
+        "key_opportunities": [],
+    }
 
 def _fallback_result() -> dict:
     return {

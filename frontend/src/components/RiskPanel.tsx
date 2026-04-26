@@ -42,6 +42,7 @@ function MetricRow({
 
 export function RiskPanel({ ticker }: RiskPanelProps) {
   const t = useTranslations("risk");
+  const tErrors = useTranslations("errors");
   const [data, setData] = useState<RiskMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,12 +54,12 @@ export function RiskPanel({ ticker }: RiskPanelProps) {
       .catch((err) => {
         setError(
           err instanceof ApiError && err.status === 503
-            ? useTranslations("errors")("serviceUnavailable")
+            ? tErrors("serviceUnavailable")
             : "—"
         );
       })
       .finally(() => setLoading(false));
-  }, [ticker]);
+  }, [ticker, tErrors]);
 
   if (loading) return <div className="text-gray-400 text-sm py-4 text-center">…</div>;
   if (error || !data) return null;

@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     alpha_vantage_api_key: str = ""
 
     # --- AI / News APIs ---
-    openai_api_key: str = ""
+    gemini_api_key: str = ""
     newsapi_key: str = ""
 
     # --- Halal Screening ---
