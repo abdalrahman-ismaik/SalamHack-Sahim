@@ -94,10 +94,7 @@ class HalalVerdict(BaseModel):
     status: HalalStatus
     source: HalalSource
     # Hardcoded disclaimer — must never be moved to i18n (Principle V)
-    disclaimer: str = Field(
-        default="التحقق النهائي من الحلية يقع على عاتق المستخدم",
-        const=True,
-    )
+    disclaimer: Literal["التحقق النهائي من الحلية يقع على عاتق المستخدم"] = "التحقق النهائي من الحلية يقع على عاتق المستخدم"
     sector: Optional[str] = None
     debt_market_cap_ratio: Optional[float] = None
     interest_income_ratio: Optional[float] = None
@@ -146,10 +143,7 @@ class ArimaForecast(BaseModel):
     aic: float
     sufficient_data: bool
     # Hardcoded disclaimer (Principle V)
-    disclaimer: str = Field(
-        default="هذا تقدير إحصائي مستقل، وليس نصيحة استثمارية مرخصة",
-        const=True,
-    )
+    disclaimer: Literal["هذا تقدير إحصائي مستقل، وليس نصيحة استثمارية مرخصة"] = "هذا تقدير إحصائي مستقل، وليس نصيحة استثمارية مرخصة"
     generated_at: str
 
 
@@ -197,7 +191,4 @@ class AllocationResult(BaseModel):
     total_invested: float
     leftover: float
     # Hardcoded disclaimer (Principle V)
-    disclaimer: str = Field(
-        default="تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة",
-        const=True,
-    )
+    disclaimer: Literal["تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة"] = "تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة"

@@ -24,6 +24,72 @@
 | Forecast | statsmodels ARIMA |
 | Deployment | Netlify (frontend) + Render.com free (backend) |
 
+## Local Development
+
+Run both services simultaneously in two separate PowerShell terminals.
+
+### Terminal 1 — Backend (FastAPI)
+
+```powershell
+cd backend
+
+# First time only: create virtual environment and install deps
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+Copy-Item .env.example .env   # then open .env and fill in your API keys
+
+# Every run:
+.venv\Scripts\Activate.ps1
+python -m uvicorn app.main:app --reload --reload-dir app --port 8000
+```
+
+> Hot-reload is enabled — the server restarts automatically on file save.  
+> Verify it's running: open `http://localhost:8000/api/health` in your browser.  
+> Interactive API docs (Swagger UI): `http://localhost:8000/docs`
+
+### Terminal 2 — Frontend (Next.js)
+
+```powershell
+cd frontend
+
+# First time only:
+npm install
+Copy-Item .env.local.example .env.local
+# Open .env.local and confirm: NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Every run:
+npm run dev
+```
+
+> App runs at `http://localhost:3000`.  
+> Next.js hot-reloads on file save — no restart needed.
+
+### Running Tests
+
+```powershell
+# Backend unit tests (from repo root)
+cd backend
+.venv\Scripts\Activate.ps1
+pytest tests/unit/ -v --cov=app --cov-report=term-missing
+
+# Watch mode (re-runs on file change)
+pytest tests/unit/ -v -f
+```
+
+### Common Dev Tasks
+
+| Task | Command |
+|------|---------|
+| Check backend logs | uvicorn stdout in Terminal 1 |
+| Lint backend | `ruff check app/` |
+| Format backend | `ruff format app/` |
+| Type-check frontend | `npx tsc --noEmit` |
+| Build frontend (prod check) | `npm run build` |
+| Add a shadcn/ui component | `npx shadcn-ui@latest add <name>` |
+
+---
+
 ## Quick Start
 
 ### Backend
@@ -34,7 +100,7 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
 Copy-Item .env.example .env   # fill in API keys
-uvicorn app.main:app --reload
+python -m uvicorn app.main:app --reload
 ```
 
 API available at `http://localhost:8000`. Health check: `GET /api/health`.
