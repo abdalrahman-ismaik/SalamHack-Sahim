@@ -1,0 +1,105 @@
+/**
+ * Typed fetch wrappers for all backend API endpoints.
+ * Base URL is read from NEXT_PUBLIC_API_URL (fallback: http://localhost:8000).
+ */
+
+import type {
+  SearchResult,
+  InvestmentReadinessScore,
+  RiskMetrics,
+  HalalVerdict,
+  NewsAnalysis,
+  ArimaForecast,
+  SectorComparison,
+  AllocationResult,
+} from "./types";
+
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const url = `${BASE_URL}${path}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+
+  if (!res.ok) {
+    let errorBody: unknown;
+    try {
+      errorBody = await res.json();
+    } catch {
+      errorBody = { error: res.statusText };
+    }
+    const err = new ApiError(res.status, errorBody);
+    throw err;
+  }
+
+  return res.json() as Promise<T>;
+}
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly body: unknown
+  ) {
+    super(`API error ${status}`);
+    this.name = "ApiError";
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Endpoints
+// ---------------------------------------------------------------------------
+
+export async function searchStocks(query: string): Promise<SearchResult[]> {
+  const encoded = encodeURIComponent(query.trim());
+  return apiFetch<SearchResult[]>(`/api/search?q=${encoded}`);
+}
+
+export async function getScore(ticker: string): Promise<InvestmentReadinessScore> {
+  return apiFetch<InvestmentReadinessScore>(
+    `/api/stock/${encodeURIComponent(ticker)}/score`
+  );
+}
+
+export async function getRisk(ticker: string): Promise<RiskMetrics> {
+  return apiFetch<RiskMetrics>(
+    `/api/stock/${encodeURIComponent(ticker)}/risk`
+  );
+}
+
+export async function getHalal(ticker: string): Promise<HalalVerdict> {
+  return apiFetch<HalalVerdict>(
+    `/api/stock/${encodeURIComponent(ticker)}/halal`
+  );
+}
+
+export async function getNews(ticker: string): Promise<NewsAnalysis> {
+  return apiFetch<NewsAnalysis>(
+    `/api/stock/${encodeURIComponent(ticker)}/news`
+  );
+}
+
+export async function getArima(ticker: string): Promise<ArimaForecast> {
+  return apiFetch<ArimaForecast>(
+    `/api/stock/${encodeURIComponent(ticker)}/forecast`
+  );
+}
+
+export async function getSectors(): Promise<SectorComparison[]> {
+  return apiFetch<SectorComparison[]>("/api/sectors");
+}
+
+export async function getAllocation(
+  tickers: string[],
+  budget: number
+): Promise<AllocationResult> {
+  return apiFetch<AllocationResult>("/api/allocate", {
+    method: "POST",
+    body: JSON.stringify({ tickers, budget }),
+  });
+}

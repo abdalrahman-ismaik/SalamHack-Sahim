@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "home": "Home",
+    "sectors": "Sectors",
+    "language": "العربية"
+  },
+  "search": {
+    "placeholder": "Search for a stock or company…",
+    "button": "Search",
+    "noResults": "No results found",
+    "loading": "Searching…"
+  },
+  "score": {
+    "title": "Investment Readiness Score",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "disclaimer": "Independent informational analysis — not licensed investment advice",
+    "lowConfidence": "Low confidence — limited data",
+    "components": {
+      "volatility": "Volatility",
+      "var": "Value at Risk",
+      "sharpe": "Sharpe Ratio",
+      "beta": "Beta",
+      "sentiment": "News Sentiment"
+    }
+  },
+  "freshness": {
+    "label": "Last updated: end of yesterday's session"
+  },
+  "halal": {
+    "title": "Shariah Compliance",
+    "halal": "Halal",
+    "purificationRequired": "Purification Required",
+    "nonHalal": "Non-Halal",
+    "unknown": "Undetermined",
+    "disclaimer": "Final halal verification is the user's responsibility",
+    "source": "Source",
+    "musaffa": "Musaffa",
+    "aaoifi": "AAOIFI Standards"
+  },
+  "risk": {
+    "title": "Risk Indicators",
+    "volatility": "Annual Volatility",
+    "var95": "Value at Risk (95%)",
+    "sharpe": "Sharpe Ratio",
+    "beta": "Beta Coefficient",
+    "benchmark": "Benchmark",
+    "technicals": {
+      "title": "Technical Indicators",
+      "rsi": "RSI (14)",
+      "macd": "MACD",
+      "ema20": "EMA 20",
+      "sma50": "SMA 50"
+    },
+    "fundamentals": {
+      "title": "Financial Fundamentals",
+      "peRatio": "P/E Ratio",
+      "debtEquity": "Debt / Equity",
+      "revenueGrowth": "Revenue Growth"
+    }
+  },
+  "news": {
+    "title": "Latest News",
+    "loading": "Loading news…",
+    "fallback": "Could not load news at this time — score is shown based on mathematical data only",
+    "readMore": "Read more",
+    "sentiment": {
+      "positive": "Positive",
+      "neutral": "Neutral",
+      "negative": "Negative"
+    }
+  },
+  "arima": {
+    "title": "Statistical Forecast (30 days)",
+    "disclaimer": "This is an independent statistical estimate — not licensed investment advice",
+    "confidence": "95% confidence interval",
+    "insufficient": "Insufficient data for forecast (requires ≥252 trading days)"
+  },
+  "sectors": {
+    "title": "Sector Comparison",
+    "selectSector": "Select a sector",
+    "topStocks": "Top Stocks"
+  },
+  "allocator": {
+    "title": "Budget Allocator",
+    "budget": "Budget",
+    "currency": "SAR",
+    "calculate": "Calculate Allocation",
+    "disclaimer": "Independent informational analysis — not licensed investment advice",
+    "zeroShares": "Budget insufficient to buy any shares of this ticker"
+  },
+  "errors": {
+    "invalidTicker": "Invalid ticker symbol",
+    "notFound": "Data not found",
+    "serviceUnavailable": "Service temporarily unavailable — please try again later",
+    "generic": "Something went wrong — please try again"
+  }
+}
