@@ -8,6 +8,7 @@ Endpoints:
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Annotated
 
@@ -23,6 +24,7 @@ from app.services.news_fetcher import fetch_news
 from app.services.news_agent import analyse_news
 from app.services.arima_service import compute_arima_forecast
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["stocks"])
 
 # Ticker validation pattern (T021)
@@ -58,6 +60,7 @@ async def search_stocks(
     q: Annotated[str, Query(min_length=1, max_length=50, description="Ticker or company name query")],
 ) -> list[SearchResult]:
     """Search for stocks by ticker or company name."""
+    logger.info("GET /search q=%r", q)
     cached = get_cached(q.lower(), "search")
     if cached is not None:
         return cached
@@ -68,6 +71,7 @@ async def search_stocks(
         raise _data_unavailable_response(q, str(exc)) from exc
 
     output = [SearchResult(**r) for r in results]
+    logger.debug("Search '%s' returned %d results", q, len(output))
     set_cached(q.lower(), "search", output)
     return output
 
@@ -83,6 +87,7 @@ async def search_stocks(
 )
 async def get_score(ticker: str) -> InvestmentReadinessScore:
     """Compute Investment Readiness Score for a single ticker."""
+    logger.info("GET /stock/%s/score", ticker)
     try:
         ticker = _validate_ticker(ticker)
     except InvalidTickerError as exc:
@@ -128,6 +133,7 @@ async def get_score(ticker: str) -> InvestmentReadinessScore:
 
     result = compute_score(ticker, name, closes, sentiment)  # type: ignore[arg-type]
 
+    logger.info("Score for %s: %.1f (%s) low_confidence=%s", ticker, result.composite_score, result.band, result.low_confidence)
     set_cached(ticker, "score", result)
     return result
 
@@ -143,6 +149,7 @@ async def get_score(ticker: str) -> InvestmentReadinessScore:
 )
 async def get_risk(ticker: str) -> RiskMetrics:
     """Return full risk metrics for a ticker."""
+    logger.info("GET /stock/%s/risk", ticker)
     try:
         ticker = _validate_ticker(ticker)
     except InvalidTickerError as exc:
@@ -160,6 +167,8 @@ async def get_risk(ticker: str) -> RiskMetrics:
     except DataUnavailableError as exc:
         raise _data_unavailable_response(ticker, str(exc)) from exc
 
+    logger.debug("Risk for %s: vol=%.4f VaR=%.4f sharpe=%.4f beta=%.4f",
+                 ticker, result.volatility_annual, result.var_95, result.sharpe_ratio, result.beta)
     set_cached(ticker, "risk", result)
     return result
 
@@ -175,6 +184,7 @@ async def get_risk(ticker: str) -> RiskMetrics:
 )
 async def get_halal(ticker: str) -> HalalVerdict:
     """Return Halal compliance verdict for a ticker."""
+    logger.info("GET /stock/%s/halal", ticker)
     try:
         ticker = _validate_ticker(ticker)
     except InvalidTickerError as exc:
@@ -199,6 +209,7 @@ async def get_halal(ticker: str) -> HalalVerdict:
         debt_market_cap_ratio=fund.get("debt_market_cap_ratio"),
         interest_income_ratio=fund.get("interest_income_ratio"),
     )
+    logger.info("Halal verdict for %s: %s (source=%s)", ticker, result.status, result.source)
     set_cached(ticker, "halal", result)
     return result
 
@@ -214,6 +225,7 @@ async def get_halal(ticker: str) -> HalalVerdict:
 )
 async def get_news(ticker: str) -> NewsAnalysis:
     """Return AI news analysis for a ticker (T047/T048/T049)."""
+    logger.info("GET /stock/%s/news", ticker)
     try:
         ticker = _validate_ticker(ticker)
     except InvalidTickerError as exc:
@@ -249,6 +261,8 @@ async def get_news(ticker: str) -> NewsAnalysis:
         news_unavailable=len(articles) == 0,
         analysed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
     )
+    logger.info("News for %s: sentiment=%s articles=%d news_unavailable=%s",
+                ticker, result.sentiment, len(result.key_risks) + len(result.key_opportunities), result.news_unavailable)
     # TTL=1h handled by _short_cache in cache.py
     set_cached(ticker, "news", result)
     return result
@@ -265,6 +279,7 @@ async def get_news(ticker: str) -> NewsAnalysis:
 )
 async def get_forecast(ticker: str) -> ArimaForecast:
     """Return 30-day ARIMA price forecast with 95% CI."""
+    logger.info("GET /stock/%s/forecast", ticker)
     try:
         ticker = _validate_ticker(ticker)
     except InvalidTickerError as exc:
@@ -282,5 +297,9 @@ async def get_forecast(ticker: str) -> ArimaForecast:
     except DataUnavailableError as exc:
         raise _data_unavailable_response(ticker, str(exc)) from exc
 
+    logger.debug("ARIMA forecast for %s: order=%s, first_price=%.4f, last_price=%.4f",
+                 ticker, result.order,
+                 result.forecast_prices[0] if result.forecast_prices else 0,
+                 result.forecast_prices[-1] if result.forecast_prices else 0)
     set_cached(ticker, "forecast", result)
     return result

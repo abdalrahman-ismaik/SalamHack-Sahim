@@ -13,6 +13,8 @@ import { useTranslations } from "next-intl";
 import { getNews } from "@/lib/api";
 import type { NewsAnalysis } from "@/lib/types";
 
+import { useUserTier } from "@/hooks/useUserTier";
+
 interface NewsPanelProps {
   ticker: string;
 }
@@ -26,7 +28,9 @@ const sentimentStyles: Record<Sentiment, { bg: string; text: string; emoji: stri
 };
 
 export function NewsPanel({ ticker }: NewsPanelProps) {
-  const t = useTranslations("news");
+  const t    = useTranslations("news");
+  const tier = useUserTier();
+  const cap  = (tier === 'guest' || tier === 'free') ? 3 : Infinity;
   const [data, setData] = useState<NewsAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -87,7 +91,7 @@ export function NewsPanel({ ticker }: NewsPanelProps) {
         <div>
           <h3 className="text-sm font-semibold text-red-700 mb-1">{t("keyRisks")}</h3>
           <ul className="list-disc list-inside text-sm text-gray-700 space-y-1" dir="rtl">
-            {data.key_risks.map((risk, i) => (
+            {data.key_risks.slice(0, cap).map((risk, i) => (
               <li key={i}>{risk}</li>
             ))}
           </ul>
@@ -99,7 +103,7 @@ export function NewsPanel({ ticker }: NewsPanelProps) {
         <div>
           <h3 className="text-sm font-semibold text-green-700 mb-1">{t("keyOpportunities")}</h3>
           <ul className="list-disc list-inside text-sm text-gray-700 space-y-1" dir="rtl">
-            {data.key_opportunities.map((opp, i) => (
+            {data.key_opportunities.slice(0, cap).map((opp, i) => (
               <li key={i}>{opp}</li>
             ))}
           </ul>

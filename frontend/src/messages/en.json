@@ -95,5 +95,179 @@
     "notFound": "Data not found",
     "serviceUnavailable": "Service temporarily unavailable — please try again later",
     "generic": "Something went wrong — please try again"
+  },
+  "nav": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up Free",
+    "dashboard": "Dashboard",
+    "signOut": "Sign Out",
+    "pricing": "Pricing"
+  },
+  "landing": {
+    "hero": {
+      "headline": "Smart Investing for Arabic-Speaking Beginners",
+      "subheadline": "Understand any MENA stock in plain Arabic — AI-powered scores, risk insights, news analysis, and Shariah compliance in one place.",
+      "cta": "Get Started Free",
+      "ctaSecondary": "See Plans"
+    },
+    "features": {
+      "title": "Built for Beginner Investors",
+      "subtitle": "From investment readiness scores to AI-powered news — understand any stock before you buy."
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "subtitle": "Start free. Upgrade when you're ready."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Welcome Back",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up free",
+      "forgotPassword": "Forgot password?"
+    },
+    "signUp": {
+      "title": "Create Your Account",
+      "nameLabel": "Full name",
+      "emailLabel": "Email address",
+      "passwordLabel": "Password",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailTaken": "An account with this email already exists",
+      "generic": "Something went wrong — please try again"
+    },
+    "refreshBanner": {
+      "badge": "Session",
+      "message": "Your session could not be verified. Please refresh.",
+      "cta": "Refresh"
+    }
+  },
+  "dashboard": {
+    "greeting": "Welcome back",
+    "guestGreeting": "Welcome",
+    "services": "Available Services",
+    "upgradePrompt": "Upgrade to Pro to unlock all features",
+    "tier": {
+      "guest": "Guest",
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise"
+    }
+  },
+  "gate": {
+    "headline": "Unlock the Full Picture",
+    "description": "Create a free account to see the complete beginner-friendly investment report, risk indicators, and AI-powered Arabic insights.",
+    "signUp": "Sign Up Free",
+    "signIn": "Sign In",
+    "halalDisclaimer": "Final halal verification is the user's responsibility",
+    "teaserError": "Could not load stock data. Please try again.",
+    "teaserRetry": "Try Again"
+  },
+  "pricing": {
+    "free": {
+      "name": "Free",
+      "tagline": "Perfect for getting started",
+      "price": "$0 / month",
+      "cta": "Get Started Free",
+      "features": [
+        "Stock search & investment score",
+        "Basic news (3 headlines)",
+        "Shariah compliance check",
+        "Arabic & English interface"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "tagline": "For serious investors",
+      "price": "Coming Soon",
+      "cta": "Start Pro Trial",
+      "features": [
+        "Everything in Free",
+        "ARIMA 30-day forecast",
+        "Portfolio allocator",
+        "Sector comparison",
+        "Full risk dashboard",
+        "Unlimited news analysis"
+      ]
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "tagline": "For institutions & advisors",
+      "price": "Contact Us",
+      "cta": "Contact Sales",
+      "features": [
+        "Everything in Pro",
+        "Custom integration",
+        "Dedicated support",
+        "SLA guarantee"
+      ]
+    },
+    "disclaimer": "All plans are for informational use only. Not licensed investment advice."
+  },
+  "services": {
+    "stock-screener": {
+      "title": "Stock Screener",
+      "description": "Search any MENA stock and get a plain-language investment readiness score — no finance degree needed."
+    },
+    "halal-verdict": {
+      "title": "Shariah Compliance",
+      "description": "Optional halal screening powered by Musaffa and AAOIFI standards — for investors who need it."
+    },
+    "news-agent": {
+      "title": "News Agent",
+      "description": "AI-summarized news with sentiment analysis in Arabic and English."
+    },
+    "arima-forecast": {
+      "title": "ARIMA Forecast",
+      "description": "30-day statistical price forecast with confidence intervals."
+    },
+    "portfolio-allocator": {
+      "title": "Portfolio Allocator",
+      "description": "Distribute your investment budget intelligently across a basket of stocks."
+    },
+    "sector-explorer": {
+      "title": "Sector Explorer",
+      "description": "Compare investment readiness across entire market sectors."
+    },
+    "risk-dashboard": {
+      "title": "Risk Dashboard",
+      "description": "Full volatility, VaR, Sharpe, and beta analysis with technicals."
+    },
+    "live-monitoring": {
+      "title": "Live Monitoring",
+      "description": "Real-time alerts and portfolio tracking. Coming soon.",
+      "comingSoon": "Coming Soon"
+    }
+  },
+  "upgrade": {
+    "arima": {
+      "title": "ARIMA Forecast",
+      "description": "Unlock 30-day statistical price forecasts with 95% confidence intervals."
+    },
+    "risk": {
+      "title": "Full Risk Dashboard",
+      "description": "Access volatility, VaR, Sharpe ratio, beta, and technical indicators."
+    },
+    "allocator": {
+      "title": "Portfolio Allocator",
+      "description": "Distribute your investment budget intelligently across a basket of stocks."
+    },
+    "sector": {
+      "title": "Sector Explorer",
+      "description": "Compare and rank stocks across entire market sectors."
+    },
+    "news": {
+      "title": "Full News Analysis",
+      "description": "Access all news articles and detailed sentiment breakdowns."
+    },
+    "cta": "Upgrade to Pro",
+    "href": "#pricing"
   }
 }

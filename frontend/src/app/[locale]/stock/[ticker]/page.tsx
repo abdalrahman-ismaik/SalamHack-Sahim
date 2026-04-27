@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
 import { getScore, ApiError } from "@/lib/api";
 import type { InvestmentReadinessScore } from "@/lib/types";
 import { TrafficLightBadge } from "@/components/TrafficLightBadge";
@@ -11,6 +13,10 @@ import { HalalPanel } from "@/components/HalalPanel";
 import { NewsPanel } from "@/components/NewsPanel";
 import { ArimaChart } from "@/components/ArimaChart";
 import { SectorPanel } from "@/components/SectorPanel";
+import { UpgradeGate } from "@/components/ui/UpgradeGate";
+import { SignInGateModal } from "@/components/ui/SignInGateModal";
+import { useUserTier } from "@/hooks/useUserTier";
+import { useSoftGate } from "@/hooks/useSoftGate";
 
 interface StockPageProps {
   params: {
@@ -20,12 +26,20 @@ interface StockPageProps {
 }
 
 export default function StockPage({ params }: StockPageProps) {
-  const t = useTranslations();
-  const ticker = params.ticker.toUpperCase();
+  const t       = useTranslations();
+  const tGate   = useTranslations('gate');
+  const ticker  = params.ticker.toUpperCase();
+  const tier    = useUserTier();
+  const locale  = useLocale();
+  const pathname = usePathname();
 
-  const [score, setScore] = useState<InvestmentReadinessScore | null>(null);
+  const isGuest = tier === 'guest';
+
+  const [score, setScore]     = useState<InvestmentReadinessScore | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]     = useState<string | null>(null);
+
+  const proSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -48,6 +62,9 @@ export default function StockPage({ params }: StockPageProps) {
       .finally(() => setLoading(false));
   }, [ticker, t]);
 
+  // Soft gate: open after initial teaserData renders for guests
+  const { gateOpen } = useSoftGate(!loading && !!score && isGuest);
+
   const bandLabel: Record<string, string> = {
     green: t("score.high"),
     yellow: t("score.medium"),
@@ -57,17 +74,6 @@ export default function StockPage({ params }: StockPageProps) {
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-8" dir="rtl">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{ticker}</h1>
-          {score && (
-            <p className="text-gray-500 text-sm">{score.name}</p>
-          )}
-          {/* NON-NEGOTIABLE hardcoded disclaimer — must NOT be moved to i18n */}
-          <p className="mt-1 text-xs text-gray-400 italic">
-            تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة
-          </p>
-        </div>
 
         {/* Loading */}
         {loading && (
@@ -76,19 +82,70 @@ export default function StockPage({ params }: StockPageProps) {
           </div>
         )}
 
-        {/* Error — T027/T028 */}
+        {/* Error */}
         {!loading && error && (
-          <div
-            role="alert"
-            className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm"
-          >
-            {error}
+          <>
+            <div
+              role="alert"
+              className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm"
+            >
+              {error}
+            </div>
+            <button
+              onClick={() => {
+                setLoading(true);
+                setError(null);
+                getScore(ticker).then(setScore).catch(() => setError(t("errors.generic"))).finally(() => setLoading(false));
+              }}
+              className="text-sm text-emerald-600 underline"
+            >
+              {tGate('teaserRetry')}
+            </button>
+          </>
+        )}
+
+        {/* Teaser for guests: TrafficLightBadge + Halal verdict + stock name + disclaimer */}
+        {!loading && score && isGuest && (
+          <div aria-inert={gateOpen ? "true" : undefined} ref={proSectionRef as React.RefObject<HTMLDivElement>}>
+            <section
+              className="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center gap-4"
+              aria-labelledby="teaser-score-title"
+            >
+              <h1 className="text-2xl font-bold text-gray-900">{ticker}</h1>
+              <p className="text-gray-500 text-sm line-clamp-2">{score.name}</p>
+
+              <TrafficLightBadge
+                band={score.band}
+                score={score.composite_score}
+                lowConfidence={score.low_confidence}
+                label={bandLabel[score.band] ?? ""}
+                lowConfidenceLabel={t("score.lowConfidence")}
+              />
+
+              {/* Halal disclaimer teaser */}
+              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
+                {tGate('halalDisclaimer')}
+              </p>
+
+              <p className="mt-1 text-xs text-gray-400 italic">
+                تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة
+              </p>
+            </section>
           </div>
         )}
 
-        {/* Score card */}
-        {!loading && score && (
+        {/* Full content for authenticated users */}
+        {!loading && score && !isGuest && (
           <>
+            {/* Header */}
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">{ticker}</h1>
+              <p className="text-gray-500 text-sm line-clamp-2">{score.name}</p>
+              <p className="mt-1 text-xs text-gray-400 italic">
+                تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة
+              </p>
+            </div>
+
             <section
               className="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center gap-4"
               aria-labelledby="score-title"
@@ -135,23 +192,32 @@ export default function StockPage({ params }: StockPageProps) {
               </ul>
             </section>
 
-            {/* Risk Panel (T035) */}
-            <RiskPanel ticker={ticker} />
+            <UpgradeGate requiredTier="pro" featureKey="risk">
+              <RiskPanel ticker={ticker} />
+            </UpgradeGate>
 
-            {/* Halal Panel (T043) */}
             <HalalPanel ticker={ticker} />
 
-            {/* News Panel (T051) */}
             <NewsPanel ticker={ticker} />
 
-            {/* ARIMA Chart (T059) */}
-            <ArimaChart ticker={ticker} />
+            <UpgradeGate requiredTier="pro" featureKey="arima">
+              <ArimaChart ticker={ticker} />
+            </UpgradeGate>
 
-            {/* Sector Panel (T065) */}
-            <SectorPanel ticker={ticker} />
+            <UpgradeGate requiredTier="pro" featureKey="sector">
+              <SectorPanel ticker={ticker} />
+            </UpgradeGate>
           </>
         )}
       </div>
+
+      {/* Sign-in gate modal for guests */}
+      {isGuest && (
+        <SignInGateModal
+          isOpen={gateOpen}
+          returnTo={pathname}
+        />
+      )}
     </main>
   );
 }

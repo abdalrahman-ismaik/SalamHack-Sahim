@@ -15,9 +15,12 @@ Usage:
 from __future__ import annotations
 
 import datetime
+import logging
 from typing import Any, Optional, Tuple
 
 from cachetools import TTLCache
+
+logger = logging.getLogger(__name__)
 
 # Maximum number of distinct (ticker, endpoint) entries to keep in memory.
 # 512 entries × average ~2 KB payload ≈ ~1 MB — safe for Render.com free tier (512 MB RAM).
@@ -62,10 +65,16 @@ def _cache_for(endpoint: str) -> TTLCache:
 def get_cached(ticker: str, endpoint: str) -> Optional[Any]:
     """Return cached value for (ticker, endpoint) or None if missing/expired."""
     key: Tuple[str, str] = (ticker.upper(), endpoint)
-    return _cache_for(endpoint).get(key)
+    value = _cache_for(endpoint).get(key)
+    if value is not None:
+        logger.debug("cache HIT  %s/%s", ticker.upper(), endpoint)
+    else:
+        logger.debug("cache MISS %s/%s", ticker.upper(), endpoint)
+    return value
 
 
 def set_cached(ticker: str, endpoint: str, value: Any) -> None:
     """Store value in the appropriate cache for (ticker, endpoint)."""
     key: Tuple[str, str] = (ticker.upper(), endpoint)
+    logger.debug("cache SET  %s/%s", ticker.upper(), endpoint)
     _cache_for(endpoint)[key] = value

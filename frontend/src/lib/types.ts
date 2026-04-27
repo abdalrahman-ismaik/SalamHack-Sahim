@@ -172,3 +172,49 @@ export interface AllocationResult {
   /** Hardcoded disclaimer — always: "تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة" */
   disclaimer: string;
 }
+
+// ---------------------------------------------------------------------------
+// SaaS / Auth
+// ---------------------------------------------------------------------------
+
+export type UserTier = 'guest' | 'free' | 'pro' | 'enterprise';
+
+export interface UserSession {
+  id:     string | null;
+  name:   string | null;
+  locale: 'ar' | 'en';
+  tier:   UserTier;
+}
+
+export const GUEST_SESSION: UserSession = {
+  id:     null,
+  name:   null,
+  locale: 'ar',
+  tier:   'guest',
+};
+
+// ---------------------------------------------------------------------------
+// Pricing Plans (static)
+// ---------------------------------------------------------------------------
+
+export type PlanId = 'free' | 'pro' | 'enterprise';
+
+export interface PricingPlan {
+  readonly id:           PlanId;
+  readonly tier:         0 | 1 | 2;
+  readonly monthlyPrice: number | null;
+  readonly highlighted:  boolean;
+  readonly ctaVariant:   'default' | 'outline';
+}
+
+// ---------------------------------------------------------------------------
+// Service Cards (static)
+// ---------------------------------------------------------------------------
+
+export interface ServiceCard {
+  readonly id:           string;
+  readonly icon:         string;      // Lucide icon name
+  readonly href:         string;
+  readonly requiredTier: UserTier;
+  readonly available:    boolean;
+}

@@ -58,6 +58,7 @@ async def search_stocks(query: str) -> list[dict[str, Any]]:
             raise DataUnavailableError(query, f"search failed: {exc}") from exc
 
     results = data.get("data", [])
+    logger.debug("search_stocks %r → %d raw results", query, len(results))
     return [
         {
             "ticker": r.get("symbol", ""),
@@ -88,6 +89,7 @@ async def get_ohlcv(ticker: str, days: int = 365) -> dict[str, Any]:
             "volumes": list[int],
         }
     """
+    logger.debug("get_ohlcv %s days=%d", ticker, days)
     settings = get_settings()
     params = {
         "symbol": ticker,
@@ -108,6 +110,7 @@ async def get_ohlcv(ticker: str, days: int = 365) -> dict[str, Any]:
         raise DataUnavailableError(ticker, data.get("message", "no values"))
 
     values: list[dict] = list(reversed(data["values"]))  # ascending order
+    logger.debug("get_ohlcv %s → %d candles", ticker, len(values))
     return {
         "dates": [v["datetime"] for v in values],
         "opens": [float(v["open"]) for v in values],
@@ -243,6 +246,7 @@ async def get_technicals(ticker: str) -> dict[str, Optional[float]]:
 
 async def get_fundamentals(ticker: str) -> dict[str, Optional[float]]:
     """Fetch P/E, D/E, revenue_growth, interest_income_ratio, debt_market_cap_ratio."""
+    logger.debug("get_fundamentals %s", ticker)
     settings = get_settings()
     results: dict[str, Optional[float]] = {
         "pe_ratio": None,

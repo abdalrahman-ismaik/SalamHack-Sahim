@@ -1,29 +1,20 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.0.0 → 1.0.1
-Modified principles: I (must-have FR list), Timeline (FR IDs corrected), Technology Stack (deployment + AI API)
+Version change: 1.1.0 → 1.1.1
 Amendment rationale:
-  - Principle I + Timeline: corrected FR IDs from two-digit to three-digit form to match spec.md;
-    removed FR-013 (Sector Explorer) from must-have list — spec classifies it as Could/P6.
-    Day 2 Halal gate corrected from FR-007 to FR-005; Day 3 News/UI gate corrected from
-    FR-06/FR-13 to FR-008/FR-007.
-  - Technology Stack: Deployment updated from Vercel to Netlify + Render.com (per research.md
-    Decision 8, previously updated in all plan artifacts but missed in constitution).
-    AI Agent updated from "OpenAI Responses API" to "OpenAI Chat Completions API (gpt-4o-mini,
-    JSON mode)" to match the researched and implemented approach in research.md + tasks.md.
-Templates requiring updates: none — no template placeholder change
-Follow-up TODOs: none
+  PATCH bump — Hackathon Sandbox Assumptions section added. No principle
+  semantics changed; Principles IV and V rationale notes updated to reference
+  the sandbox safe-harbour. This is a clarification, not a redefinition.
+Modified principles:
+  - IV (Halal Integrity): rationale note references sandbox pre-audit
+  - V (Regulatory Compliance): rationale note references sandbox license
 Added sections:
-  - Core Principles (7 principles)
-  - Hackathon Timeline Constraints
-  - Technology Stack & Architecture
-  - Governance
-Templates requiring updates:
-  ✅ plan-template.md — Constitution Check gates align with 7 principles
-  ✅ spec-template.md — Compliance/Legal section referenced in NFR framing
-  ✅ tasks-template.md — Timeline phases match hackathon day structure
-Follow-up TODOs: none — all placeholders resolved
+  - Hackathon Sandbox Assumptions (regulatory, Sharia, Track 3, mocking)
+Templates requiring updates: none — no placeholder or gate change
+Follow-up TODOs:
+  - TODO(STRIPE_KEY): Add real Stripe publishable key to .env before launch
+  - TODO(ENTERPRISE_CONTACT): Replace pricing contact placeholder with real form/email
 -->
 
 # سهم ($ahim) Constitution
@@ -77,7 +68,11 @@ Screening data MUST display the exact underlying financial ratios
 Screening results MUST NOT be presented as authoritative religious rulings.
 
 **Rationale**: Legal and ethical obligation. Misrepresenting financial data
-as a fatwa creates liability and violates user trust.
+as a fatwa creates liability and violates user trust. Under the SalamHack
+sandbox, the product architecture is assumed pre-audited by a Sharia Advisory
+Board and all financial returns are treated as Profit-Sharing (Musharaka/
+Mudarabah), not Interest (Riba) — however the user-facing disclaimer is still
+mandatory because the sandbox safe-harbour ends on May 1st.
 
 ### V. Regulatory Compliance & Disclaimer Discipline (NON-NEGOTIABLE)
 
@@ -90,7 +85,10 @@ constraint that cannot be removed for aesthetic or UX reasons.
 **Rationale**: Regulatory compliance. Presenting output as investment advice
 without licensing constitutes a legal violation in every MENA jurisdiction.
 The disclaimer protects users and the product — it does not diminish the
-analytical quality of the insights provided.
+analytical quality of the insights provided. Under the SalamHack sandbox,
+the team operates under a Central Bank Regulatory Sandbox License and all
+users are assumed pre-KYC/AML verified — but the disclaimer is still
+mandatory as an immutable product constraint.
 
 ### VI. Graceful Degradation
 
@@ -133,6 +131,173 @@ Any feature not achievable within this schedule MUST be cut. The team MUST
 re-evaluate scope at the end of Day 2 and Day 3 and explicitly decide which
 Should/Could features to include or drop.
 
+## Hackathon Sandbox Assumptions
+
+SalamHack 2026 provides a formal safe-harbour for all participants. The
+following assumptions are **immutable facts** for the duration of the hackathon
+(until May 1st, 23:59). The team MUST NOT spend engineering effort on
+compliance infrastructure that these assumptions render unnecessary.
+
+### Regulatory Safe Harbour
+
+- The product operates under a **Central Bank Regulatory Sandbox License**.
+  Full legal permission to move funds and hold deposits is assumed.
+- All users are assumed to have passed **KYC and AML checks**. No identity
+  verification screens need to be built unless they are the core innovation.
+- All transactions are pre-authorized. Dispute resolution and fraud-flagging
+  systems are out of scope for the MVP.
+
+### Sharia Compliance
+
+- The product architecture and screening logic are assumed **pre-audited by
+  a Sharia Advisory Board**. No additional religious compliance review is
+  required during the hackathon.
+- All financial returns MUST be treated as **Profit-Sharing (Musharaka /
+  Mudarabah)**, not Interest (Riba). The underlying interest-free contracts
+  are assumed legally active.
+- Zakat-eligible assets are assumed pre-flagged in the data. Incidental
+  non-compliant income is assumed automatically identified for purification.
+  The team MUST NOT build industry-blocking logic (e.g., alcohol, gambling)
+  unless it is the explicit core feature.
+
+### Track 3 Specific (Understanding & Managing Money)
+
+- The backend database is **legally recognized as a digital wallet** for
+  the hackathon period. No escrow or real-money holding is required.
+- All transaction data is assumed **pre-tagged / pre-categorized** (e.g.,
+  grocery transactions already labeled as "Food & Dining").
+- Users can top up wallets from any local debit card at **0% transaction
+  fees**. No payment gateway integration is required for funding flows.
+
+### Technical Mocking Guidelines
+
+Judging criteria are: **Innovation, User Experience, and Technical
+Implementation** — not API integration breadth.
+
+- External banking APIs that are not provided MAY be replaced with
+  **hardcoded JSON fixtures** in `backend/app/fixtures/`. Fixture files
+  MUST be clearly named (e.g., `mock_bank_response.json`) and MUST NOT
+  be used in a code path that could reach production without replacement.
+- The team MUST focus on the **Golden Path** (perfect transaction/analysis
+  flow). Edge-case error flows (e.g., partial data) are handled by Principle
+  VI (Graceful Degradation), not by complex validation logic.
+- Utility screens (Forgot Password, Upload Passport, etc.) MUST NOT be
+  built unless they are part of the unique value proposition.
+
+## SaaS Product & Component Principles
+
+### VIII. SaaS Product Architecture
+
+The product MUST be structured as a SaaS web application with the following
+mandatory pages: Landing Page (marketing, hero, features, pricing, CTA),
+Authentication pages (Sign Up / Sign In / Password Reset), Dashboard
+(personalized post-login home), and service-specific pages (Stock Detail,
+Sector Explorer, Portfolio Allocator). No feature page may be accessible
+without authentication unless it is the Landing Page or a publicly documented
+demo route.
+
+The product MUST enforce a two-tier access model:
+
+- **Free tier**: Company Search, Traffic-Light Score, basic Halal screening
+  verdict, and limited news headlines (3 per stock). All Free features MUST
+  be fully functional — Free users are not second-class citizens; they are
+  the acquisition funnel.
+- **Premium/Pro tier**: Live monitoring dashboard, full ARIMA chart with CI
+  bands, full news feed with AI summaries, portfolio allocator, sector
+  analysis, and advanced risk metrics. Premium gates MUST display a clear,
+  non-intrusive upgrade prompt explaining the specific benefit, never a
+  generic paywall error.
+- **Enterprise tier**: Everything in Pro plus white-label options and priority
+  support. Enterprise users reach the team via a dedicated contact form;
+  no self-serve billing required for MVP.
+
+Tier checks MUST be enforced server-side (API layer). Client-side tier
+gating is cosmetic only and MUST NOT be treated as a security boundary.
+
+**Rationale**: Sustainable product requires a clear monetization path.
+Free access drives adoption; Premium monetizes engaged users. Tier logic
+isolated at the API boundary prevents bypass and keeps frontend clean.
+
+### IX. Component & Accessibility Standards (NON-NEGOTIABLE)
+
+Every user-facing React component MUST:
+
+1. Be built with Tailwind CSS utility classes — no inline styles, no separate
+   CSS files except `globals.css` for base resets. Tailwind's `dark:` and
+   `rtl:` variants MUST be used for dark mode and RTL Arabic layout.
+2. Support full keyboard navigation: all interactive elements MUST be
+   reachable via Tab, activated via Enter/Space, and dismissible via Escape
+   where applicable. No mouse-only interaction path is permitted.
+3. Include ARIA attributes: `role`, `aria-label`, `aria-describedby`,
+   `aria-expanded`, `aria-live` (for dynamic score updates) as appropriate.
+   Screen-reader-only text MUST use the `sr-only` Tailwind class, not
+   `display:none` or `visibility:hidden`.
+4. Be self-contained and reusable: props-driven, no internal API calls.
+   Data fetching belongs in page-level components or custom hooks, not
+   inside UI primitives.
+5. Pass WCAG 2.1 AA contrast ratios. All color choices MUST be verified
+   against the Tailwind palette's documented contrast values before commit.
+
+Component file naming: PascalCase, one component per file, co-located in
+`frontend/src/components/`. Shared primitive components (Button, Badge,
+Card, Modal) MUST live in `frontend/src/components/ui/`.
+
+**Rationale**: Accessibility is a legal requirement in many target markets
+and a quality signal to judges. Reusable components reduce duplication and
+ensure consistent design language across the SaaS layout.
+
+## Pricing Tiers
+
+> **Placeholder text** — replace with real pricing before public launch.
+
+### Free
+
+**$0 / month** — No credit card required.
+
+- Company search and traffic-light score
+- Basic Halal screening verdict (pass/fail)
+- 3 news headlines per stock
+- Arabic + English UI
+
+*Best for: casual investors exploring the product.*
+
+---
+
+### Pro
+
+**$X / month** — Billed monthly or annually (save Y%).
+
+Everything in Free, plus:
+
+- Full ARIMA 30-day price projection with confidence intervals
+- Unlimited AI-powered Arabic news summaries
+- Advanced risk dashboard (Beta, VaR, Sharpe Ratio)
+- Portfolio allocation optimizer
+- Sector heat map and comparison
+- Live price monitoring with alerts
+
+*Best for: active retail investors managing their own portfolio.*
+
+---
+
+### Enterprise
+
+**Contact us** — Custom pricing for institutions and advisors.
+
+Everything in Pro, plus:
+
+- White-label branding
+- Bulk stock screening (CSV upload)
+- Dedicated support and SLA
+- API access for integration
+
+*Best for: financial advisors, fintechs, and educational institutions.*
+
+---
+
+> **Disclaimer (mandatory on Pricing page)**: "التحليل المقدم لأغراض معلوماتية
+> فقط، وليس نصيحة استثمارية مرخصة. الاشتراك لا يمنح ترخيصاً مالياً."
+
 ## Technology Stack & Architecture
 
 The following stack is fixed for this project. Changes require explicit team
@@ -140,7 +305,16 @@ consensus and MUST be documented with rationale.
 
 - **Frontend**: Next.js 14+ with Tailwind CSS and shadcn/ui — bilingual
   (Arabic RTL + English LTR), responsive, PWA-capable
+- **Component Library**: shadcn/ui primitives extended with project-specific
+  components in `frontend/src/components/ui/`. Framer Motion for page
+  transitions and micro-animations (keep subtle — no motion for motion's sake).
+- **Forms**: react-hook-form + zod for all user input (auth, allocator,
+  contact). Validation errors MUST render in the active language.
 - **Backend**: FastAPI (Python) — REST API with async handlers
+- **Auth**: JWT-based session tokens. Tier claim (`free` / `pro` / `enterprise`)
+  embedded in token payload and verified server-side on every protected route.
+- **Billing (placeholder)**: Stripe Checkout for Pro subscriptions.
+  TODO(STRIPE_KEY): configure after MVP demo.
 - **Math Engine**: NumPy, pandas, scipy.stats — volatility, Beta, VaR, Sharpe
 - **Prediction**: statsmodels ARIMA — 30-day price projection with CI bands
 - **AI Agent**: OpenAI Chat Completions API (gpt-4o-mini, JSON mode) — structured Arabic news summarization
@@ -158,10 +332,12 @@ This constitution supersedes all other team practices and verbal agreements.
 Amendments require a written rationale, a version increment, and update of
 the `Last Amended` date. All implementation tasks generated by `/speckit.tasks`
 MUST include a Constitution Check gate verifying compliance with Principles
-I–VII before any Phase 3+ task begins.
+I–IX before any Phase 3+ task begins.
 
 Principles I (Demo-Day First), III (Arabic-First), IV (Halal Integrity),
-V (Regulatory Compliance), and VII (Security) are NON-NEGOTIABLE — they cannot
-be removed or deferred under any timeline pressure.
+V (Regulatory Compliance), VII (Security), and IX (Component & Accessibility)
+are NON-NEGOTIABLE — they cannot be removed or deferred under any timeline
+pressure. Principle VIII (SaaS Product Architecture) tier-gating rules are
+NON-NEGOTIABLE for security; page structure may be scoped for MVP.
 
-**Version**: 1.0.1 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-04-26
+**Version**: 1.1.1 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-04-27

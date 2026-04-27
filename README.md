@@ -1,16 +1,17 @@
-# $ahim (سهم) — Arabic Investment Intelligence
+# $ahim (سهم) — Smart Investing for Arabic-Speaking Beginners
 
-> An AI-powered investment readiness platform for MENA stocks, built for SalamHack 2024.
+> An AI-powered investment intelligence platform for beginner Arabic investors, covering MENA stocks. Built for SalamHack 2024.
 
 ## Features
 
-- **Investment Readiness Score** — Composite 0–100 score with traffic-light band (🟢🟡🔴)
-- **Risk Panel** — Annualised volatility, 95% VaR, Sharpe ratio, Beta (MENA benchmarks: TASI, EGX30, ADX)
-- **Halal Screening** — Musaffa API primary, AAOIFI fallback (sector pre-filter + ratio thresholds)
+- **Investment Readiness Score** — Composite 0–100 score with traffic-light band (🟢🟡🔴) — designed to be understood without a finance background
+- **Arabic-First Interface** — Full Arabic & English support with RTL layout via next-intl
 - **AI News Analysis** — GPT-4o-mini sentiment + Arabic summary from NewsAPI/GDELT
+- **Risk Panel** — Annualised volatility, 95% VaR, Sharpe ratio, Beta (MENA benchmarks: TASI, EGX30, ADX)
 - **ARIMA Forecast** — 30-day price forecast with 95% CI (grid-search over p/d/q by AIC)
 - **Sector Comparison** — Peer analysis vs sector averages
 - **Budget Allocator** — Score-weighted proportional allocation with whole-share rounding
+- **Shariah Compliance** *(secondary)* — Musaffa API primary, AAOIFI fallback (sector pre-filter + ratio thresholds)
 
 ## Architecture
 

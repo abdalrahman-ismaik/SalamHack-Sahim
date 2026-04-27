@@ -106,6 +106,7 @@ async def get_halal_verdict(
 
     # --- Musaffa (primary) ---
     if settings.musaffa_api_key:
+        logger.debug("Halal screen %s: trying Musaffa API", ticker)
         try:
             async with httpx.AsyncClient(timeout=_MUSAFFA_TIMEOUT) as client:
                 resp = await client.get(
@@ -137,7 +138,12 @@ async def get_halal_verdict(
             logger.warning("Musaffa API failed for %s: %s — falling back to AAOIFI", ticker, exc)
 
     # --- AAOIFI fallback ---
+    logger.debug("Halal screen %s: using AAOIFI fallback (debt=%.3f, interest=%.3f)",
+                 ticker,
+                 debt_market_cap_ratio or 0.0,
+                 interest_income_ratio or 0.0)
     aaoifi_status = _aaoifi_classify(sector, debt_market_cap_ratio, interest_income_ratio)
+    logger.info("Halal verdict for %s: %s (AAOIFI)", ticker, aaoifi_status)
 
     return HalalVerdict(
         ticker=ticker,

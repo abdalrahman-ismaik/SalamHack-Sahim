@@ -33,6 +33,7 @@ async def fetch_news(ticker: str, company_name: Optional[str] = None) -> list[di
     # --- NewsAPI (primary) ---
     if settings.newsapi_key:
         query = company_name or ticker
+        logger.debug("Fetching news for %s via NewsAPI (query=%r)", ticker, query)
         try:
             params = {
                 "q": query,
@@ -48,6 +49,7 @@ async def fetch_news(ticker: str, company_name: Optional[str] = None) -> list[di
 
             articles = data.get("articles", [])
             if articles:
+                logger.info("NewsAPI returned %d articles for %s", len(articles[:MAX_ARTICLES]), ticker)
                 return [
                     {
                         "title": a.get("title", ""),
@@ -63,6 +65,7 @@ async def fetch_news(ticker: str, company_name: Optional[str] = None) -> list[di
 
     # --- GDELT fallback ---
     query = company_name or ticker
+    logger.debug("Fetching news for %s via GDELT (query=%r)", ticker, query)
     try:
         params = {
             "query": query,
@@ -77,6 +80,7 @@ async def fetch_news(ticker: str, company_name: Optional[str] = None) -> list[di
             data = resp.json()
 
         articles = data.get("articles", [])
+        logger.info("GDELT returned %d articles for %s", len(articles[:MAX_ARTICLES]), ticker)
         return [
             {
                 "title": a.get("title", ""),
@@ -90,4 +94,5 @@ async def fetch_news(ticker: str, company_name: Optional[str] = None) -> list[di
     except Exception as exc:
         logger.warning("GDELT failed for %s: %s", ticker, exc)
 
+    logger.warning("All news sources failed for %s — returning empty list", ticker)
     return []

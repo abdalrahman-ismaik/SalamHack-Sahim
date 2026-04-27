@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import datetime
 import logging
+import time
 from typing import Any
 
 from fastapi import FastAPI, Request, status
@@ -19,6 +20,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)-8s %(name)s - %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+)
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +49,29 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
+
+logger.info("sSsahim API starting — CORS origins: %s", settings.allowed_origins_list)
+
+
+# ---------------------------------------------------------------------------
+# Request timing middleware
+# ---------------------------------------------------------------------------
+
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):  # type: ignore[no-untyped-def]
+    start = time.perf_counter()
+    response = await call_next(request)
+    duration_ms = (time.perf_counter() - start) * 1000
+    logger.info(
+        "%s %s → %d (%.1f ms)",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+    )
+    return response
+
 
 # ---------------------------------------------------------------------------
 # Exception handlers

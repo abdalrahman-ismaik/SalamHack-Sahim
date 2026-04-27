@@ -24,6 +24,7 @@ async def allocate_budget(request: AllocationRequest) -> AllocationResult:
     """Compute score-weighted stock allocation for a given budget."""
     budget = request.budget
     tickers = list(dict.fromkeys(request.tickers))  # deduplicate preserving order
+    logger.info("allocate_budget: budget=%s tickers=%s", budget, tickers)
 
     if not tickers:
         raise ValueError("No tickers provided")

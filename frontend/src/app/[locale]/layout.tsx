@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Cairo, Inter } from "next/font/google";
 import { NextIntlClientProvider, useMessages } from "next-intl";
 import { notFound } from "next/navigation";
+import UserProvider from "@/providers/UserProvider";
+import { TierRefreshBanner } from "@/components/ui/TierRefreshBanner";
 import "../globals.css";
 
 const locales = ["ar", "en"] as const;
@@ -46,7 +48,10 @@ export default function RootLayout({
     >
       <body className="font-arabic bg-gray-50 text-gray-900 min-h-screen">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
+          <UserProvider>
+            <TierRefreshBanner />
+            {children}
+          </UserProvider>
         </NextIntlClientProvider>
       </body>
     </html>

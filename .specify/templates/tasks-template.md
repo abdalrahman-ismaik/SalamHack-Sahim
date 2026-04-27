@@ -46,11 +46,15 @@ description: "Task list template for feature implementation"
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, SaaS page scaffold, and base component library
 
 - [ ] T001 Create project structure per implementation plan
 - [ ] T002 Initialize [language] project with [framework] dependencies
 - [ ] T003 [P] Configure linting and formatting tools
+- [ ] T004 [P] Scaffold SaaS page routes: `/` (Landing), `/auth/signin`, `/auth/signup`,
+  `/dashboard`, and service-specific pages (per Principle VIII)
+- [ ] T005 [P] Create `frontend/src/components/ui/` primitives: Button, Badge, Card, Modal
+  with Tailwind classes, keyboard nav, and ARIA attributes (per Principle IX)
 
 ---
 

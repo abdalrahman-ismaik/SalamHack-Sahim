@@ -55,6 +55,7 @@ def _compute_beta(stock_returns: np.ndarray, bench_returns: np.ndarray) -> float
 async def compute_risk_metrics(ticker: str) -> RiskMetrics:
     """Compute full risk panel for a ticker."""
     benchmark = _resolve_benchmark(ticker)
+    logger.info("Computing risk for %s (benchmark=%s)", ticker, benchmark)
 
     # Fetch stock OHLCV
     ohlcv = await market_data.get_ohlcv(ticker, days=365)
@@ -62,6 +63,7 @@ async def compute_risk_metrics(ticker: str) -> RiskMetrics:
 
     if len(closes) < 2:
         raise DataUnavailableError(ticker, "insufficient price data for risk calc")
+    logger.debug("%s: %d closes loaded, last=%.4f", ticker, len(closes), closes[-1])
 
     log_returns = np.diff(np.log(closes))
 
@@ -101,6 +103,10 @@ async def compute_risk_metrics(ticker: str) -> RiskMetrics:
     except Exception:
         fundamentals = FundamentalData()
 
+    logger.info(
+        "Risk result for %s: vol=%.4f VaR=%.4f sharpe=%.4f beta=%.4f",
+        ticker, round(sigma_annual, 4), round(var_95, 4), round(sharpe, 4), round(beta, 4),
+    )
     return RiskMetrics(
         ticker=ticker,
         volatility_annual=round(sigma_annual, 4),

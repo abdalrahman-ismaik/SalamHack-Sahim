@@ -75,6 +75,16 @@
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
 
+## Tier & Accessibility Constraints *(SaaS — mandatory)*
+
+- **Tier gate**: Specify which tier (Free / Pro / Enterprise) this feature is available to.
+  Free features MUST be fully functional. Pro/Enterprise gates MUST show an upgrade prompt,
+  never a generic error. Tier enforcement MUST be server-side.
+- **Accessibility**: All interactive elements MUST support keyboard navigation (Tab/Enter/Space/Escape)
+  and ARIA attributes per Principle IX. Confirm WCAG 2.1 AA contrast compliance.
+- **Bilingual**: All labels, errors, and tooltips MUST have both Arabic and English translations
+  in `frontend/src/messages/ar.json` and `en.json`.
+
 ## Requirements *(mandatory)*
 
 <!--

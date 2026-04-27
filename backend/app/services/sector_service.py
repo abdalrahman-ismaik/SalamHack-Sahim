@@ -42,6 +42,7 @@ async def compare_sector(ticker: str, sector: Optional[str] = None) -> SectorCom
         except Exception:
             sector = "Unknown"
 
+    logger.info("Sector compare for %s: sector=%s", ticker, sector)
     peers = _SECTOR_PEERS.get(sector, [])
     # Exclude the ticker itself
     peers = [p for p in peers if p.upper() != ticker.upper()][:4]
@@ -56,6 +57,8 @@ async def compare_sector(ticker: str, sector: Optional[str] = None) -> SectorCom
         for p, r in zip(peers, results):
             if isinstance(r, dict):
                 peer_data[p] = r
+            else:
+                logger.warning("Failed to fetch fundamentals for peer %s: %s", p, r)
 
     # Get subject ticker fundamentals
     try:

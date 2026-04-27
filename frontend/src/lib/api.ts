@@ -19,6 +19,8 @@ const BASE_URL =
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${BASE_URL}${path}`;
+  const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
+  console.debug("[api] →", path);
   const res = await fetch(url, {
     ...options,
     headers: {
@@ -35,10 +37,14 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
       errorBody = { error: res.statusText };
     }
     const err = new ApiError(res.status, errorBody);
+    console.warn("[api] error", path, res.status, errorBody);
     throw err;
   }
 
-  return res.json() as Promise<T>;
+  const data = res.json() as Promise<T>;
+  const durationMs = (typeof performance !== "undefined" ? performance.now() : Date.now()) - t0;
+  console.debug("[api] ←", path, res.status, `${durationMs.toFixed(1)}ms`);
+  return data;
 }
 
 export class ApiError extends Error {

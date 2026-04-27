@@ -168,6 +168,13 @@ def compute_score(
     )
     composite = round(max(0.0, min(100.0, composite)), 2)
 
+    logger.debug(
+        "Score %s: composite=%.2f band=%s (vol=%.1f var=%.1f sharpe=%.1f beta=%.1f sent=%.1f) low_conf=%s",
+        ticker, composite, _band(composite),
+        vol_score, var_score_val, sharpe_score, beta_score, sentiment_score,
+        low_confidence,
+    )
+
     return InvestmentReadinessScore(
         ticker=ticker,
         name=name,

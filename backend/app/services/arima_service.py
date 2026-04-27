@@ -81,6 +81,8 @@ async def compute_arima_forecast(ticker: str) -> ArimaForecast:
     except ValueError as exc:
         raise DataUnavailableError(ticker, str(exc)) from exc
 
+    logger.info("ARIMA best order for %s: %s (AIC=%.2f)", ticker, order, fit.aic)
+
     # Forecast _FORECAST_DAYS steps ahead in log-return space
     try:
         fc = fit.get_forecast(steps=_FORECAST_DAYS)
