@@ -6,6 +6,7 @@
   display: inline-block;
 }
 
+.word,
 .char {
   display: inline-block;
 }

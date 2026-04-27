@@ -36,6 +36,14 @@ export function ScrollFloat({
 
   const splitText = useMemo(() => {
     const text = typeof children === 'string' ? children : '';
+    const isArabic = /[\u0600-\u06FF]/.test(text);
+    if (isArabic) {
+      return text.split(' ').map((word, index, arr) => (
+        <span className="word" key={index}>
+          {word}{index < arr.length - 1 ? '\u00A0' : ''}
+        </span>
+      ));
+    }
     return text.split('').map((char, index) => (
       <span className="char" key={index}>
         {char === ' ' ? '\u00A0' : char}
@@ -52,7 +60,7 @@ export function ScrollFloat({
         ? scrollContainerRef.current
         : window;
 
-    const charElements = el.querySelectorAll('.char');
+    const charElements = el.querySelectorAll('.char, .word');
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
