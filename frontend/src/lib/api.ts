@@ -96,14 +96,14 @@ export async function getArima(ticker: string): Promise<ArimaForecast> {
   );
 }
 
-export async function getSectors(): Promise<SectorComparison[]> {
-  return apiFetch<SectorComparison[]>("/api/sectors");
+export async function getSectors(ticker: string): Promise<SectorComparison> {
+  return apiFetch<SectorComparison>(`/api/sectors/${encodeURIComponent(ticker)}`);
 }
 
 export async function getAllocation(
-  tickers: string[],
-  budget: number
+  payload: { tickers: string[]; budget: number }
 ): Promise<AllocationResult> {
+  const { tickers, budget } = payload;
   return apiFetch<AllocationResult>("/api/allocate", {
     method: "POST",
     body: JSON.stringify({ tickers, budget }),

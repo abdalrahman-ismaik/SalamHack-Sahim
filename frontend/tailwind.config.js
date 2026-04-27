@@ -8,8 +8,8 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        arabic: ["var(--font-cairo)", "sans-serif"],
-        latin: ["var(--font-inter)", "sans-serif"],
+        arabic: ["var(--font-arabic)", "sans-serif"],
+        latin: ["var(--font-latin)", "sans-serif"],
       },
       colors: {
         green: {

@@ -72,7 +72,7 @@ export default function StockPage({ params }: StockPageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 px-4 py-8" dir="rtl">
+    <main className="min-h-screen px-4 py-8" dir="rtl">
       <div className="max-w-2xl mx-auto space-y-6">
 
         {/* Loading */}
@@ -87,7 +87,7 @@ export default function StockPage({ params }: StockPageProps) {
           <>
             <div
               role="alert"
-              className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm"
+              className="bg-[#FF1744]/10 border border-[#FF1744]/30 rounded-xl p-4 text-[#FF1744] text-sm"
             >
               {error}
             </div>
@@ -97,7 +97,7 @@ export default function StockPage({ params }: StockPageProps) {
                 setError(null);
                 getScore(ticker).then(setScore).catch(() => setError(t("errors.generic"))).finally(() => setLoading(false));
               }}
-              className="text-sm text-emerald-600 underline"
+              className="text-sm text-[#00E676] underline"
             >
               {tGate('teaserRetry')}
             </button>
@@ -108,11 +108,11 @@ export default function StockPage({ params }: StockPageProps) {
         {!loading && score && isGuest && (
           <div aria-inert={gateOpen ? "true" : undefined} ref={proSectionRef as React.RefObject<HTMLDivElement>}>
             <section
-              className="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center gap-4"
+              className="bg-[#121212] border border-[#2A2A2A] rounded-2xl p-6 flex flex-col items-center gap-4"
               aria-labelledby="teaser-score-title"
             >
-              <h1 className="text-2xl font-bold text-gray-900">{ticker}</h1>
-              <p className="text-gray-500 text-sm line-clamp-2">{score.name}</p>
+              <h1 className="text-2xl font-bold text-white">{ticker}</h1>
+              <p className="text-gray-400 text-sm line-clamp-2">{score.name}</p>
 
               <TrafficLightBadge
                 band={score.band}
@@ -123,11 +123,11 @@ export default function StockPage({ params }: StockPageProps) {
               />
 
               {/* Halal disclaimer teaser */}
-              <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center">
+              <p className="text-xs text-[#FFB300] bg-[#FFB300]/10 border border-[#FFB300]/20 rounded-lg px-3 py-2 text-center">
                 {tGate('halalDisclaimer')}
               </p>
 
-              <p className="mt-1 text-xs text-gray-400 italic">
+              <p className="mt-1 text-xs text-gray-600 italic">
                 تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة
               </p>
             </section>
@@ -139,18 +139,18 @@ export default function StockPage({ params }: StockPageProps) {
           <>
             {/* Header */}
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{ticker}</h1>
-              <p className="text-gray-500 text-sm line-clamp-2">{score.name}</p>
-              <p className="mt-1 text-xs text-gray-400 italic">
+              <h1 className="text-2xl font-bold text-white">{ticker}</h1>
+              <p className="text-gray-400 text-sm line-clamp-2">{score.name}</p>
+              <p className="mt-1 text-xs text-gray-600 italic">
                 تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة
               </p>
             </div>
 
             <section
-              className="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center gap-4"
+              className="bg-[#121212] border border-[#2A2A2A] rounded-2xl p-6 flex flex-col items-center gap-4"
               aria-labelledby="score-title"
             >
-              <h2 id="score-title" className="text-lg font-semibold text-gray-700">
+              <h2 id="score-title" className="text-lg font-semibold text-white">
                 {t("score.title")}
               </h2>
 
@@ -166,8 +166,8 @@ export default function StockPage({ params }: StockPageProps) {
             </section>
 
             {/* Score components breakdown */}
-            <section className="bg-white rounded-2xl shadow-sm p-6">
-              <h2 className="text-base font-semibold text-gray-700 mb-4">
+            <section className="bg-[#121212] border border-[#2A2A2A] rounded-2xl p-6">
+              <h2 className="text-base font-semibold text-white mb-4">
                 مكونات المؤشر
               </h2>
               <ul className="space-y-2">
@@ -181,10 +181,10 @@ export default function StockPage({ params }: StockPageProps) {
                   ] as [string, number][]
                 ).map(([key, val]) => (
                   <li key={key} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-400">
                       {t(`score.components.${key}`)}
                     </span>
-                    <span className="font-medium text-gray-800">
+                    <span className="font-medium text-white">
                       {Math.round(val)}
                     </span>
                   </li>

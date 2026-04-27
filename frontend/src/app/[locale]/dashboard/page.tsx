@@ -17,13 +17,13 @@ export default async function DashboardPage() {
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-white">
           {t('greeting', { name: session.name ?? '' })}
         </h1>
         <TierBadge />
       </div>
 
-      <h2 className="text-lg font-semibold text-gray-700 mb-2">
+      <h2 className="text-lg font-semibold text-gray-300 mb-2">
         {t('services')}
       </h2>
       <ServiceCardGrid />
