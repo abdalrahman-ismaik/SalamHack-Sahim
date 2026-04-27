@@ -1,20 +1,24 @@
-import { NavBar } from '@/components/landing/NavBar';
+import dynamic from 'next/dynamic';
 import { HeroSection } from '@/components/landing/HeroSection';
-import { FeaturesSection } from '@/components/landing/FeaturesSection';
-import { PricingSection } from '@/components/landing/PricingSection';
+
+// Split below-the-fold sections into separate JS chunks
+const FeaturesSection     = dynamic(() => import('@/components/landing/FeaturesSection').then(m => ({ default: m.FeaturesSection })));
+const PricingSection      = dynamic(() => import('@/components/landing/PricingSection').then(m => ({ default: m.PricingSection })));
+const TestimonialsSection = dynamic(() => import('@/components/landing/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
+const FaqSection          = dynamic(() => import('@/components/landing/FaqSection').then(m => ({ default: m.FaqSection })));
+const CtaBannerSection    = dynamic(() => import('@/components/landing/CtaBannerSection').then(m => ({ default: m.CtaBannerSection })));
+const FooterSection       = dynamic(() => import('@/components/landing/FooterSection').then(m => ({ default: m.FooterSection })));
 
 export default function LandingPage() {
   return (
-    <>
-      <NavBar />
-      <main>
-        <HeroSection />
-        <FeaturesSection />
-        <PricingSection />
-      </main>
-      <footer className="border-t border-gray-200 py-6 text-center text-xs text-gray-400 px-4">
-        © {new Date().getFullYear()} سهم. Not licensed investment advice.
-      </footer>
-    </>
+    <main className="relative overflow-x-hidden">
+      <HeroSection />
+      <FeaturesSection />
+      <PricingSection />
+      <TestimonialsSection />
+      <FaqSection />
+      <CtaBannerSection />
+      <FooterSection />
+    </main>
   );
 }

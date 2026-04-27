@@ -2,19 +2,299 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Ensure smooth font rendering for Arabic */
-body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  :root {
+    /* Dark Financial Theme - PRS Capital */
+    --bg-base: #050505;
+    --bg-surface: #0a0a0a;
+    --bg-elevated: #121212;
+    --bg-glass: rgba(18, 18, 18, 0.85);
+    --text-primary: #FFFFFF;
+    --text-secondary: #C0C0C0;
+    --text-muted: #909090;
+    --accent-gold: #C5A059;
+    --accent-gold-dim: rgba(197, 160, 89, 0.15);
+    --accent-green: #00E676;
+    --accent-green-dim: rgba(0, 230, 118, 0.15);
+    --accent-red: #FF1744;
+    --accent-red-dim: rgba(255, 23, 68, 0.15);
+    --grid-line: #3D3D3D;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-gold: rgba(197, 160, 89, 0.3);
+    --shadow-atmospheric: 0 20px 80px rgba(0, 0, 0, 0.8);
+    --shadow-gold: 0 0 40px rgba(197, 160, 89, 0.2);
+    --shadow-green: 0 0 40px rgba(0, 230, 118, 0.15);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background: var(--bg-base);
+  }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-latin), var(--font-arabic), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Arabic locale: switch to Baloo Bhaijaan 2 */
+  html[lang="ar"] body {
+    font-family: var(--font-arabic), "Baloo Bhaijaan 2", sans-serif;
+    font-optical-sizing: auto;
+  }
 }
 
-/* Arabic text uses Cairo; Latin fallback uses Inter */
-[lang="ar"] body,
-[dir="rtl"] body {
-  font-family: var(--font-cairo), sans-serif;
+@layer components {
+  /* Glassmorphism utility */
+  .glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* Gold glow border */
+  .border-gold-glow {
+    border: 1px solid var(--border-gold);
+    box-shadow: var(--shadow-gold), inset 0 0 20px rgba(197, 160, 89, 0.05);
+  }
+
+  /* Green glow border for positive states */
+  .border-green-glow {
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    box-shadow: var(--shadow-green), inset 0 0 20px rgba(0, 230, 118, 0.05);
+  }
+
+  /* Animated gradient border */
+  .gradient-border {
+    position: relative;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    z-index: 1;
+  }
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 13px;
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-green), var(--accent-gold));
+    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+    z-index: -1;
+    opacity: 0.5;
+  }
+
+  /* Subtle grid pattern overlay */
+  .grid-pattern {
+    background-image: 
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.45;
+  }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--bg-elevated) 0%,
+      rgba(197, 160, 89, 0.05) 50%,
+      var(--bg-elevated) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Cinematic text reveal setup */
+  .headline-reveal {
+    perspective: 1000px;
+  }
+  .headline-reveal .word {
+    display: inline-block;
+    transform-style: preserve-3d;
+    transform-origin: 50% 100%;
+  }
+
+  /* Text scramble gold chars */
+  .text-scramble-gold {
+    color: var(--accent-gold);
+    opacity: 0.5;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--grid-line);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-gold);
+  }
 }
 
-[lang="en"] body,
-[dir="ltr"] body {
-  font-family: var(--font-inter), sans-serif;
+@layer utilities {
+  .text-gold {
+    color: var(--accent-gold);
+  }
+  .text-green-bright {
+    color: var(--accent-green);
+  }
+  .bg-surface {
+    background-color: var(--bg-surface);
+  }
+  .bg-elevated {
+    background-color: var(--bg-elevated);
+  }
+  .border-subtle {
+    border-color: var(--border-subtle);
+  }
+}
+
+/* Keyframe animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 5px rgba(197, 160, 89, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(197, 160, 89, 0.5), 0 0 40px rgba(197, 160, 89, 0.2); }
+}
+
+/* Expanding ring ripple — CSS-only, used behind the Pro pricing card */
+@keyframes ring-expand {
+  0%   { transform: translate(-50%, -50%) scale(0.6); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0;   }
+}
+
+.pro-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  animation: ring-expand 3.6s ease-out infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.pro-ring:nth-child(2) { animation-delay: 1.2s; }
+.pro-ring:nth-child(3) { animation-delay: 2.4s; }
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 5px rgba(0, 230, 118, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(0, 230, 118, 0.5), 0 0 40px rgba(0, 230, 118, 0.2); }
+}
+
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes ticker-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes particle-float {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { 
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* ── Hero CSS-only animations ── */
+@keyframes hero-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes hero-float-up {
+  0%, 100% { transform: translateY(0);   }
+  50%       { transform: translateY(-7px); }
+}
+
+@keyframes hero-float-down {
+  0%, 100% { transform: translateY(0);  }
+  50%       { transform: translateY(7px); }
+}
+
+.hero-fade-up {
+  opacity: 0;
+  animation: hero-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hero-float-up {
+  animation: hero-float-up 3.8s ease-in-out infinite;
+}
+
+.hero-float-down {
+  animation: hero-float-down 4.5s ease-in-out infinite;
+  animation-delay: 0.6s;
+}
+
+/* Lenis smooth scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }

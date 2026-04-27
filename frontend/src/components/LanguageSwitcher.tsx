@@ -1,6 +1,6 @@
 /**
  * Language switcher — toggles between Arabic (ar) and English (en).
- * T075
+ * Enhanced dark theme styling.
  */
 
 "use client";
@@ -15,7 +15,6 @@ export function LanguageSwitcher() {
 
   function switchLocale() {
     const next = locale === "ar" ? "en" : "ar";
-    // Replace the locale prefix in the path
     const newPath = pathname.replace(`/${locale}`, `/${next}`);
     router.push(newPath);
   }
@@ -23,7 +22,7 @@ export function LanguageSwitcher() {
   return (
     <button
       onClick={switchLocale}
-      className="text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-1 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+      className="text-sm font-semibold text-gray-400 hover:text-[#C5A059] px-3 py-1.5 rounded-lg border border-[#2A2A2A] hover:border-[#C5A059]/40 transition-all duration-200"
       aria-label={locale === "ar" ? "Switch to English" : "التبديل إلى العربية"}
     >
       {locale === "ar" ? "EN" : "عربي"}

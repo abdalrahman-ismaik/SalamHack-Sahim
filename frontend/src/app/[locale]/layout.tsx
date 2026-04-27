@@ -1,56 +1,40 @@
-import type { Metadata } from "next";
-import { Cairo, Inter } from "next/font/google";
-import { NextIntlClientProvider, useMessages } from "next-intl";
-import { notFound } from "next/navigation";
-import UserProvider from "@/providers/UserProvider";
-import { TierRefreshBanner } from "@/components/ui/TierRefreshBanner";
-import "../globals.css";
+import { Inter, Baloo_Bhaijaan_2 } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import UserProvider from '@/providers/UserProvider';
+import { ParticleBackground } from '@/components/ParticleBackground';
+import { NavBar } from '@/components/NavBar';
 
-const locales = ["ar", "en"] as const;
-type Locale = (typeof locales)[number];
+const inter = Inter({ subsets: ['latin'], variable: '--font-latin' });
 
-const cairo = Cairo({
-  subsets: ["arabic", "latin"],
-  variable: "--font-cairo",
-  display: "swap",
+const balooBhaijaan2 = Baloo_Bhaijaan_2({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-arabic',
 });
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  title: "سهم — تحليل استثماري ذكي",
-  description: "تحليل معلوماتي مستقل للأسهم في الأسواق العربية",
-};
-
-export default function RootLayout({
+export default async function LocaleLayout({
   children,
   params: { locale },
 }: {
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  if (!locales.includes(locale as Locale)) {
-    notFound();
-  }
-
-  const messages = useMessages();
-  const dir = locale === "ar" ? "rtl" : "ltr";
+  const messages = await getMessages();
+  const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html
-      lang={locale}
-      dir={dir}
-      className={`${cairo.variable} ${inter.variable}`}
-    >
-      <body className="font-arabic bg-gray-50 text-gray-900 min-h-screen">
+    <html lang={locale} dir={dir}>
+      <body className={`${inter.variable} ${balooBhaijaan2.variable}`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <UserProvider>
-            <TierRefreshBanner />
-            {children}
+            <div className="relative min-h-screen bg-[#050505] text-white">
+              <ParticleBackground />
+              <NavBar />
+              <div className="pt-24">
+                {children}
+              </div>
+            </div>
           </UserProvider>
         </NextIntlClientProvider>
       </body>

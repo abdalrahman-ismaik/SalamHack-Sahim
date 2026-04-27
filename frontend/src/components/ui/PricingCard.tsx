@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
-import { Link } from 'next-intl/client';
 import { PRICING_PLANS } from '@/lib/pricing';
 import type { PlanId } from '@/lib/types';
 import { Badge } from './Badge';
@@ -34,15 +33,17 @@ export function PricingCard({ planId, currentPlanId }: PricingCardProps) {
   return (
     <Card
       as="article"
+      variant={isHighlighted ? 'gold' : 'default'}
+      hover={!isCurrent}
       className={
         isHighlighted
-          ? 'relative ring-2 ring-emerald-500 shadow-lg'
+          ? 'relative scale-105 z-10'
           : 'relative'
       }
     >
       {isHighlighted && (
         <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2">
-          <Badge variant="success">Popular</Badge>
+          <Badge variant="gold" glow>{t('popular')}</Badge>
         </div>
       )}
 
@@ -53,14 +54,18 @@ export function PricingCard({ planId, currentPlanId }: PricingCardProps) {
         description={t(`${planId}.tagline`)}
       />
 
-      <p className="mt-4 text-2xl font-bold text-gray-900">
+      <p className="mt-4 text-3xl font-bold text-white">
         {t(`${planId}.price`)}
       </p>
 
-      <ul className="mt-4 space-y-2 text-sm text-gray-600" aria-label="Plan features">
+      <ul className="mt-4 space-y-3 text-sm text-gray-400" aria-label="Plan features">
         {features.map((feature, i) => (
-          <li key={i} className="flex items-start gap-2">
-            <span aria-hidden="true" className="text-emerald-500 mt-0.5">✓</span>
+          <li key={i} className="flex items-start gap-3">
+            <span aria-hidden="true" className="text-[#00E676] mt-0.5 shrink-0">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </span>
             {feature}
           </li>
         ))}
@@ -68,18 +73,15 @@ export function PricingCard({ planId, currentPlanId }: PricingCardProps) {
 
       <div className="mt-6">
         {isCurrent ? (
-          <Button variant="outline" className="w-full" disabled aria-disabled="true">
-            Current Plan
+          <Button variant="outline" className="w-full border-white/20" disabled aria-disabled="true">
+            {t('currentPlan')}
           </Button>
-        ) : planId === 'enterprise' ? (
-          <a href={ctaHref}>
-            <Button variant={plan.ctaVariant as 'outline' | 'default'} className="w-full">
-              {t(`${planId}.cta`)}
-            </Button>
-          </a>
         ) : (
-          <a href={ctaHref}>
-            <Button variant={plan.ctaVariant as 'outline' | 'default'} className="w-full">
+          <a href={ctaHref} className="block w-full">
+            <Button 
+              variant={isHighlighted ? 'gold' : 'outline'} 
+              className="w-full"
+            >
               {t(`${planId}.cta`)}
             </Button>
           </a>

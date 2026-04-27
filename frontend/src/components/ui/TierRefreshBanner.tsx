@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Badge } from './Badge';
-import { Button } from './Button';
-import { useUserTier } from '../../hooks/useUserTier';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { useUserTier } from '@/hooks/useUserTier';
 
 /**
  * Dismissible warning banner rendered when UserSession.tier
@@ -16,19 +16,16 @@ export function TierRefreshBanner() {
   const t = useTranslations('auth');
   const [dismissed, setDismissed] = useState(false);
 
-  // Only show when the tier was coerced to 'guest' due to invalid JWT claim
-  // The banner is toggled by layout.tsx passing a prop indicating coercion,
-  // here we just render and expose dismissal.
   if (dismissed) return null;
 
   return (
     <div
       role="alert"
-      className="flex items-center justify-between gap-3 bg-yellow-50 border border-yellow-300 px-4 py-2 text-sm text-yellow-800"
+      className="flex items-center justify-between gap-3 bg-[#FFB300]/10 border border-[#FFB300]/20 px-4 py-3 text-sm text-[#FFB300] rounded-lg"
     >
       <div className="flex items-center gap-2">
         <Badge variant="warning">{t('refreshBanner.badge')}</Badge>
-        <span>{t('refreshBanner.message')}</span>
+        <span className="text-gray-300">{t('refreshBanner.message')}</span>
       </div>
       <Button
         variant="ghost"

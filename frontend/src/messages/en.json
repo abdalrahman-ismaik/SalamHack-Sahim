@@ -1,9 +1,4 @@
 {
-  "nav": {
-    "home": "Home",
-    "sectors": "Sectors",
-    "language": "العربية"
-  },
   "search": {
     "placeholder": "Search for a stock or company…",
     "button": "Search",
@@ -65,6 +60,8 @@
     "loading": "Loading news…",
     "fallback": "Could not load news at this time — score is shown based on mathematical data only",
     "readMore": "Read more",
+    "keyRisks": "Key Risks",
+    "keyOpportunities": "Key Opportunities",
     "sentiment": {
       "positive": "Positive",
       "neutral": "Neutral",
@@ -75,12 +72,23 @@
     "title": "Statistical Forecast (30 days)",
     "disclaimer": "This is an independent statistical estimate — not licensed investment advice",
     "confidence": "95% confidence interval",
-    "insufficient": "Insufficient data for forecast (requires ≥252 trading days)"
+    "insufficient": "Insufficient data for forecast (requires ≥252 trading days)",
+    "today": "Today",
+    "forecastLine": "Forecast",
+    "chartAria": "Price forecast chart with confidence interval"
   },
   "sectors": {
     "title": "Sector Comparison",
     "selectSector": "Select a sector",
-    "topStocks": "Top Stocks"
+    "topStocks": "Top Stocks",
+    "sector": "Sector",
+    "peers": "Peers",
+    "metric": "Metric",
+    "sectorAvg": "Sector Avg",
+    "diff": "Diff",
+    "peRatio": "P/E Ratio",
+    "debtEquity": "Debt / Equity",
+    "revenueGrowth": "Revenue Growth"
   },
   "allocator": {
     "title": "Budget Allocator",
@@ -88,7 +96,21 @@
     "currency": "SAR",
     "calculate": "Calculate Allocation",
     "disclaimer": "Independent informational analysis — not licensed investment advice",
-    "zeroShares": "Budget insufficient to buy any shares of this ticker"
+    "zeroShares": "Budget insufficient to buy any shares of this ticker",
+    "budgetLabel": "Investment Budget (SAR)",
+    "tickersLabel": "Stock Tickers",
+    "tickersPlaceholder": "e.g. 1010, 2222, 4030",
+    "noTickers": "Please enter at least one ticker symbol",
+    "invalidBudget": "Please enter a valid budget amount",
+    "error": "Allocation failed — please try again",
+    "totalBudget": "Total Budget",
+    "allocated": "Allocated",
+    "remainingCash": "Remaining Cash",
+    "ticker": "Ticker",
+    "shares": "Shares",
+    "price": "Price",
+    "cost": "Total Cost",
+    "weight": "Weight"
   },
   "errors": {
     "invalidTicker": "Invalid ticker symbol",
@@ -97,26 +119,82 @@
     "generic": "Something went wrong — please try again"
   },
   "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "dashboard": "Dashboard",
     "signIn": "Sign In",
     "signUp": "Sign Up Free",
-    "dashboard": "Dashboard",
     "signOut": "Sign Out",
-    "pricing": "Pricing"
+    "sectors": "Sectors",
+    "faq": "FAQ",
+    "testimonials": "Reviews",
+    "language": "العربية"
   },
   "landing": {
     "hero": {
       "headline": "Smart Investing for Arabic-Speaking Beginners",
       "subheadline": "Understand any MENA stock in plain Arabic — AI-powered scores, risk insights, news analysis, and Shariah compliance in one place.",
-      "cta": "Get Started Free",
-      "ctaSecondary": "See Plans"
+      "cta": "Analyse a Stock Free",
+      "ctaSecondary": "See Pricing",
+      "tryDemo": "or try a stock for free — no account needed",
+      "badge": "AI-Powered · MENA Markets",
+      "statUsers": "Investors",
+      "statMarkets": "Markets Covered",
+      "statUptime": "Uptime"
     },
     "features": {
       "title": "Built for Beginner Investors",
-      "subtitle": "From investment readiness scores to AI-powered news — understand any stock before you buy."
+      "subtitle": "From investment readiness scores to AI-powered news — understand any stock before you buy.",
+      "deepTitle": "Everything you need to invest smarter",
+      "deepSubtitle": "A complete toolkit for MENA retail investors — from Shariah screening to AI-powered forecasts, all in one place.",
+      "showcase1Title": "Your Investment Score, Instantly",
+      "showcase1Body": "Enter any ticker and get a plain-language Investment Readiness Score with a full breakdown of risk, sentiment, and fundamentals. No finance degree required.",
+      "showcase1Cta": "Try a Stock",
+      "showcase2Title": "Shariah Compliance Made Simple",
+      "showcase2Body": "Every stock is screened against Musaffa and AAOIFI standards. Halal, Non-Halal, or Purification Required — displayed clearly alongside your analysis.",
+      "showcase2Cta": "See How It Works"
     },
     "pricing": {
       "title": "Simple, Transparent Pricing",
       "subtitle": "Start free. Upgrade when you're ready."
+    },
+    "footer": {
+      "tagline": "Smart investing for Arabic-speaking beginners.",
+      "navLabel": "Navigation",
+      "contactLabel": "Contact",
+      "email": "hello@salam.app",
+      "home": "Home",
+      "dashboard": "Dashboard",
+      "pricing": "Pricing",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use"
+    },
+    "testimonials": {
+      "title": "Trusted by Investors Across MENA",
+      "subtitle": "Real results from investors who simplified their research.",
+      "items": [
+        { "quote": "I finally understand which stocks are halal — $ahim makes it so simple. I check before every decision.", "name": "Mohammed Al-Rashidi", "role": "Retail Investor, Riyadh" },
+        { "quote": "The AI news summaries in Arabic save me hours of reading. I get the key risks instantly.", "name": "Nour Khalil", "role": "First-Time Investor, Cairo" },
+        { "quote": "The ARIMA forecast helped me understand price direction before my portfolio rebalance.", "name": "Omar Aziz", "role": "Pro User, Dubai" }
+      ]
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Answers to common questions about $ahim and how it works.",
+      "items": [
+        { "q": "What is $ahim?", "a": "$ahim is an AI-powered investment intelligence platform for Arabic-speaking beginner investors. It provides stock scores, Shariah compliance checks, news analysis, and risk indicators for MENA markets." },
+        { "q": "Is it really free?", "a": "Yes. The Free plan gives you stock search, investment scores, basic news, and halal screening with no credit card required. Pro features like ARIMA forecasts and portfolio allocation are unlocked with a Pro subscription." },
+        { "q": "How does the Halal screening work?", "a": "We source halal classifications from Musaffa and apply AAOIFI standards. Results show Halal, Non-Halal, or Purification Required. Final verification remains the user's responsibility." },
+        { "q": "Which markets are covered?", "a": "We cover major MENA markets including Tadawul (Saudi), EGX (Egypt), ADX and DFM (UAE), and major US-listed stocks relevant to Arabic-speaking investors." },
+        { "q": "Is this financial advice?", "a": "No. $ahim provides independent informational analysis only. All scores, forecasts, and data are for educational purposes and are not licensed investment advice." }
+      ]
+    },
+    "cta": {
+      "title": "Start Your Investment Journey Today",
+      "subtitle": "Join thousands of Arabic-speaking investors who research smarter with $ahim.",
+      "button": "Get Started Free",
+      "tryLabel": "or search any MENA stock directly"
     }
   },
   "auth": {
@@ -209,6 +287,8 @@
         "SLA guarantee"
       ]
     },
+    "popular": "Most Popular",
+    "currentPlan": "Current Plan",
     "disclaimer": "All plans are for informational use only. Not licensed investment advice."
   },
   "services": {
@@ -266,6 +346,10 @@
     "news": {
       "title": "Full News Analysis",
       "description": "Access all news articles and detailed sentiment breakdowns."
+    },
+    "live-monitoring": {
+      "title": "Live Monitoring",
+      "description": "Real-time alerts and portfolio tracking — stay ahead of the market."
     },
     "cta": "Upgrade to Pro",
     "href": "#pricing"
