@@ -16,7 +16,7 @@ services:
         sync: false
       - key: NEWSAPI_KEY
         sync: false
-      - key: MUSAFFA_API_KEY
+      - key: halal_terminal_api_key
         sync: false
       - key: ALLOWED_ORIGINS
         sync: false

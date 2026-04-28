@@ -197,7 +197,7 @@ async def get_halal(ticker: str) -> HalalVerdict:
         ticker=ticker,
         sector=None,
         debt_market_cap_ratio=fund.get("debt_market_cap_ratio"),
-        interest_income_ratio=fund.get("interest_income_ratio"),
+        prohibited_income_pct=fund.get("prohibited_income_pct"),
     )
     set_cached(ticker, "halal", result)
     return result

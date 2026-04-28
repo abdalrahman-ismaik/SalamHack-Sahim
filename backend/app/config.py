@@ -9,6 +9,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Optional
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -29,7 +30,7 @@ class Settings(BaseSettings):
     newsapi_key: str = ""
 
     # --- Halal Screening ---
-    musaffa_api_key: str = ""
+    halal_terminal_api_key: str = Field("", env=("halal_terminal_api_key", "musaffa_api_key"))
 
     # --- CORS ---
     # Comma-separated list of allowed frontend origins

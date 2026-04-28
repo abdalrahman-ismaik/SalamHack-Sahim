@@ -26,8 +26,8 @@ from app.models.stock import HalalVerdict
 
 logger = logging.getLogger(__name__)
 
-_MUSAFFA_BASE = "https://api.musaffa.com/v1"
-_MUSAFFA_TIMEOUT = httpx.Timeout(5.0, connect=3.0)
+_HALAL_TERMINAL_BASE = "https://halalscreener.app/api/v1"
+_HALAL_TERMINAL_TIMEOUT = httpx.Timeout(5.0, connect=3.0)
 
 # Sectors always classified NonHalal (T038 sector pre-filter)
 _NON_HALAL_SECTORS: frozenset[str] = frozenset(
@@ -105,29 +105,30 @@ async def get_halal_verdict(
     settings = get_settings()
 
     # --- Musaffa (primary) ---
-    if settings.musaffa_api_key:
+    if settings.halal_terminal_api_key:
         try:
-            async with httpx.AsyncClient(timeout=_MUSAFFA_TIMEOUT) as client:
+            async with httpx.AsyncClient(timeout=_HALAL_TERMINAL_TIMEOUT) as client:
                 resp = await client.get(
-                    f"{_MUSAFFA_BASE}/stocks/{ticker}/compliance",
-                    headers={"Authorization": f"Bearer {settings.musaffa_api_key}"},
+                    f"{_HALAL_TERMINAL_BASE}/screen",
+                    params={"symbol": ticker},
+                    headers={"Authorization": f"Bearer {settings.halal_terminal_api_key}"},
                 )
                 resp.raise_for_status()
                 data = resp.json()
 
             # Musaffa returns {"compliant_status": "COMPLIANT"|"NON_COMPLIANT"|"QUESTIONABLE"}
-            raw_status = data.get("compliant_status", "").upper()
+            raw_status = data.get("status", "").upper()
             status_map = {
-                "COMPLIANT": "Halal",
-                "NON_COMPLIANT": "NonHalal",
-                "QUESTIONABLE": "PurificationRequired",
+                "Halal": "Halal",
+                "Not Halal": "NonHalal",
+                "Doubtful": "Doubtful",
             }
             verdict_status = status_map.get(raw_status, "Unknown")
 
             return HalalVerdict(
                 ticker=ticker,
                 status=verdict_status,  # type: ignore[arg-type]
-                source="Musaffa",
+                source="HALAL_TERMINAL",
                 sector=data.get("sector") or sector,
                 debt_market_cap_ratio=data.get("debt_to_market_cap") or debt_market_cap_ratio,
                 interest_income_ratio=data.get("interest_to_revenue") or interest_income_ratio,

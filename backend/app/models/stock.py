@@ -85,8 +85,8 @@ class RiskMetrics(BaseModel):
 # Halal
 # ---------------------------------------------------------------------------
 
-HalalStatus = Literal["Halal", "PurificationRequired", "NonHalal", "Unknown"]
-HalalSource = Literal["Musaffa", "AAOIFI"]
+HalalStatus = Literal["Halal", "Doubtful", "Not Halal", "Unknown"]
+HalalSource = Literal["HALAL_TERMINAL", "AAOIFI"]
 
 
 class HalalVerdict(BaseModel):

@@ -21,7 +21,7 @@ members can open their directories and start immediately on Day 1.
 - [X] T001 Initialise backend Python project: create `backend/pyproject.toml` with FastAPI, uvicorn, httpx, openai, numpy, pandas, scipy, statsmodels, pydantic-settings, cachetools, python-dotenv, pytest, pytest-asyncio dependencies
 - [X] T002 Initialise frontend Next.js 14 project in `frontend/` with TypeScript, Tailwind CSS, shadcn/ui, next-intl, Recharts; output `frontend/package.json`, `frontend/next.config.ts`, `frontend/tailwind.config.ts`
 - [X] T003 [P] Create root `.gitignore` covering `.env`, `.env.local`, `__pycache__/`, `.next/`, `node_modules/`, `*.pyc`, `.venv/`
-- [X] T004 [P] Create `backend/.env.example` documenting all required backend keys (`TWELVE_DATA_API_KEY`, `ALPHA_VANTAGE_API_KEY`, `OPENAI_API_KEY`, `NEWSAPI_KEY`, `MUSAFFA_API_KEY`, `ALLOWED_ORIGINS`)
+- [X] T004 [P] Create `backend/.env.example` documenting all required backend keys (`TWELVE_DATA_API_KEY`, `ALPHA_VANTAGE_API_KEY`, `OPENAI_API_KEY`, `NEWSAPI_KEY`, `halal_terminal_api_key`, `ALLOWED_ORIGINS`)
 - [X] T005 [P] Create `frontend/.env.local.example` with `NEXT_PUBLIC_API_URL=http://localhost:8000` as the only frontend env var
 - [X] T006 [P] Create all empty placeholder `__init__.py` files to complete backend directory skeleton: `backend/app/`, `backend/app/models/`, `backend/app/services/`, `backend/app/api/`, `backend/tests/`, `backend/tests/unit/`, `backend/tests/integration/`
 

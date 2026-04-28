@@ -26,7 +26,7 @@ minutes. Complete the **Shared Prerequisites** first, then follow your
    | `TWELVE_DATA_API_KEY` | twelvedata.com → sign up free | Backend + AI/Integration |
    | `OPENAI_API_KEY` | platform.openai.com | AI/Integration |
    | `NEWS_API_KEY` | newsapi.org → free account | AI/Integration |
-   | `MUSAFFA_API_KEY` | musaffa.com → request access | Backend |
+   | `halal_terminal_api_key` | musaffa.com → request access | Backend |
    | `NEXT_PUBLIC_API_URL` | Set to `http://localhost:8000` for local dev | Frontend |
 
 3. **Confirm `.gitignore`** includes `.env`, `.env.local`, `__pycache__/`,
@@ -64,7 +64,7 @@ cp .env.example .env
 #   TWELVE_DATA_API_KEY=<your key>
 #   OPENAI_API_KEY=<your key>
 #   NEWS_API_KEY=<your key>
-#   MUSAFFA_API_KEY=<your key>  # leave empty if not yet available
+#   halal_terminal_api_key=<your key>  # leave empty if not yet available
 
 # 4. Start the dev server
 uvicorn app.main:app --reload --port 8000
@@ -271,7 +271,7 @@ On timeout, return `{"fallback_mode": True}` and log the event.
 TWELVE_DATA_API_KEY=your_twelve_data_key_here
 OPENAI_API_KEY=your_openai_key_here
 NEWS_API_KEY=your_newsapi_key_here
-MUSAFFA_API_KEY=your_musaffa_key_here  # optional; leave empty to use built-in fallback
+halal_terminal_api_key=your_halal_terminal_key_here  # optional; leave empty to use built-in fallback
 ALLOWED_ORIGINS=http://localhost:3000,https://<your-app>.netlify.app
 LOG_LEVEL=INFO
 ```
