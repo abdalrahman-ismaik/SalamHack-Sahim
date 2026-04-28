@@ -27,7 +27,11 @@ export function getUserFromCookie(): UserSession {
 
     // Decode payload (base64url middle segment) — no verify
     const parts = token.split('.');
-    if (parts.length !== 3) return GUEST_SESSION;
+    // Non-JWT marker (e.g. 'firebase') → authenticated free user;
+    // actual tier is hydrated client-side from localStorage.
+    if (parts.length !== 3) {
+      return { id: null, name: null, locale: 'ar', tier: 'free' };
+    }
 
     const payload = JSON.parse(
       Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8')

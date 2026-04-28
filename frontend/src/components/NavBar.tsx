@@ -3,27 +3,42 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { useUserTier } from '@/hooks/useUserTier';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { Button } from '@/components/ui/Button';
 import { GooeyNav } from '@/components/ui/GooeyNav';
 import { GradientText } from '@/components/ui/GradientText';
+import { signOutAndRedirect } from '@/lib/firebase-session';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function NavBar() {
-  const t      = useTranslations('nav');
-  const locale = useLocale();
-  const tier   = useUserTier();
+  const t        = useTranslations('nav');
+  const locale   = useLocale();
+  const pathname = usePathname();
+  const tier     = useUserTier();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAuthenticated = tier !== 'guest';
+  // True when inside the app (dashboard, stock detail, etc.) — not the landing page
+  const isAppRoute = pathname.includes('/dashboard') || pathname.includes('/stock');
 
-  const navLinks = [
+  const landingLinks = [
     { label: t('home'),         href: `/${locale}` },
     { label: t('features'),     href: `/${locale}#features` },
     { label: t('pricing'),      href: `/${locale}#pricing` },
     { label: t('testimonials'), href: `/${locale}#testimonials` },
     { label: t('faq'),          href: `/${locale}#faq` },
+  ];
+
+  const appLinks = [
+    { label: t('home'),      href: `/${locale}` },
+    { label: t('dashboard'), href: `/${locale}/dashboard` },
+    { label: t('pricing'),   href: `/${locale}#pricing` },
+  ];
+
+  const navLinks = isAppRoute ? appLinks : [
+    ...landingLinks,
     ...(isAuthenticated ? [{ label: t('dashboard'), href: `/${locale}/dashboard` }] : []),
   ];
 
@@ -71,9 +86,21 @@ export function NavBar() {
 
             <div className="hidden md:flex items-center gap-2">
               {isAuthenticated ? (
-                <a href={`/${locale}/dashboard`}>
-                  <Button variant="gold" size="sm">{t('dashboard')}</Button>
-                </a>
+                <>
+                  {!isAppRoute && (
+                    <a href={`/${locale}/dashboard`}>
+                      <Button variant="gold" size="sm">{t('dashboard')}</Button>
+                    </a>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white"
+                    onClick={() => signOutAndRedirect(locale)}
+                  >
+                    {t('signOut')}
+                  </Button>
+                </>
               ) : (
                 <>
                   <a href={`/${locale}/auth/signin`}>
@@ -129,9 +156,21 @@ export function NavBar() {
                 ))}
                 <div className="pt-3 border-t border-white/5 flex gap-2">
                   {isAuthenticated ? (
-                    <a href={`/${locale}/dashboard`} className="flex-1">
-                      <Button variant="gold" size="sm" className="w-full">{t('dashboard')}</Button>
-                    </a>
+                    <>
+                      {!isAppRoute && (
+                        <a href={`/${locale}/dashboard`} className="flex-1">
+                          <Button variant="gold" size="sm" className="w-full">{t('dashboard')}</Button>
+                        </a>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`text-gray-400 hover:text-white ${isAppRoute ? 'w-full' : ''}`}
+                        onClick={() => { setMobileOpen(false); signOutAndRedirect(locale); }}
+                      >
+                        {t('signOut')}
+                      </Button>
+                    </>
                   ) : (
                     <>
                       <a href={`/${locale}/auth/signin`} className="flex-1">

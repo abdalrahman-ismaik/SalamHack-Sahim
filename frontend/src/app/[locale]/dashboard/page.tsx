@@ -1,14 +1,18 @@
 import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { getUserFromCookie } from '@/lib/auth';
 import { TierBadge } from '@/components/dashboard/TierBadge';
 import { ServiceCardGrid } from '@/components/dashboard/ServiceCardGrid';
+import { DashboardUpgradeCheck } from '@/components/dashboard/DashboardUpgradeCheck';
 
 export default async function DashboardPage() {
-  const session = await getUserFromCookie();
-  const locale  = await getLocale();
+  const locale      = await getLocale();
+  const cookieStore = cookies();
+  const cookieName  = process.env.NEXT_PUBLIC_AUTH_COOKIE_NAME ?? 'auth_token';
+  const authCookie  = cookieStore.get(cookieName);
 
-  if (!session || session.tier === 'guest') {
+  // Redirect unauthenticated visitors (middleware already handles this, but belt-and-suspenders)
+  if (!authCookie) {
     redirect(`/${locale}/auth/signin?returnTo=/${locale}/dashboard`);
   }
 
@@ -16,9 +20,12 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
+      {/* Shows upgrade modal once after sign-in for free-tier users */}
+      <DashboardUpgradeCheck />
+
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-bold text-white">
-          {t('greeting', { name: session.name ?? '' })}
+          {t('greeting', { name: '' })}
         </h1>
         <TierBadge />
       </div>

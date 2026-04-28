@@ -195,26 +195,41 @@
       "subtitle": "Join thousands of Arabic-speaking investors who research smarter with $ahim.",
       "button": "Get Started Free",
       "tryLabel": "or search any MENA stock directly"
+    },
+    "newsletter": {
+      "title": "Don't Miss Out on the Latest Insights & Offers",
+      "subtitle": "Subscribe to receive market updates, new features, and exclusive subscriber discounts.",
+      "emailPlaceholder": "Enter your email",
+      "cta": "Subscribe",
+      "subscribing": "Subscribing…",
+      "successMessage": "You're subscribed! We'll be in touch soon.",
+      "invalidEmail": "Please enter a valid email address.",
+      "genericError": "Something went wrong. Please try again.",
+      "formLabel": "Newsletter subscription form"
     }
   },
   "auth": {
     "signIn": {
       "title": "Welcome Back",
+      "subtitle": "Sign in to access your account",
       "emailLabel": "Email address",
       "passwordLabel": "Password",
       "submit": "Sign In",
       "noAccount": "Don't have an account?",
       "signUpLink": "Sign up free",
-      "forgotPassword": "Forgot password?"
+      "forgotPassword": "Forgot password?",
+      "googleSignIn": "Continue with Google"
     },
     "signUp": {
       "title": "Create Your Account",
+      "subtitle": "Free forever. No credit card required.",
       "nameLabel": "Full name",
       "emailLabel": "Email address",
       "passwordLabel": "Password",
       "submit": "Create Account",
       "hasAccount": "Already have an account?",
-      "signInLink": "Sign in"
+      "signInLink": "Sign in",
+      "googleSignIn": "Continue with Google"
     },
     "errors": {
       "invalidCredentials": "Invalid email or password",
@@ -353,5 +368,18 @@
     },
     "cta": "Upgrade to Pro",
     "href": "#pricing"
+  },
+  "upgradeModal": {
+    "title": "Unlock Pro Features",
+    "subtitle": "You're on the Free plan. Upgrade to get the full $ahim experience.",
+    "cta": "Upgrade to Pro",
+    "dismiss": "Maybe later",
+    "features": {
+      "arima": "ARIMA 30-day price forecast",
+      "allocator": "Portfolio budget allocator",
+      "sector": "Sector comparison & benchmarking",
+      "risk": "Full risk dashboard (VaR, Sharpe, Beta)",
+      "news": "Unlimited AI news analysis"
+    }
   }
 }
