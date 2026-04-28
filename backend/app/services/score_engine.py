@@ -124,39 +124,52 @@ def compute_score(
         InvestmentReadinessScore with all fields populated.
     """
     prices = np.array(closes, dtype=float)
+    # Mathematical sanity: filter out non-positive values to prevent invalid log calculations
+    prices = prices[np.isfinite(prices) & (prices > 0)]
     low_confidence = len(prices) < MIN_RETURNS
 
     if len(prices) >= 2:
         log_returns = np.diff(np.log(prices))
     else:
-        log_returns = np.array([0.0])
+        log_returns = np.array([])
 
-    # Annualised volatility (252 trading days)
-    sigma_annual = float(np.std(log_returns, ddof=1) * np.sqrt(252)) if len(log_returns) > 1 else 0.0
+    if len(log_returns) < 2:
+        # Insufficient data to compute standard deviation and returns reliably.
+        # Producing conservative (zero) scores to prevent incorrectly labeling a stock
+        # as perfectly safe due to lack of historical data.
+        sigma_annual = 0.0
+        var_95 = 0.0
+        sharpe = 0.0
+        vol_score = 0.0
+        var_score_val = 0.0
+        sharpe_score = 0.0
+        beta = benchmark_beta if benchmark_beta is not None else 1.0
+        beta_score = 50.0  # Neutral
+    else:
+        # Annualised volatility (252 trading days)
+        sigma_annual = float(np.std(log_returns, ddof=1) * np.sqrt(252))
 
-    # 95% VaR (historical, parametric approximation using normal distribution)
-    if len(log_returns) > 1:
+        # 95% VaR (historical, parametric approximation using normal distribution)
         mu = float(np.mean(log_returns))
         sigma_daily = float(np.std(log_returns, ddof=1))
         # 1-day VaR at 95% confidence: μ - 1.645σ (as positive loss)
         var_95 = max(0.0, -(mu - 1.645 * sigma_daily))
-    else:
-        var_95 = 0.0
 
-    # Sharpe ratio (annualised, risk-free rate = 0 for simplicity)
-    if sigma_annual > 0:
-        sharpe = float((np.mean(log_returns) * 252) / sigma_annual)
-    else:
-        sharpe = 0.0
+        # Sharpe ratio (annualised, risk-free rate = 0 for simplicity)
+        if sigma_annual > 0:
+            sharpe = float((mu * 252) / sigma_annual)
+        else:
+            sharpe = 0.0
 
-    # Beta
-    beta = benchmark_beta if benchmark_beta is not None else 1.0
+        # Beta
+        beta = benchmark_beta if benchmark_beta is not None else 1.0
 
-    # Component scores
-    vol_score = _normalise_volatility(sigma_annual)
-    var_score_val = _normalise_var(var_95)
-    sharpe_score = _normalise_sharpe(sharpe)
-    beta_score = _normalise_beta(beta)
+        # Component scores
+        vol_score = _normalise_volatility(sigma_annual)
+        var_score_val = _normalise_var(var_95)
+        sharpe_score = _normalise_sharpe(sharpe)
+        beta_score = _normalise_beta(beta)
+
     sentiment_score = _normalise_sentiment(sentiment)
 
     composite = (

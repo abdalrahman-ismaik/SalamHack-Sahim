@@ -53,13 +53,30 @@ def _compute_beta(stock_returns: np.ndarray, bench_returns: np.ndarray) -> float
 
 
 async def compute_risk_metrics(ticker: str) -> RiskMetrics:
-    """Compute full risk panel for a ticker."""
+    """Compute full risk panel for a ticker using formal mathematical formulations.
+    
+    Metrics:
+    - Volatility (sigma_annual): Annualized standard deviation of daily log returns
+    - VaR (95%): Parametric Value at Risk mapping worst 5% daily drop
+    - Sharpe Ratio: Risk-adjusted return assuming 0% risk-free rate
+    - Beta: OLS regression slope vs regional benchmark
+    - Max Drawdown: Maximum historical drop from peak to trough
+    """
     benchmark = _resolve_benchmark(ticker)
     logger.info("Computing risk for %s (benchmark=%s)", ticker, benchmark)
 
-    # Fetch stock OHLCV
+    # Fetch stock OHLCV and current quote
     ohlcv = await market_data.get_ohlcv(ticker, days=365)
     closes = np.array(ohlcv["closes"], dtype=float)
+
+    current_price = None
+    change_pct = None
+    try:
+        quote = await market_data.get_quote(ticker)
+        current_price = quote.get("current_price")
+        change_pct = quote.get("change_pct")
+    except DataUnavailableError:
+        logger.warning("Quote data unavailable for %s", ticker)
 
     if len(closes) < 2:
         raise DataUnavailableError(ticker, "insufficient price data for risk calc")
@@ -77,6 +94,11 @@ async def compute_risk_metrics(ticker: str) -> RiskMetrics:
 
     # Sharpe (annualised, rf=0)
     sharpe = (mu_daily * 252) / sigma_annual if sigma_annual > 0 else 0.0
+
+    # Max Drawdown
+    roll_max = np.maximum.accumulate(closes)
+    drawdowns = (closes - roll_max) / roll_max
+    max_drawdown = float(abs(np.min(drawdowns))) if len(drawdowns) > 0 else 0.0
 
     # Beta via benchmark
     beta = 1.0
@@ -104,15 +126,18 @@ async def compute_risk_metrics(ticker: str) -> RiskMetrics:
         fundamentals = FundamentalData()
 
     logger.info(
-        "Risk result for %s: vol=%.4f VaR=%.4f sharpe=%.4f beta=%.4f",
-        ticker, round(sigma_annual, 4), round(var_95, 4), round(sharpe, 4), round(beta, 4),
+        "Risk result for %s: vol=%.4f VaR=%.4f sharpe=%.4f beta=%.4f mdd=%.4f",
+        ticker, round(sigma_annual, 4), round(var_95, 4), round(sharpe, 4), round(beta, 4), round(max_drawdown, 4)
     )
     return RiskMetrics(
         ticker=ticker,
+        current_price=current_price,
+        change_pct=change_pct,
         volatility_annual=round(sigma_annual, 4),
         var_95=round(var_95, 4),
         sharpe_ratio=round(sharpe, 4),
         beta=round(beta, 4),
+        max_drawdown=round(max_drawdown, 4),
         benchmark=benchmark,
         technicals=technicals,
         fundamentals=fundamentals,

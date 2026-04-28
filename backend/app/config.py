@@ -8,9 +8,12 @@ from __future__ import annotations
 
 from functools import lru_cache
 from typing import Optional
+import os
+from dotenv import load_dotenv
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+load_dotenv()
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -21,7 +24,8 @@ class Settings(BaseSettings):
     )
 
     # --- Financial Data APIs ---
-    twelve_data_api_key: str = ""
+    # get keys from .env
+    twelve_data_api_key: str = "" 
     alpha_vantage_api_key: str = ""
 
     # --- AI / News APIs ---
@@ -30,6 +34,7 @@ class Settings(BaseSettings):
 
     # --- Halal Screening ---
     musaffa_api_key: str = ""
+    halal_screener_api_key: str = ""
 
     # --- CORS ---
     # Comma-separated list of allowed frontend origins

@@ -60,10 +60,13 @@ export interface FundamentalData {
 
 export interface RiskMetrics {
   ticker: string;
+  current_price: number | null;
+  change_pct: number | null;
   volatility_annual: number;
   var_95: number;          // positive number representing daily loss
   sharpe_ratio: number;
   beta: number;
+  max_drawdown: number | null;
   benchmark: string;       // e.g. "^TASI"
   technicals: TechnicalIndicators;
   fundamentals: FundamentalData;

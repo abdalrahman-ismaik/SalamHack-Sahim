@@ -147,7 +147,7 @@ async def get_quote(ticker: str) -> dict[str, Any]:
                 "name": name,
                 "exchange": exchange,
                 "current_price": price,
-                "change_pct": change_pct,
+                "change_pct": change_pct / 100.0,
             }
     except Exception as exc:
         logger.warning("Twelve Data quote failed for %s: %s", ticker, exc)
@@ -165,14 +165,13 @@ async def get_quote(ticker: str) -> dict[str, Any]:
             data = resp.json()
         quote = data.get("Global Quote", {})
         if quote:
+            change_raw = float(quote.get("10. change percent", "0").rstrip("%") or 0)
             return {
                 "ticker": ticker,
                 "name": ticker,
                 "exchange": "",
                 "current_price": float(quote.get("05. price", 0)),
-                "change_pct": float(
-                    quote.get("10. change percent", "0").rstrip("%") or 0
-                ),
+                "change_pct": change_raw / 100.0,
             }
     except Exception as exc:
         logger.warning("Alpha Vantage quote failed for %s: %s", ticker, exc)
