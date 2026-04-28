@@ -26,8 +26,8 @@ export function NavBar() {
   const landingLinks = [
     { label: t('home'),         href: `/${locale}` },
     { label: t('features'),     href: `/${locale}#features` },
-    { label: t('pricing'),      href: `/${locale}#pricing` },
     { label: t('testimonials'), href: `/${locale}#testimonials` },
+    { label: t('pricing'),      href: `/${locale}#pricing` },
     { label: t('faq'),          href: `/${locale}#faq` },
   ];
 

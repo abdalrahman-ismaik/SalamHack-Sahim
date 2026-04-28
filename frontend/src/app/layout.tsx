@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Inter, Baloo_Bhaijaan_2 } from 'next/font/google';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -6,12 +7,25 @@ export const metadata: Metadata = {
   description: 'AI-powered investment intelligence platform for beginner Arabic investors, covering MENA stocks.',
 };
 
-// Root layout must exist for Next.js, but html/body are in [locale]/layout.tsx
-// so that lang and dir can be set dynamically per locale.
+const inter = Inter({ subsets: ['latin'], variable: '--font-latin' });
+
+const balooBhaijaan2 = Baloo_Bhaijaan_2({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-arabic',
+});
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children as React.ReactElement;
+  return (
+    // suppressHydrationWarning: dir/lang are set per-locale via inline script in [locale]/layout
+    <html lang="en" dir="ltr" suppressHydrationWarning>
+      <body className={`${inter.variable} ${balooBhaijaan2.variable}`}>
+        {children}
+      </body>
+    </html>
+  );
 }

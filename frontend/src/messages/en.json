@@ -129,7 +129,8 @@
     "sectors": "Sectors",
     "faq": "FAQ",
     "testimonials": "Reviews",
-    "language": "العربية"
+    "language": "العربية",
+    "riskWizardCta": "Discover Your Risk Profile →"
   },
   "landing": {
     "hero": {
@@ -381,5 +382,86 @@
       "risk": "Full risk dashboard (VaR, Sharpe, Beta)",
       "news": "Unlimited AI news analysis"
     }
+  },
+  "riskWizard": {
+    "title": "Risk Tolerance Wizard",
+    "progress": "Question {current} of {total}",
+    "next": "Next",
+    "previous": "Previous",
+    "calculate": "Calculate My Risk Profile",
+    "result": {
+      "conservative": "Conservative Investor",
+      "moderate": "Balanced Investor",
+      "aggressive": "Growth Investor"
+    },
+    "resultDescription": {
+      "conservative": "You prefer capital preservation and stable returns over high growth.",
+      "moderate": "You balance growth potential with acceptable risk exposure.",
+      "aggressive": "You seek maximum growth and can tolerate significant market volatility."
+    },
+    "disclaimer": "This result is for educational purposes only. It does not constitute investment advice. Please consult a qualified financial advisor before making investment decisions.",
+    "howCalculated": "How is this calculated?",
+    "howCalculatedText": "Your score is calculated from 6 factors: investment horizon (25%), maximum acceptable drawdown (20%), age (15%), financial knowledge (15%), income stability (15%), and patience during downturns (10%).",
+    "saveProfile": "Save Profile",
+    "retake": "Retake Wizard",
+    "questions": {
+      "q1": "What is your investment time horizon?",
+      "q1Options": ["Less than 1 year", "1–3 years", "3–7 years", "More than 7 years"],
+      "q2": "What is the maximum portfolio loss you could accept in one year?",
+      "q2Options": ["Less than 5%", "5–15%", "15–30%", "More than 30%"],
+      "q3": "What is your age group?",
+      "q3Options": ["Under 25", "25–40", "41–55", "Over 55"],
+      "q4": "How would you rate your investment knowledge?",
+      "q4Options": ["Beginner", "Intermediate", "Advanced", "Expert"],
+      "q5": "How stable is your income?",
+      "q5Options": ["Very unstable", "Somewhat unstable", "Stable", "Very stable"],
+      "q6": "If your portfolio dropped 20%, how long would you wait before selling?",
+      "q6Options": ["I would sell immediately", "A few weeks", "Several months", "I would hold indefinitely"]
+    }
+  },
+  "purification": {
+    "title": "Dividend Purification Calculator",
+    "dividendLabel": "Dividend Amount",
+    "currencyLabel": "Currency",
+    "resultLabel": "Purification Amount (to donate)",
+    "noCleanup": "No purification required for this stock.",
+    "formulaTitle": "How is this calculated?",
+    "formulaText": "The purification amount equals your dividend income multiplied by the stock's non-halal income ratio (interest income / total revenue). This portion should be donated to charity.",
+    "disclaimer": "This calculator is for guidance only. Consult a qualified Islamic finance scholar for your specific situation.",
+    "unavailable": "Ratio unavailable — please verify with your data source.",
+    "invalidAmount": "Please enter a valid positive amount.",
+    "calculate": "Calculate"
+  },
+  "zakatCalculator": {
+    "title": "Zakat Calculator",
+    "portfolioLabel": "Portfolio Value",
+    "liabilitiesLabel": "Liabilities / Debts",
+    "currencyLabel": "Currency",
+    "calculateButton": "Calculate Zakat",
+    "zakatDue": "Zakat Due",
+    "belowNisab": "Your net portfolio is below the nisab threshold. No Zakat is due.",
+    "nisabLabel": "Nisab Threshold",
+    "nisabSource": {
+      "api": "Live gold price",
+      "static": "Static value — please update"
+    },
+    "formulaTitle": "How is Zakat calculated?",
+    "formulaText": "Zakat = 2.5% of net wealth (portfolio − liabilities) if it equals or exceeds the nisab (85 grams of gold at today's price), and you have held it for one lunar year (hawl).",
+    "disclaimer": "This calculator provides an estimate. Consult a qualified Islamic scholar for your specific situation.",
+    "signInGate": "Sign in for free to save your Zakat calculation results.",
+    "goldPriceSource": "Gold price source: {source} ({date})"
+  },
+  "alerts": {
+    "title": "Compliance Alerts",
+    "toggleLabel": "Notify me if this stock's Shariah status changes",
+    "enabled": "Alerts enabled",
+    "disabled": "Alerts disabled",
+    "notificationTitle": "Shariah Status Change Detected",
+    "notificationBody": "{ticker} changed from {previous} to {current}",
+    "dismiss": "Dismiss",
+    "dismissAll": "Dismiss All",
+    "noAlerts": "No compliance changes detected.",
+    "savedSuccess": "Alert preference saved.",
+    "saveError": "Failed to save preference. Please try again."
   }
 }

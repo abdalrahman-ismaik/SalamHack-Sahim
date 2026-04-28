@@ -31,14 +31,15 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file — verify compliance with Principles I–IX:
+[Gates determined based on constitution file — verify compliance with Principles I–X:
 - I (Demo-Day First): feature ships before deadline
 - III (Arabic-First): all labels available in Arabic
 - IV (Halal Integrity): disclaimer present on any screening output
 - V (Regulatory Compliance): investment-advice disclaimer on every score/projection
 - VII (Security): no hardcoded secrets; input sanitized at API boundary
 - VIII (SaaS Architecture): page requires auth unless Landing/demo; tier enforced server-side
-- IX (Component & Accessibility): Tailwind-only, keyboard nav, ARIA, WCAG AA]
+- IX (Component & Accessibility): Tailwind-only, keyboard nav, ARIA, WCAG AA
+- X (Competitive Differentiation): feature serves Arabic-first, halal-native, beginner-safe mission; methodology transparency present]
 
 ## Project Structure
 

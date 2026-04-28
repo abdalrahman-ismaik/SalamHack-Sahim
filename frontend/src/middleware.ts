@@ -15,6 +15,8 @@ const PUBLIC_PATTERNS = [
   /^\/[a-z]{2}$/,                        // /ar  /en  (landing)
   /^\/[a-z]{2}\/(auth)(\/|$)/,           // /ar/auth/...
   /^\/[a-z]{2}\/stock\/.+/,             // /ar/stock/AAPL — soft gate at page level
+  /^\/[a-z]{2}\/tools\/risk-wizard/,    // /ar/tools/risk-wizard — guest-accessible (FR-R07)
+  /^\/[a-z]{2}\/tools\/zakat/,          // /ar/tools/zakat — soft gate at page level (FR-Z06)
   /^\/_next\//,                          // Next.js internals
   /^\/favicon/,                          // favicon
   /^\/api\//,                            // API routes

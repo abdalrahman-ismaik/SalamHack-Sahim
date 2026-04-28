@@ -221,3 +221,48 @@ export interface ServiceCard {
   readonly requiredTier: UserTier;
   readonly available:    boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Halal Investor Tools (Feature 003)
+// ---------------------------------------------------------------------------
+
+export type RiskLabel = 'conservative' | 'moderate' | 'aggressive';
+
+export interface RiskProfile {
+  user_id:      string | null;
+  score:        number;              // 0–100 weighted sum
+  label:        RiskLabel;
+  answers:      Record<string, number>; // q1–q6 answer indices
+  completed_at: string;              // ISO 8601
+}
+
+export interface GoldPriceData {
+  price_per_gram_usd: number;
+  price_per_gram_aed: number;
+  price_per_gram_sar: number;
+  source:             'TwelveData' | 'static';
+  date:               string;        // ISO 8601 date string
+}
+
+export interface ZakatResult {
+  net_value:       number;
+  nisab_value:     number;
+  nisab_source:    'api' | 'static';
+  gold_price_date: string;
+  zakat_due:       number | null;    // null when below nisab
+  below_nisab:     boolean;
+  currency:        'AED' | 'USD' | 'SAR';
+}
+
+export interface ComplianceAlertPreference {
+  enabled:           boolean;
+  last_known_status: HalalStatus;
+  updated_at:        string;         // ISO 8601
+}
+
+export interface ComplianceChangeNotification {
+  ticker:          string;
+  previous_status: HalalStatus;
+  current_status:  HalalStatus;
+  detected_at:     string;           // ISO 8601
+}

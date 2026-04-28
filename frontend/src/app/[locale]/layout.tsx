@@ -1,17 +1,8 @@
-import { Inter, Baloo_Bhaijaan_2 } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import UserProvider from '@/providers/UserProvider';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { NavBar } from '@/components/NavBar';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-latin' });
-
-const balooBhaijaan2 = Baloo_Bhaijaan_2({
-  subsets: ['arabic'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-arabic',
-});
 
 export default async function LocaleLayout({
   children,
@@ -24,20 +15,24 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={dir}>
-      <body className={`${inter.variable} ${balooBhaijaan2.variable}`}>
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <UserProvider>
-            <div className="relative min-h-screen bg-[#050505] text-white">
-              <ParticleBackground />
-              <NavBar />
-              <div className="pt-24">
-                {children}
-              </div>
+    <>
+      {/* Sync dir/lang on the <html> element before first paint — no RTL flash */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.dir='${dir}';document.documentElement.lang='${locale}';`,
+        }}
+      />
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        <UserProvider>
+          <div className="relative min-h-screen bg-[#050505] text-white">
+            <ParticleBackground />
+            <NavBar />
+            <div className="pt-24">
+              {children}
             </div>
-          </UserProvider>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+          </div>
+        </UserProvider>
+      </NextIntlClientProvider>
+    </>
   );
 }

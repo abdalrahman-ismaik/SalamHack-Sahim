@@ -1,20 +1,30 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.0 → 1.1.1
+Version change: 1.1.1 → 1.2.0
 Amendment rationale:
-  PATCH bump — Hackathon Sandbox Assumptions section added. No principle
-  semantics changed; Principles IV and V rationale notes updated to reference
-  the sandbox safe-harbour. This is a clarification, not a redefinition.
+  MINOR bump — New Principle X (Competitive Intelligence & Product
+  Differentiation) added. Full competitive analysis of 8 reference platforms
+  encoded as actionable guidelines and a tiered feature roadmap. No existing
+  principles changed; no gates removed or weakened.
 Modified principles:
-  - IV (Halal Integrity): rationale note references sandbox pre-audit
-  - V (Regulatory Compliance): rationale note references sandbox license
+  None (all existing principles I–IX unchanged)
 Added sections:
-  - Hackathon Sandbox Assumptions (regulatory, Sharia, Track 3, mocking)
-Templates requiring updates: none — no placeholder or gate change
+  - X. Competitive Intelligence & Product Differentiation
+    (landscape table, feature gap analysis, UX patterns, methodologies,
+     prioritized roadmap items: Risk Wizard, Purification Calc, Zakat Calc,
+     Compliance Alerts, AI Chat, Halal Model Portfolios, Technical Summary)
+Templates requiring updates:
+  ✅ plan-template.md — Constitution Check gate updated to reference I–X
+  ✅ spec-template.md — No change required
+  ✅ tasks-template.md — No change required
 Follow-up TODOs:
   - TODO(STRIPE_KEY): Add real Stripe publishable key to .env before launch
   - TODO(ENTERPRISE_CONTACT): Replace pricing contact placeholder with real form/email
+  - TODO(AAOIFI_METHODOLOGY): Document exact AAOIFI ratio thresholds used by Halal screener
+  - TODO(RISK_WIZARD_SPEC): Create spec for Risk Tolerance Wizard (FR-R01)
+  - TODO(PURIFICATION_CALC): Create spec for Dividend Purification Calculator (FR-R02)
+  - TODO(ZAKAT_CALC): Create spec for Zakat Calculator (FR-R03)
 -->
 
 # سهم ($ahim) Constitution
@@ -326,18 +336,133 @@ consensus and MUST be documented with rationale.
 Performance target: traffic-light score + news analysis ≤ 8 seconds for demo.
 The backend MUST handle 100 concurrent users during the demo session.
 
+### X. Competitive Intelligence & Product Differentiation
+
+#### Competitive Landscape (Research Date: 2026-04-28)
+
+Eight reference platforms were analyzed across services, UX flow, features,
+methods, and monetization. All are direct or adjacent competitors to $ahim.
+
+| Platform | Region | Core Differentiator | Halal Focus | Pricing Model |
+|----------|--------|---------------------|-------------|---------------|
+| Annuity.org | US | Risk tolerance quiz → product leads | None | Free / lead-gen |
+| Nippon India Risk Analyzer | India | 9-question risk profile + asset allocation | None | Free (fund acquisition) |
+| CalcXML | US | Embeddable 10-question equity-exposure quiz | None | Free widget |
+| Sarwa | UAE (ADGM) | All-in-one passive invest + trade + save | Halal Save option | AUM fee |
+| Baraka | UAE (DFSA) | 8,500+ US stocks, AI assistant, auto-invest | Shariah-screened info | Freemium $0/$9.99/$19.99 |
+| AIN | MENA | Startup pitch ↔ angel investor matching | Mudarabah/Musharakah | Subscription |
+| Islamicly | Global | AAOIFI Shariah screening + purification + Zakat | Core product | ₹999/mo–₹9,999/yr |
+| Investing.com | Global | Technical analysis, multi-timeframe signals, Warren AI | None | Freemium |
+
+#### Feature Gap Analysis
+
+Features present in competitors but absent from $ahim, ranked by relevance:
+
+| Gap | Source Platform(s) | Relevance to $ahim | Priority |
+|-----|-------------------|-------------------|---------|
+| Risk Tolerance Wizard (5–9 questions → Conservative/Moderate/Aggressive profile) | Annuity.org, Nippon, CalcXML | Personalizes Risk Panel recommendations; natural entry point for beginners | **P1** |
+| Dividend Purification Calculator (formula: Non-Halal Revenue% × Dividend received) | Islamicly | Direct extension of existing Halal screener; completes the halal UX loop | **P1** |
+| Zakat Calculator (2.5% on nisab-eligible portfolio value held ≥ 1 lunar year) | Islamicly | High-value for Muslim investors; zero API cost | **P1** |
+| Halal Compliance Change Alerts (notify user when stock flips Halal ↔ Non-Halal) | Islamicly | Extends live monitoring; high engagement; premium feature candidate | **P1** |
+| Technical Analysis Signal Summary (MA5–MA200 + RSI + MACD → single buy/sell verdict per timeframe) | Investing.com | Consolidates indicators already computed into a headline verdict | **P2** |
+| Pre-built Halal Model Portfolios ("Moons" equivalent — curated beginner baskets) | Islamicly | Complements allocator; removes decision paralysis for beginners | **P2** |
+| AI Investment Chat Assistant (natural language Q&A on stock data and analysis) | Baraka (baraka AI) | Extends news_agent to conversational interface; leverages existing OpenAI integration | **P2** |
+| Income Center / Dividend Tracker (daily projected dividend income per holding) | Baraka | Useful for income-seeking investors; lower priority for MVP | **P3** |
+| Broker Portfolio Import (connect broker → auto-import holdings) | Islamicly, Sarwa | High value but requires OAuth per broker; post-MVP only | **P3** |
+| Auto-Invest / Recurring Plans | Baraka, Sarwa | Requires payment integration; out of MVP scope | **OUT** |
+| Startup / Angel Investment Matching | AIN | Out of scope — different product category | **OUT** |
+
+#### UX Patterns to Adopt
+
+The following UX flows observed in competitors MUST be evaluated when
+designing any new feature page:
+
+1. **Step-by-step onboarding wizard** (Annuity.org, Nippon): The Risk Tolerance
+   Wizard MUST use a one-question-per-screen progressive format with a progress
+   indicator. All radio choices MUST be tappable on mobile. Result screen MUST
+   show the risk label (Conservative / Moderate / Aggressive) and 3 recommended
+   action steps in Arabic.
+
+2. **"60-second value hook" before sign-up** (Islamicly): A guest-accessible
+   quick scan — enter one ticker, get an instant Halal compliance badge and
+   traffic-light score — MUST appear on the Landing page. This is the primary
+   conversion funnel. The gate fires after the first result, not before.
+
+3. **Plan comparison table with feature checkmarks** (Baraka): The Pricing page
+   MUST use a 3-column comparison table (Free / Pro / Enterprise) with explicit
+   per-feature checkmarks. The upgrade prompt from a gated feature MUST deep-link
+   to the relevant row in the comparison table.
+
+4. **Compliance badge on every stock mention** (Islamicly): The Halal
+   status badge (حلال / غير حلال / يحتاج تطهير) MUST appear inline next to
+   the stock ticker everywhere it appears — search results, dashboard, news
+   headlines — not only on the dedicated Halal Panel.
+
+5. **Methodology transparency** (Islamicly, Annuity.org): Every computed score
+   (traffic-light, risk, Halal) MUST expose a "How is this calculated?" expandable
+   section that shows the exact formula, data sources, and thresholds in Arabic.
+   Users MUST NOT be asked to trust a black box.
+
+#### Methodologies to Standardize
+
+The following calculation methodologies are validated by competitors and MUST
+be adopted when implementing the corresponding features:
+
+- **Risk Tolerance Scoring**: Weighted questionnaire (8 questions). Dimensions:
+  investment horizon (25%), age group (15%), market knowledge (15%), income
+  stability (15%), drawdown tolerance (20%), holding patience (10%). Score
+  0–40 → Conservative; 41–70 → Moderate; 71–100 → Aggressive.
+
+- **Dividend Purification**: `Purification Amount = (Non-Halal Revenue /
+  Total Revenue) × Gross Dividend Received`. Source ratio from Halal screener
+  fundamentals data. Result displayed in AED/USD and as a % of dividend.
+
+- **Zakat Calculation**: `Zakat Due = 2.5% × (Portfolio Value − Liabilities)`
+  where portfolio has been held above nisab threshold (≡ 85g gold value) for
+  one complete lunar year. Nisab value fetched from gold price API or hardcoded
+  as a configurable constant.
+
+- **Technical Summary Signal**: For each timeframe (1H, 1D, 1W), compute:
+  - Moving Average votes: MA5, MA10, MA20, MA50, MA100, MA200 (price vs MA = Buy/Sell)
+  - Indicator votes: RSI(14), MACD(12,26), ADX(14), Williams %R, CCI(14), ROC
+  - Summary = Strong Buy (≥80% Buy), Buy (60–79%), Neutral (40–59%),
+    Sell (20–39%), Strong Sell (<20%).
+
+- **AAOIFI Halal Screening Thresholds** (align with Islamicly standard):
+  - Debt / Market Cap < 33%
+  - Interest Income / Total Revenue < 5%
+  - Non-Compliant Revenue / Total Revenue < 5%
+  - Cash + Receivables / Market Cap < 33% (asset test)
+  `TODO(AAOIFI_METHODOLOGY): Confirm exact thresholds with Halal screener data source.`
+
+#### Competitive Principle (NON-BINDING)
+
+$ahim MUST NOT be a generic stock screener. The product's differentiation MUST
+remain: Arabic-first, halal-native, beginner-safe. Every new feature evaluated
+against competitors MUST pass this filter: "Does this make Islamic investing
+more accessible to an Arabic-speaking beginner, or does it add complexity
+that serves experienced traders?" Features that serve only experienced traders
+without a halal or Arabic angle MUST be deprioritized.
+
+**Rationale**: Sarwa and Baraka are well-capitalized incumbents in the MENA
+investing space. $ahim cannot win on breadth of tradeable assets or execution
+speed. It wins on Shariah trust, Arabic comprehension, and beginner guidance
+— the intersection that neither competitor fully owns.
+
 ## Governance
 
 This constitution supersedes all other team practices and verbal agreements.
 Amendments require a written rationale, a version increment, and update of
 the `Last Amended` date. All implementation tasks generated by `/speckit.tasks`
 MUST include a Constitution Check gate verifying compliance with Principles
-I–IX before any Phase 3+ task begins.
+I–X before any Phase 3+ task begins.
 
 Principles I (Demo-Day First), III (Arabic-First), IV (Halal Integrity),
 V (Regulatory Compliance), VII (Security), and IX (Component & Accessibility)
 are NON-NEGOTIABLE — they cannot be removed or deferred under any timeline
 pressure. Principle VIII (SaaS Product Architecture) tier-gating rules are
 NON-NEGOTIABLE for security; page structure may be scoped for MVP.
+Principle X (Competitive Intelligence) is ADVISORY — it guides prioritization
+but does not block shipping.
 
-**Version**: 1.1.1 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-04-27
+**Version**: 1.2.0 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-04-28
