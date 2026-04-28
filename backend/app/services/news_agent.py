@@ -19,7 +19,7 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
-_AGENT_TIMEOUT = 10.0  # seconds
+_AGENT_TIMEOUT = 30.0  # seconds
 
 _SYSTEM_PROMPT = """أنت محلل مالي خبير. بناءً على الأخبار المُقدَّمة، أجب بصيغة JSON فقط بالحقول التالية:
 {
@@ -66,11 +66,11 @@ async def analyse_news(
     try:
         response = await asyncio.wait_for(
             client.aio.models.generate_content(
-                model="gemini-2.0-flash",
+                model="gemini-3-flash-preview",
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    max_output_tokens=512,
+                    max_output_tokens=2048,
                     temperature=0.2,
                 ),
             ),
@@ -84,10 +84,31 @@ async def analyse_news(
         return _fallback_result()
 
     try:
-        content = response.text or "{}"
+        content = ""
+        # Gemini 3 Preview might return thought_signature/thought parts.
+        # We manually extract only the text parts to avoid concatenated JSON problems.
+        if response.candidates and response.candidates[0].content.parts:
+            content = "".join(
+                part.text for part in response.candidates[0].content.parts if getattr(part, "text", None)
+            )
+        else:
+            content = response.text or "{}"
+
+        logger.debug("Raw Gemini response for %s: %r", ticker, content)
+
+        # Clean markdown codeblocks in case the model ignored response_mime_type
+        content = content.strip()
+        if content.startswith("```"):
+            lines = content.splitlines()
+            if lines and lines[0].startswith("```"):
+                lines = lines[1:]
+            if lines and lines[-1].startswith("```"):
+                lines = lines[:-1]
+            content = "\n".join(lines).strip()
+
         data = json.loads(content)
     except (json.JSONDecodeError, ValueError) as exc:
-        logger.warning("Failed to parse Gemini response for %s: %s", ticker, exc)
+        logger.error("Failed to parse Gemini response for %s: %s\nRaw content: %r", ticker, exc, content)
         return _fallback_result()
 
     return {
@@ -98,15 +119,6 @@ async def analyse_news(
         "key_opportunities": data.get("key_opportunities", []),
     }
 
-
-def _fallback_result() -> dict:
-    return {
-        "sentiment": "neutral",
-        "summary_ar": "",
-        "summary_en": "",
-        "key_risks": [],
-        "key_opportunities": [],
-    }
 
 def _fallback_result() -> dict:
     return {

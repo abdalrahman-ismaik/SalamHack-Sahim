@@ -71,10 +71,13 @@ class FundamentalData(BaseModel):
 
 class RiskMetrics(BaseModel):
     ticker: str
+    current_price: Optional[float] = None
+    change_pct: Optional[float] = None
     volatility_annual: float
     var_95: float
     sharpe_ratio: float
     beta: float
+    max_drawdown: Optional[float] = None
     benchmark: str
     technicals: TechnicalIndicators
     fundamentals: FundamentalData
@@ -86,7 +89,7 @@ class RiskMetrics(BaseModel):
 # ---------------------------------------------------------------------------
 
 HalalStatus = Literal["Halal", "PurificationRequired", "NonHalal", "Unknown"]
-HalalSource = Literal["Musaffa", "AAOIFI"]
+HalalSource = Literal["HalalScreener", "Musaffa", "AAOIFI"]
 
 
 class HalalVerdict(BaseModel):
