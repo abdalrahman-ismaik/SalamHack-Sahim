@@ -1,30 +1,29 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.1.1 → 1.2.0
+Version change: 1.2.0 → 1.3.0
 Amendment rationale:
-  MINOR bump — New Principle X (Competitive Intelligence & Product
-  Differentiation) added. Full competitive analysis of 8 reference platforms
-  encoded as actionable guidelines and a tiered feature roadmap. No existing
+  MINOR bump — New Principle XI (Dashboard UX & Data Visualization Standards)
+  added. Comprehensive dashboard layout architecture, Chart.js chart-type
+  selection rules, KPI card design, service card priority order, and visual
+  design language encoded as actionable implementation constraints. No existing
   principles changed; no gates removed or weakened.
 Modified principles:
-  None (all existing principles I–IX unchanged)
+  None (all existing principles I–X unchanged)
 Added sections:
-  - X. Competitive Intelligence & Product Differentiation
-    (landscape table, feature gap analysis, UX patterns, methodologies,
-     prioritized roadmap items: Risk Wizard, Purification Calc, Zakat Calc,
-     Compliance Alerts, AI Chat, Halal Model Portfolios, Technical Summary)
+  - XI. Dashboard UX & Data Visualization Standards
+    (layout grid, zone priority order, Chart.js rules, chart-type matrix,
+     KPI card specs, service card ordering, dark-premium design language,
+     CTA navigation pattern, RTL/responsive requirements)
 Templates requiring updates:
-  ✅ plan-template.md — Constitution Check gate updated to reference I–X
+  ✅ plan-template.md — Constitution Check gate updated to reference I–XI
   ✅ spec-template.md — No change required
   ✅ tasks-template.md — No change required
 Follow-up TODOs:
   - TODO(STRIPE_KEY): Add real Stripe publishable key to .env before launch
   - TODO(ENTERPRISE_CONTACT): Replace pricing contact placeholder with real form/email
   - TODO(AAOIFI_METHODOLOGY): Document exact AAOIFI ratio thresholds used by Halal screener
-  - TODO(RISK_WIZARD_SPEC): Create spec for Risk Tolerance Wizard (FR-R01)
-  - TODO(PURIFICATION_CALC): Create spec for Dividend Purification Calculator (FR-R02)
-  - TODO(ZAKAT_CALC): Create spec for Zakat Calculator (FR-R03)
+  - TODO(DASHBOARD_SPEC): Spec for dashboard refactor is queued as feature 004
 -->
 
 # سهم ($ahim) Constitution
@@ -449,13 +448,150 @@ investing space. $ahim cannot win on breadth of tradeable assets or execution
 speed. It wins on Shariah trust, Arabic comprehension, and beginner guidance
 — the intersection that neither competitor fully owns.
 
+### XI. Dashboard UX & Data Visualization Standards
+
+The Dashboard page (`/[locale]/dashboard`) is the product's primary interface
+after login. It MUST be premium in appearance, intuitive in navigation, and
+purposefully ordered by the relevance and importance of each Sahim service.
+The following rules are non-negotiable for the dashboard implementation.
+
+#### Layout Architecture
+
+The dashboard MUST use a **12-column CSS grid** (Tailwind `grid-cols-12`)
+with responsive breakpoints: single column on mobile (360px), 2-column on md
+(768px), full 12-column on xl (1280px+). Layout zones are ordered by
+interaction priority top-to-bottom:
+
+1. **Zone 1 — Ticker Strip** (full-width, `col-span-12`): Live scrolling
+   price strip with Halal badge inline next to each ticker symbol. Uses
+   `TickerStrip` component. Always visible; no tier gate.
+
+2. **Zone 2 — KPI Cards Row** (`col-span-12`, 4 equal cards on desktop,
+   2×2 on tablet, 1 col on mobile): Four metric summary cards, each with
+   an icon, primary value, subtitle, and optional trend delta badge:
+   - **Watchlist Size** — count of tickers the user monitors
+   - **Halal Compliance Rate** — % of watchlist tickers currently Halal
+   - **Risk Level** — user's profile (محافظ / متوازن / جريء) from Risk Wizard
+   - **Zakat Reminder** — days since last Zakat calculation, or "احسب الآن"
+     CTA if never calculated
+   Card design: `rounded-2xl border border-white/10 bg-white/5 p-5`,
+   icon in a `w-10 h-10 rounded-lg bg-[#C5A059]/10` accent container,
+   gold trend badge using `text-[#00E676]` (up) / `text-[#FF1744]` (down).
+
+3. **Zone 3 — Primary Charts** (`col-span-12`, split 7+5 on xl):
+   - **Left (7 cols)**: ARIMA 30-day price trend **Line chart** using
+     Chart.js (`react-chartjs-2`). Default ticker is the user's most
+     recently viewed stock, or `AAPL` as fallback. MUST display confidence
+     interval bands as a shaded `fill` dataset. Pro gate: show full 30 days
+     for Pro; show 7 days only with upgrade prompt for Free.
+   - **Right (5 cols)**: Portfolio allocation **Doughnut chart** (Chart.js)
+     showing breakdown by sector (Technology, Energy, Finance, etc.) or
+     asset type. Fallback text "أضف أسهمك لرؤية التوزيع" if no portfolio
+     data. Color palette: `['#C5A059', '#00E676', '#3B82F6', '#F59E0B',
+     '#EC4899', '#6366F1', '#14B8A6']`.
+
+4. **Zone 4 — Service Cards Grid** (`col-span-12`, 3-column on lg+, 2 on
+   md, 1 on mobile): The eight Sahim services MUST appear in the following
+   priority order, left-to-right, top-to-bottom:
+   1. Stock Screener (البحث عن الأسهم) — always Free
+   2. Halal Verdict (الحكم الشرعي) — always Free
+   3. Risk Wizard (معرفة مستوى المخاطرة) — always Free / guest
+   4. ARIMA Forecast (توقع الأسعار) — Pro
+   5. Portfolio Allocator (توزيع المحفظة) — Pro
+   6. Risk Dashboard (لوحة المخاطر) — Pro
+   7. Sector Explorer (استكشاف القطاعات) — Pro
+   8. News Agent (أخبار الأسهم) — partial Free / full Pro
+   9. Zakat Calculator (حاسبة الزكاة) — Free (authed)
+   Each card MUST have: icon, Arabic title, one-line Arabic description,
+   tier badge (حر / برو), and a primary CTA button/link. Locked Pro cards
+   MUST display a soft overlay with "ترقِّ للوصول" — no hard blocking.
+   Card layout MUST use `motion.li` (Framer Motion) with a subtle
+   `fadeInUp` stagger (0.05s delay between cards).
+
+5. **Zone 5 — Secondary Insights** (`col-span-12`, split 7+5 on xl):
+   - **Left (7 cols)**: Sector Performance **Bar chart** (Chart.js) showing
+     weekly/monthly % change per sector. X-axis: sector names (Arabic
+     abbreviated labels). Horizontal bars preferred for RTL readability.
+     Time-frame toggle: "أسبوع / شهر / 3 أشهر".
+   - **Right (5 cols)**: Risk Gauge — a **semi-circular arc chart** built
+     with Chart.js Doughnut (half-donut trick: rotation 270°, circumference
+     50%) representing the user's composite risk score 0–100. Color zones:
+     green (0–40, محافظ), amber (41–70, متوازن), red (71–100, جريء).
+
+6. **Zone 6 — Latest News Feed** (`col-span-12`): Three most recent AI
+   news headline cards for the user's watchlist tickers. Each card: ticker
+   symbol with inline Halal badge, Arabic headline text (truncated to 2
+   lines), source + relative timestamp, and a "اقرأ المزيد" link to the
+   stock page. Free users see 3 headlines; Pro users see 6. No tier gate
+   error — just show fewer cards for Free.
+
+#### Chart.js Usage Rules
+
+The project MUST use `react-chartjs-2` (wrapping Chart.js v4) for all
+dashboard charts. ApexCharts is NOT permitted on the dashboard page (it is
+used only in the dedicated ArimaChart component for the stock detail page).
+Specific chart-type selection MUST follow this matrix:
+
+| Metric / Service | Chart Type | Chart.js Config Key |
+|-----------------|------------|---------------------|
+| Price trend (ARIMA) | Line + CI fill | `type: 'line'`, `fill: true` |
+| Portfolio allocation | Doughnut | `type: 'doughnut'` |
+| Sector performance | Horizontal Bar | `type: 'bar'`, `indexAxis: 'y'` |
+| Risk score gauge | Half-Doughnut | `type: 'doughnut'`, `rotation: -90`, `circumference: 180` |
+| Halal compliance rate | Thin Doughnut | `type: 'doughnut'`, `cutout: '80%'` |
+| Risk profile comparison | Radar | `type: 'radar'` (Risk Wizard result) |
+
+All Chart.js instances MUST:
+- Set `responsive: true` and `maintainAspectRatio: false`
+- Use `font.family: 'Cairo, sans-serif'` for Arabic label rendering
+- Set `plugins.legend.rtl: true` when locale is `ar`
+- Use the project's color palette (`#C5A059` gold, `#00E676` positive,
+  `#FF1744` negative, `#3B82F6` neutral) — no default Chart.js blue
+- Disable animations when `prefers-reduced-motion: reduce` is detected
+  via `animation: false` in chart options
+- NOT display a loading spinner — use Tailwind skeleton placeholders
+  (`animate-pulse bg-white/5 rounded-xl`) during data fetching
+
+#### Dark-Premium Visual Design Language
+
+The dashboard MUST maintain a dark, premium aesthetic consistent with the
+existing Sahim design system:
+- Background: `bg-[#0a0a0a]` (page) / `bg-white/5` (card surface)
+- Card border: `border border-white/10` with `rounded-2xl`
+- Primary accent: `#C5A059` (gold) — used for CTAs, icons, highlights
+- Text hierarchy: `text-white` (primary) / `text-gray-300` (secondary) /
+  `text-gray-500` (tertiary/labels)
+- No solid white backgrounds anywhere on the dashboard page
+- Framer Motion `fadeInUp` for page-load entry of each zone (stagger 0.1s)
+- Hover state on interactive cards: `hover:border-[#C5A059]/30
+  hover:bg-white/[0.07]` transition 200ms
+
+#### Navigation & CTA Pattern
+
+Every service card and chart zone MUST link to the corresponding service
+page via `next/link`. The navigation target MUST include the locale prefix:
+`/{locale}/stock/{ticker}`, `/{locale}/tools/risk-wizard`, etc. Dashboard
+MUST NOT embed the full service UI inline — it is a navigation hub only.
+Deep-link parameters MUST be passed via URL search params when pre-filling
+forms (e.g., `/{locale}/tools/zakat?portfolio=50000`). All CTA buttons MUST
+use the `<Button>` primitive from `frontend/src/components/ui/`.
+
+#### RTL & Responsive Requirements
+
+In Arabic (`ar`) locale: all chart legends, axis labels, and tooltip text
+MUST render RTL. The grid layout MUST flip using Tailwind `rtl:` variants
+where column ordering matters (e.g., the 7+5 split: left ↔ right in RTL).
+Zone 4 service cards MUST maintain the same priority order in RTL — just
+horizontally mirrored. The dashboard MUST be fully functional and visually
+correct at 360px, 768px, 1280px, and 1440px viewport widths.
+
 ## Governance
 
 This constitution supersedes all other team practices and verbal agreements.
 Amendments require a written rationale, a version increment, and update of
 the `Last Amended` date. All implementation tasks generated by `/speckit.tasks`
 MUST include a Constitution Check gate verifying compliance with Principles
-I–X before any Phase 3+ task begins.
+I–XI before any Phase 3+ task begins.
 
 Principles I (Demo-Day First), III (Arabic-First), IV (Halal Integrity),
 V (Regulatory Compliance), VII (Security), and IX (Component & Accessibility)
@@ -463,6 +599,8 @@ are NON-NEGOTIABLE — they cannot be removed or deferred under any timeline
 pressure. Principle VIII (SaaS Product Architecture) tier-gating rules are
 NON-NEGOTIABLE for security; page structure may be scoped for MVP.
 Principle X (Competitive Intelligence) is ADVISORY — it guides prioritization
-but does not block shipping.
+but does not block shipping. Principle XI (Dashboard UX & Data Visualization)
+is NON-NEGOTIABLE for the dashboard page; chart types and zone order MUST NOT
+be changed without an explicit constitution amendment.
 
-**Version**: 1.2.0 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-04-28
+**Version**: 1.3.0 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-04-29
