@@ -26,15 +26,15 @@ Refactor the dashboard page to deliver a premium, visually rich, and highly usab
 
 - I (Demo-Day First): Feature is scoped for completion before May 1st deadline
 - III (Arabic-First): All labels, tooltips, and UI text must be available in Arabic (ar.json)
-- IV (Halal Integrity): Halal screening outputs display mandatory disclaimer
-- V (Regulatory Compliance): All risk/ARIMA outputs display investment-advice disclaimer
-- VII (Security): No hardcoded secrets; all user input validated at API boundary
-- VIII (SaaS Architecture): Dashboard requires authentication; tier gating enforced server-side
-- IX (Component & Accessibility): Tailwind-only, keyboard navigation, ARIA attributes, WCAG AA contrast
-- X (Competitive Differentiation): Dashboard prioritizes Arabic-first, halal-native, beginner-safe mission; methodology transparency present
-- XI (Dashboard Design): All dashboard zones, chart types, card order, and design language comply with Principle XI
+- IV (Halal Integrity): FR-018 mandates Halal disclaimer tooltip on all inline badges in Zones 1 and 6 — implemented in T044 ✅
+- V (Regulatory Compliance): FR-019 mandates investment-advice disclaimer footer on Zone 3 (ARIMA) and Zone 5 (Risk Gauge) cards — implemented in T045 ✅
+- VII (Security): No hardcoded secrets; all user input validated at API boundary ✅
+- VIII (SaaS Architecture): Dashboard requires authentication; tier gating enforced server-side ✅
+- IX (Component & Accessibility): Tailwind-only, keyboard navigation, ARIA attributes, WCAG AA contrast ✅
+- X (Competitive Differentiation): Dashboard prioritizes Arabic-first, halal-native, beginner-safe mission; methodology transparency present ✅
+- XI (Dashboard Design): All dashboard zones, chart types, card order, and design language comply with Principle XI ✅
 
-**No violations detected. All gates pass.**
+**All gates pass. FR-018 and FR-019 were added to spec.md to bring Principles IV and V into full compliance.**
 
 ## Project Structure
 

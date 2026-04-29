@@ -197,6 +197,67 @@ export const GUEST_SESSION: UserSession = {
 };
 
 // ---------------------------------------------------------------------------
+// Dashboard KPI
+// ---------------------------------------------------------------------------
+
+export interface DashboardKPI {
+  watchlistCount: number;
+  halalComplianceRate: number;        // 0–100 percentage
+  riskProfile: string | null;          // e.g., "Conservative", "Moderate", "Aggressive", or null
+  lastZakatDate: string | null;        // ISO 8601, or null if never calculated
+  lastViewedTicker: string | null;     // e.g., "AAPL", or null if no history
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard Chart Data
+// ---------------------------------------------------------------------------
+
+export interface ArimaChartPoint {
+  date: string;                        // ISO 8601 date
+  price: number;
+  ci_lower: number;
+  ci_upper: number;
+}
+
+export interface SectorBar {
+  sector: string;                      // Arabic sector name
+  value: number;                       // % change or allocation weight
+  positive: boolean;                   // for color coding
+}
+
+export interface RiskGaugeData {
+  score: number | null;                // 0–100, or null if not calculated
+  label: string;                       // "Low", "Moderate", "High"
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard News
+// ---------------------------------------------------------------------------
+
+export interface DashboardNewsItem {
+  ticker: string;
+  headline: string;                    // Arabic headline
+  source: string;
+  timestamp: string;                   // ISO 8601
+  url: string;
+  halalStatus: HalalStatus;            // from ticker's Halal verdict
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard Service Card
+// ---------------------------------------------------------------------------
+
+export interface ServiceCard {
+  id: string;
+  titleAr?: string;                    // Added in T005
+  descriptionAr?: string;              // Added in T005
+  icon: string;                        // icon name or path
+  requiredTier: UserTier;              // 'free', 'pro', 'enterprise'
+  href: string;                        // route path
+  available?: boolean;                 // optional compat field
+}
+
+// ---------------------------------------------------------------------------
 // Pricing Plans (static)
 // ---------------------------------------------------------------------------
 
@@ -210,17 +271,7 @@ export interface PricingPlan {
   readonly ctaVariant:   'default' | 'outline';
 }
 
-// ---------------------------------------------------------------------------
-// Service Cards (static)
-// ---------------------------------------------------------------------------
 
-export interface ServiceCard {
-  readonly id:           string;
-  readonly icon:         string;      // Lucide icon name
-  readonly href:         string;
-  readonly requiredTier: UserTier;
-  readonly available:    boolean;
-}
 
 // ---------------------------------------------------------------------------
 // Halal Investor Tools (Feature 003)

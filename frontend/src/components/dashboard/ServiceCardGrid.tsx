@@ -2,12 +2,14 @@
 
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
+import Link from 'next/link';
 import { useUserTier } from '@/hooks/useUserTier';
 import { Card } from '@/components/ui/Card';
-import { UpgradeGate } from '@/components/ui/UpgradeGate';
+import { UpgradeOverlay } from '@/components/dashboard/UpgradeOverlay';
 import { SERVICES } from '@/lib/services';
 import type { UserTier } from '@/lib/types';
 import { motion, MotionConfig } from 'framer-motion';
+import { fadeInUp, staggerContainer } from '@/lib/motion';
 
 const TIER_RANK: Record<UserTier, number> = {
   guest: 0, free: 1, pro: 2, enterprise: 3,
@@ -19,6 +21,9 @@ const iconMap: Record<string, React.ReactNode> = {
   ),
   'halal-verdict': (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  ),
+  'risk-wizard': (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
   ),
   'news-agent': (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
@@ -35,6 +40,9 @@ const iconMap: Record<string, React.ReactNode> = {
   'risk-dashboard': (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
   ),
+  'zakat-calculator': (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  ),
   'live-monitoring': (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
   ),
@@ -44,22 +52,25 @@ export function ServiceCardGrid() {
   const t      = useTranslations('services');
   const locale = useLocale();
   const tier   = useUserTier();
-  const featureKeyMap: Record<string, 'arima' | 'risk' | 'allocator' | 'sector' | 'news' | 'live-monitoring'> = {
-    'arima-forecast':      'arima',
-    'risk-dashboard':      'risk',
-    'portfolio-allocator': 'allocator',
-    'sector-explorer':     'sector',
-    'news-agent':          'news',
-    'live-monitoring':     'live-monitoring',
-  };
-
   return (
     <MotionConfig reducedMotion="never">
-    <ul
+    <motion.ul
       role="list"
+      variants={{
+        ...staggerContainer,
+        visible: {
+          opacity: 1,
+          transition: {
+            staggerChildren: 0.05,
+            delayChildren: 0.1,
+          },
+        },
+      }}
+      initial="hidden"
+      animate="visible"
       className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-6"
     >
-      {SERVICES.map((service, index) => {
+      {SERVICES.map((service) => {
         const locked = TIER_RANK[tier] < TIER_RANK[service.requiredTier as UserTier];
 
         const cardContent = (
@@ -67,7 +78,7 @@ export function ServiceCardGrid() {
             as="article"
             variant="default"
             hover={!locked && service.available}
-            className={`p-5 flex flex-col gap-3 ${!service.available ? 'opacity-50' : ''} ${locked ? 'border-[#C5A059]/10' : ''}`}
+            className={`relative p-5 flex flex-col gap-3 ${!service.available ? 'opacity-50' : ''} ${locked ? 'border-[#C5A059]/10' : ''}`}
           >
             <div className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${locked ? 'bg-white/5 text-gray-600' : 'bg-[#C5A059]/10 text-[#C5A059]'}`}>
@@ -92,36 +103,34 @@ export function ServiceCardGrid() {
             {!service.available && (
               <span className="text-xs text-gray-600 font-medium">{t(`${service.id}.comingSoon` as Parameters<typeof t>[0])}</span>
             )}
+            <UpgradeOverlay visible={locked} />
           </Card>
         );
+
+        const href = locked
+          ? `/${locale}/pricing`
+          : service.available
+            ? `/${locale}${service.href}`
+            : '#';
 
         return (
           <motion.li
             suppressHydrationWarning
             key={service.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.06 }}
+            variants={fadeInUp}
           >
-            {locked ? (
-              <UpgradeGate
-                requiredTier={service.requiredTier as 'free' | 'pro' | 'enterprise'}
-                featureKey={featureKeyMap[service.id] ?? 'arima'}
-              >
-                {cardContent}
-              </UpgradeGate>
-            ) : (
-              <a
-                href={service.available ? `/${locale}${service.href}` : '#'}
-                className="block rounded-xl focus-visible:ring-2 focus-visible:ring-[#C5A059] focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-shadow"
-              >
-                {cardContent}
-              </a>
-            )}
+            <Link
+              href={href}
+              role="button"
+              tabIndex={0}
+              className="block rounded-xl focus-visible:ring-2 focus-visible:ring-[#C5A059] focus-visible:ring-offset-2 focus-visible:ring-offset-black transition-shadow"
+            >
+              {cardContent}
+            </Link>
           </motion.li>
         );
       })}
-    </ul>
+    </motion.ul>
     </MotionConfig>
   );
 }

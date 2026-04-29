@@ -316,6 +316,10 @@
       "title": "Shariah Compliance",
       "description": "Optional halal screening powered by Musaffa and AAOIFI standards — for investors who need it."
     },
+    "risk-wizard": {
+      "title": "Risk Wizard",
+      "description": "Build your investor risk profile in minutes with a guided assessment."
+    },
     "news-agent": {
       "title": "News Agent",
       "description": "AI-summarized news with sentiment analysis in Arabic and English."
@@ -335,6 +339,10 @@
     "risk-dashboard": {
       "title": "Risk Dashboard",
       "description": "Full volatility, VaR, Sharpe, and beta analysis with technicals."
+    },
+    "zakat-calculator": {
+      "title": "Zakat Calculator",
+      "description": "Estimate the zakat due on your portfolio with practical guidance."
     },
     "live-monitoring": {
       "title": "Live Monitoring",
@@ -463,5 +471,139 @@
     "noAlerts": "No compliance changes detected.",
     "savedSuccess": "Alert preference saved.",
     "saveError": "Failed to save preference. Please try again."
+  },
+  "dashboard": {
+    "greeting": "Welcome to Your Dashboard",
+    "subtitle": "Track your halal portfolio, risk, and market signals in one place",
+    "zone1Title": "Live Ticker",
+    "zone2Title": "Portfolio KPIs",
+    "zone3Title": "Forecast & Allocation",
+    "zone4Title": "Services",
+    "zone5Title": "Sector & Risk",
+    "zone6Title": "News Feed",
+    "riskUnknown": "Risk level not computed",
+    "ticker": {
+      "clickToView": "Click to view {symbol} ARIMA chart"
+    },
+    "zone": {
+      "tickerStrip": "Live Prices",
+      "kpiCards": "Your Portfolio Summary",
+      "charts": "Key Analytics",
+      "services": "Services",
+      "sector": "Sector Performance",
+      "news": "Latest News"
+    },
+    "kpi": {
+      "watchlist": "Watchlist Size",
+      "watchlistSubtitle": "Tracked stocks",
+      "compliance": "Halal Compliance",
+      "complianceSubtitle": "Shariah-compliant ratio",
+      "riskProfile": "Risk Profile",
+      "riskSubtitle": "Your latest risk assessment",
+      "zakat": "Zakat Reminder",
+      "zakatSubtitle": "Last zakat calculation",
+      "computeRisk": "Calculate Risk",
+      "notSet": "Not set",
+      "watchlistSize": "Watchlist Size",
+      "halalCompliance": "Halal Compliance Rate",
+      "riskLevel": "Risk Level",
+      "zakatReminder": "Zakat Reminder",
+      "noWatchlistItems": "No stocks yet",
+      "setRiskProfile": "Calculate Now",
+      "notCalculated": "Not calculated",
+      "calculateZakat": "Calculate Now",
+      "daysSinceZakat": "Last calculation: {days} days ago"
+    },
+    "arima": {
+      "title": "Price Forecast (ARIMA)",
+      "forecast": "Forecast",
+      "price": "Price",
+      "ciUpper": "CI Upper",
+      "ciLower": "CI Lower",
+      "empty": "No forecast data available",
+      "days7": "7 days",
+      "days30": "30 days",
+      "selectTicker": "Select a stock from the ticker strip above to view the forecast",
+      "viewFull": "View Full Forecasts →",
+      "upgradeBanner": "Extend to 30 days — Upgrade to Pro"
+    },
+    "portfolio": {
+      "title": "Portfolio Allocation",
+      "emptyState": "Add stocks to view allocation",
+      "empty": "Add stocks to view allocation"
+    },
+    "sector": {
+      "title": "Sector Performance",
+      "performance": "Performance",
+      "empty": "No sector data available",
+      "period": {
+        "week": "Week",
+        "month": "Month",
+        "quarter": "3 Months"
+      },
+      "week": "Week",
+      "month": "Month",
+      "quarter": "3 Months",
+      "pro": "Pro"
+    },
+    "risk": {
+      "title": "Risk Level",
+      "discoverRisk": "Discover Your Risk Profile",
+      "emptyState": "Discover Your Risk Profile",
+      "score": "Score",
+      "remaining": "Remaining",
+      "outOf100": "Out of 100",
+      "discoverProfile": "Discover Your Risk Profile",
+      "low": "Low",
+      "moderate": "Moderate",
+      "high": "High"
+    },
+    "news": {
+      "title": "Latest News",
+      "empty": "Add stocks to follow their news",
+      "addStocks": "Add Stocks",
+      "status": {
+        "halal": "Halal",
+        "purification": "Purification",
+        "nonHalal": "Non-Halal"
+      },
+      "time": {
+        "now": "Now",
+        "hoursAgo": "{count}h ago",
+        "daysAgo": "{count}d ago"
+      },
+      "noNews": "Add stocks to follow their news",
+      "moreNews": "Subscribe to Pro to see more",
+      "readMore": "Read More"
+    },
+    "services": {
+      "stockScreener": "Stock Screener",
+      "stockScreenerDesc": "Find stocks suited to your investment profile",
+      "halalVerdict": "Halal Verdict",
+      "halalVerdictDesc": "Check the Shariah compliance status of any stock",
+      "riskWizard": "Risk Wizard",
+      "riskWizardDesc": "Calculate your personal risk profile",
+      "arimaForecast": "Price Forecast",
+      "arimaForecastDesc": "Get a statistical forecast of stock prices",
+      "portfolioAllocator": "Portfolio Allocator",
+      "portfolioAllocatorDesc": "Allocate your budget across multiple stocks",
+      "riskDashboard": "Risk Dashboard",
+      "riskDashboardDesc": "Monitor advanced risk indicators",
+      "sectorExplorer": "Sector Explorer",
+      "sectorExplorerDesc": "Compare stocks within a sector",
+      "newsAgent": "News Agent",
+      "newsAgentDesc": "Read AI-powered news analysis",
+      "zakatCalculator": "Zakat Calculator",
+      "zakatCalculatorDesc": "Calculate Zakat due on your portfolio"
+    },
+    "tier": {
+      "upgrade": "Upgrade to Access",
+      "proOnly": "Pro feature only",
+      "proFeature": "Available to Pro subscribers only"
+    },
+    "disclaimer": {
+      "halal": "Final halal verification is the user's responsibility",
+      "investmentAdvice": "Independent informational analysis — not licensed investment advice"
+    }
   }
 }

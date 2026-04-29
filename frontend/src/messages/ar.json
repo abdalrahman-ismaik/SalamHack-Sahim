@@ -314,6 +314,10 @@
       "title": "الامتثال الشرعي",
       "description": "فحص شرعي اختياري بمعايير مصافي و AAOIFI — لمن يحتاج ذلك."
     },
+    "risk-wizard": {
+      "title": "كاشف المخاطر",
+      "description": "كوِّن ملف مخاطرتك الاستثمارية خلال دقائق عبر تقييم إرشادي بسيط."
+    },
     "news-agent": {
       "title": "وكيل الأخبار",
       "description": "أخبار موجزة بالذكاء الاصطناعي مع تحليل المشاعر بالعربية والإنجليزية."
@@ -333,6 +337,10 @@
     "risk-dashboard": {
       "title": "لوحة المخاطر",
       "description": "تحليل التذبذب والقيمة المعرضة للخطر ونسبة شارب وبيتا والمؤشرات الفنية."
+    },
+    "zakat-calculator": {
+      "title": "حاسبة الزكاة",
+      "description": "قدّر الزكاة الواجبة على محفظتك بإرشادات عملية واضحة."
     },
     "live-monitoring": {
       "title": "المراقبة المباشرة",
@@ -462,5 +470,139 @@
     "noAlerts": "لا توجد تغييرات في الامتثال.",
     "savedSuccess": "تم حفظ تفضيلات التنبيه.",
     "saveError": "فشل حفظ التفضيل. يرجى المحاولة مرة أخرى."
+  },
+  "dashboard": {
+    "greeting": "مرحباً بك في لوحة التحكم",
+    "subtitle": "تابع محفظتك الحلال والمخاطر وإشارات السوق في مكان واحد",
+    "zone1Title": "الشريط المباشر",
+    "zone2Title": "مؤشرات المحفظة",
+    "zone3Title": "التوقع والتوزيع",
+    "zone4Title": "الخدمات",
+    "zone5Title": "القطاع والمخاطر",
+    "zone6Title": "موجز الأخبار",
+    "riskUnknown": "لم يتم حساب مستوى المخاطر",
+    "ticker": {
+      "clickToView": "اضغط لعرض توقع ARIMA لسهم {symbol}"
+    },
+    "zone": {
+      "tickerStrip": "أسعار مباشرة",
+      "kpiCards": "ملخص محفظتك",
+      "charts": "التحليلات الرئيسية",
+      "services": "الخدمات",
+      "sector": "أداء القطاعات",
+      "news": "آخر الأخبار"
+    },
+    "kpi": {
+      "watchlist": "حجم المتابعة",
+      "watchlistSubtitle": "الأسهم المتابَعة",
+      "compliance": "نسبة الحلية",
+      "complianceSubtitle": "نسبة الالتزام الشرعي",
+      "riskProfile": "ملف المخاطر",
+      "riskSubtitle": "آخر تقييم للمخاطر",
+      "zakat": "تذكير الزكاة",
+      "zakatSubtitle": "آخر حساب للزكاة",
+      "computeRisk": "احسب المخاطر",
+      "notSet": "غير محدد",
+      "watchlistSize": "حجم المتابعة",
+      "halalCompliance": "نسبة الحلية",
+      "riskLevel": "مستوى المخاطر",
+      "zakatReminder": "تذكر الزكاة",
+      "noWatchlistItems": "لا توجد أسهم بعد",
+      "setRiskProfile": "احسب الآن",
+      "notCalculated": "لم يُحدَّد بعد",
+      "calculateZakat": "احسب الآن",
+      "daysSinceZakat": "آخر حساب: {days} يوم مضى"
+    },
+    "arima": {
+      "title": "توقع السعر (ARIMA)",
+      "forecast": "التوقع",
+      "price": "السعر",
+      "ciUpper": "الحد الأعلى",
+      "ciLower": "الحد الأدنى",
+      "empty": "لا توجد بيانات توقع متاحة",
+      "days7": "7 أيام",
+      "days30": "30 يوماً",
+      "selectTicker": "اختر سهماً من الشريط أعلاه لمشاهدة التوقع",
+      "viewFull": "شاهد التوقعات الكاملة ←",
+      "upgradeBanner": "وسِّع الأفق إلى 30 يوماً — ترقَّ إلى برو"
+    },
+    "portfolio": {
+      "title": "توزيع المحفظة",
+      "emptyState": "أضف أسهمك لرؤية التوزيع",
+      "empty": "أضف أسهمك لرؤية التوزيع"
+    },
+    "sector": {
+      "title": "أداء القطاعات",
+      "performance": "الأداء",
+      "empty": "لا توجد بيانات قطاعات متاحة",
+      "period": {
+        "week": "أسبوع",
+        "month": "شهر",
+        "quarter": "3 أشهر"
+      },
+      "week": "أسبوع",
+      "month": "شهر",
+      "quarter": "3 أشهر",
+      "pro": "برو"
+    },
+    "risk": {
+      "title": "مستوى المخاطر",
+      "discoverRisk": "اكتشف مستوى مخاطرتك",
+      "emptyState": "اكتشف مستوى مخاطرتك",
+      "score": "الدرجة",
+      "remaining": "المتبقي",
+      "outOf100": "من 100",
+      "discoverProfile": "اكتشف مستوى مخاطرتك",
+      "low": "منخفض",
+      "moderate": "متوسط",
+      "high": "مرتفع"
+    },
+    "news": {
+      "title": "آخر الأخبار",
+      "empty": "أضف أسهماً لمتابعة أخبارها",
+      "addStocks": "أضف أسهماً",
+      "status": {
+        "halal": "حلال",
+        "purification": "تنقية",
+        "nonHalal": "غير حلال"
+      },
+      "time": {
+        "now": "الآن",
+        "hoursAgo": "منذ {count}س",
+        "daysAgo": "منذ {count}ي"
+      },
+      "noNews": "أضف أسهماً لمتابعة أخبارها",
+      "moreNews": "اشترك في برو لرؤية المزيد",
+      "readMore": "اقرأ المزيد"
+    },
+    "services": {
+      "stockScreener": "فرز الأسهم",
+      "stockScreenerDesc": "ابحث عن الأسهم المناسبة لملفك الاستثماري",
+      "halalVerdict": "فحص الحلية",
+      "halalVerdictDesc": "تحقق من الحالة الشرعية لأي سهم",
+      "riskWizard": "كاشف المخاطر",
+      "riskWizardDesc": "احسب ملف مخاطرتك الشخصي",
+      "arimaForecast": "توقع السعر",
+      "arimaForecastDesc": "احصل على توقع إحصائي لسعر السهم",
+      "portfolioAllocator": "توزيع المحفظة",
+      "portfolioAllocatorDesc": "وزّع ميزانيتك على عدة أسهم",
+      "riskDashboard": "لوحة المخاطر",
+      "riskDashboardDesc": "راقب مؤشرات المخاطر المتقدمة",
+      "sectorExplorer": "اكتشف القطاعات",
+      "sectorExplorerDesc": "قارن الأسهم ضمن قطاع واحد",
+      "newsAgent": "وكيل الأخبار",
+      "newsAgentDesc": "اقرأ تحليل الأخبار بالذكاء الاصطناعي",
+      "zakatCalculator": "حاسبة الزكاة",
+      "zakatCalculatorDesc": "احسب الزكاة الواجبة على محفظتك"
+    },
+    "tier": {
+      "upgrade": "ترقِّ للوصول",
+      "proOnly": "ميزة برو فقط",
+      "proFeature": "متاح للمشتركين في برو فقط"
+    },
+    "disclaimer": {
+      "halal": "التحقق النهائي من الحلية يقع على عاتق المستخدم",
+      "investmentAdvice": "تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة"
+    }
   }
 }

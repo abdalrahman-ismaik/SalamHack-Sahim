@@ -17,6 +17,7 @@ import { UpgradeGate } from "@/components/ui/UpgradeGate";
 import { SignInGateModal } from "@/components/ui/SignInGateModal";
 import { useUserTier } from "@/hooks/useUserTier";
 import { useSoftGate } from "@/hooks/useSoftGate";
+import { useLastViewedTicker } from "@/hooks/useLastViewedTicker";
 
 interface StockPageProps {
   params: {
@@ -32,6 +33,7 @@ export default function StockPage({ params }: StockPageProps) {
   const tier    = useUserTier();
   const locale  = useLocale();
   const pathname = usePathname();
+  const { setTicker: setLastViewedTicker } = useLastViewedTicker();
 
   const isGuest = tier === 'guest';
 
@@ -44,6 +46,7 @@ export default function StockPage({ params }: StockPageProps) {
   useEffect(() => {
     setLoading(true);
     setError(null);
+    setLastViewedTicker(ticker);
     getScore(ticker)
       .then(setScore)
       .catch((err) => {

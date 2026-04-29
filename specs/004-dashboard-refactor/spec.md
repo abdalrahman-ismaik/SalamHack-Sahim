@@ -84,7 +84,7 @@ Any authenticated user clicks on a service card or chart CTA and is taken direct
 1. **Given** any user, **When** they click the "Stock Screener" service card, **Then** they are navigated to `/{locale}/stock` with the correct locale.
 2. **Given** any user, **When** they click the Zakat Reminder KPI "احسب الآن" CTA, **Then** they are navigated to `/{locale}/tools/zakat` (optionally pre-filling portfolio value from KPI data via URL search params).
 3. **Given** any user, **When** they click "اقرأ المزيد" on a news headline card in Zone 6, **Then** they are navigated to `/{locale}/stock/{ticker}` (the stock detail page for that ticker).
-4. **Given** any user, **When** they click a ticker in the Ticker Strip (Zone 1), **Then** they are navigated to `/{locale}/stock/{symbol}`.
+4. **Given** any user, **When** they click a ticker in the Ticker Strip (Zone 1), **Then** the Zone 3 ARIMA chart updates to display that ticker's forecast (chart update only — no page navigation, per FR-004). A `"شاهد التوقعات الكاملة ←"` CTA link rendered below the ARIMA chart card navigates to `/{locale}/stock/{symbol}` for users who want the full stock detail page.
 
 ---
 
@@ -150,6 +150,8 @@ An Arabic-speaking user accesses the dashboard with the `ar` locale. All text, c
 - **FR-015**: Service card entry animations MUST use a `fadeInUp` stagger pattern with approximately 0.05 seconds delay between each card. The full page-load entry for each zone MUST use a similar `fadeInUp` stagger of 0.1 seconds between zones.
 - **FR-016**: All KPI card data (watchlist count, halal rate, risk level, last Zakat date) MUST be fetched from existing backend endpoints or Firestore data. No hardcoded sample data in production.
 - **FR-017**: The dashboard MUST NOT embed any service feature UI inline. It is a navigation hub only. All service interactions happen on dedicated service pages.
+- **FR-018**: Every inline Halal status badge displayed in Zone 1 (Ticker Strip) and Zone 6 (news cards) MUST be accompanied by a keyboard-accessible tooltip containing the mandatory disclaimer: `"التحقق النهائي من الحلية يقع على عاتق المستخدم"`. The tooltip MUST be announced by screen readers (Principle IV compliance).
+- **FR-019**: Zone 3 (ARIMA chart card) and Zone 5 (Risk Gauge card) MUST each display a persistent, non-removable footer label: `"تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة"`. This label MUST meet WCAG 2.1 AA contrast on the dark background and MUST NOT be hideable by the user (Principle V compliance).
 
 ### Key Entities
 
@@ -168,7 +170,7 @@ An Arabic-speaking user accesses the dashboard with the `ar` locale. All text, c
 ### Measurable Outcomes
 
 - **SC-001**: Users can identify their Halal compliance rate and Risk Level within 5 seconds of the dashboard loading, without scrolling.
-- **SC-002**: All 9 service cards are visible without scrolling on a 1280px viewport (above the fold for the grid section), and each card navigates to the correct page in under 1 second.
+- **SC-002**: All 9 service cards are visible within a single scroll to Zone 4 on a 1280px viewport (Zones 1–3 occupy the viewport above; Zone 4 is reached with one scroll), and each card navigates to the correct page in under 1 second.
 - **SC-003**: The dashboard loads and renders all 6 zones (including live chart data) in under 3 seconds on a standard broadband connection.
 - **SC-004**: Skeleton loading placeholders appear within 100ms for all chart zones, preventing layout shift during data fetching.
 - **SC-005**: Free users encounter at least 2 visible Pro upgrade prompts on the dashboard without experiencing any broken or empty UI sections.
@@ -186,7 +188,7 @@ An Arabic-speaking user accesses the dashboard with the `ar` locale. All text, c
 - The user's watchlist data and risk profile are stored in Firestore and accessible via existing hooks (`useWatchlist`, `useUserProfile` or equivalent). If these hooks do not exist, they will be created as part of this feature's implementation.
 - The user's most recently viewed ticker (`lastViewedTicker`) is stored as a field in the Firestore user document (`users/{uid}`). The stock detail page writes this field client-side on each visit. The dashboard reads it to default the Zone 3 ARIMA chart. No backend endpoint change is required.
 - Portfolio allocation data is derived from the user's watchlist (stocks they track), not from brokerage account integration. Users track stocks manually — there is no live portfolio sync.
-- The `react-chartjs-2` (Chart.js v4) library is already installed in the frontend project. No new charting library will be added.
+- **`react-chartjs-2` (Chart.js v4) is NOT yet installed** in the frontend project. T001 must run `npm install chart.js react-chartjs-2` as the first implementation step. No additional charting library will be added beyond Chart.js.
 - Framer Motion is already installed and used in the project. The `fadeInUp` animation variant already exists or will be created as a shared utility.
 - The existing `TickerStrip`, `ServiceCardGrid`, `DashboardAlertsBanner`, and `TierBadge` components will be retained and integrated into the new layout — not replaced from scratch.
 - The `ServiceCardGrid` component will be updated to accept a fixed service order (9 cards) rather than the existing dynamic `SERVICES` array order.
