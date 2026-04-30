@@ -17,16 +17,21 @@ import type {
 } from "./types";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${BASE_URL}${path}`;
+  const method = (options?.method ?? "GET").toUpperCase();
+  // Do not send Content-Type on GET/HEAD — it triggers a CORS preflight the API must answer;
+  // JSON bodies only need it on mutating methods.
+  const needsJsonContentType =
+    method !== "GET" && method !== "HEAD" && method !== "OPTIONS";
   const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
   console.debug("[api] →", path);
   const res = await fetch(url, {
     ...options,
     headers: {
-      "Content-Type": "application/json",
+      ...(needsJsonContentType ? { "Content-Type": "application/json" } : {}),
       ...options?.headers,
     },
   });

@@ -7,6 +7,9 @@ import { useRouter } from 'next/navigation';
 import { motion, MotionConfig } from 'framer-motion';
 import { Button } from '@/components/ui/Button';
 import { ScrollFloat } from '@/components/ui/ScrollFloat';
+import { StockSearchResultsList } from '@/components/landing/StockSearchResultsList';
+import { runStockSearch } from '@/lib/stockSearchNav';
+import type { SearchResult } from '@/lib/types';
 
 const FEATURE_CARDS = [
   {
@@ -127,11 +130,38 @@ export function FeaturesSection() {
   const locale  = useLocale();
   const router  = useRouter();
   const [ticker, setTicker] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const goToStock = (sym: string) => {
+    setSearchResults(null);
+    router.push(`/${locale}/stock/${encodeURIComponent(sym)}`);
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const sym = ticker.trim().toUpperCase();
-    if (sym) router.push(`/${locale}/stock/${sym}`);
+    setSearchLoading(true);
+    setSearchError(null);
+    setSearchResults(null);
+    try {
+      const out = await runStockSearch(ticker);
+      if (out.kind === 'noResults') {
+        setSearchError(tSearch('noResults'));
+        return;
+      }
+      if (out.kind === 'error') {
+        setSearchError(tSearch('error'));
+        return;
+      }
+      if (out.kind === 'navigate') {
+        goToStock(out.ticker);
+        return;
+      }
+      setSearchResults(out.results);
+    } finally {
+      setSearchLoading(false);
+    }
   };
   return (
     <MotionConfig reducedMotion="never">
@@ -242,16 +272,32 @@ export function FeaturesSection() {
               <input
                 type="text"
                 value={ticker}
-                onChange={(e) => setTicker(e.target.value)}
+                onChange={(e) => {
+                  setTicker(e.target.value);
+                  setSearchResults(null);
+                  setSearchError(null);
+                }}
                 placeholder={tSearch('placeholder')}
-                maxLength={10}
+                maxLength={50}
+                disabled={searchLoading}
                 aria-label={tSearch('placeholder')}
-                className="flex-1 bg-[#0d0d0d] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-[#C5A059]/50 focus:ring-1 focus:ring-[#C5A059]/20 transition-colors"
+                aria-invalid={searchError != null}
+                className="flex-1 bg-[#0d0d0d] border border-[#2A2A2A] rounded-xl px-4 py-2.5 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-[#C5A059]/50 focus:ring-1 focus:ring-[#C5A059]/20 transition-colors disabled:opacity-60"
               />
-              <Button type="submit" variant="gold" size="sm">
-                {tSearch('button')}
+              <Button type="submit" variant="gold" size="sm" disabled={searchLoading}>
+                {searchLoading ? tSearch('loading') : tSearch('button')}
               </Button>
             </form>
+            {searchError ? (
+              <p className="mt-2 text-xs text-red-400/90" role="alert">{searchError}</p>
+            ) : null}
+            {searchResults && searchResults.length > 0 ? (
+              <StockSearchResultsList
+                results={searchResults}
+                onPick={goToStock}
+                className="mt-3 text-start"
+              />
+            ) : null}
           </div>
           <div className="relative">
             <div className="absolute inset-0 bg-[#C5A059]/6 rounded-[3rem] blur-3xl scale-105 pointer-events-none" />

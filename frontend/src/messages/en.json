@@ -3,7 +3,10 @@
     "placeholder": "Search for a stock or company…",
     "button": "Search",
     "noResults": "No results found",
-    "loading": "Searching…"
+    "loading": "Searching…",
+    "error": "Search failed. Please try again.",
+    "pickListing": "Several listings match your search — choose one:",
+    "open": "Open"
   },
   "score": {
     "title": "Investment Readiness Score",
