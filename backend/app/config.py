@@ -37,8 +37,11 @@ class Settings(BaseSettings):
     halal_screener_api_key: str = ""
 
     # --- CORS ---
-    # Comma-separated list of allowed frontend origins
-    allowed_origins: str = "http://localhost:3000"
+    # Comma-separated list of allowed frontend origins (localhost vs 127.0.0.1 and ports differ).
+    allowed_origins: str = (
+        "http://localhost:3000,http://localhost:3001,"
+        "http://127.0.0.1:3000,http://127.0.0.1:3001"
+    )
 
     @property
     def allowed_origins_list(self) -> list[str]:

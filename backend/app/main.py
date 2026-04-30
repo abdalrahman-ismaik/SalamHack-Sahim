@@ -47,7 +47,8 @@ app.add_middleware(
     allow_origins=settings.allowed_origins_list,
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    # Preflight may request arbitrary headers; * is safe when credentials=False.
+    allow_headers=["*"],
 )
 
 logger.info("sSsahim API starting — CORS origins: %s", settings.allowed_origins_list)
