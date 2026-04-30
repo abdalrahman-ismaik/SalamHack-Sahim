@@ -489,6 +489,144 @@
     "zone5Title": "Sector & Risk",
     "zone6Title": "News Feed",
     "riskUnknown": "Risk level not computed",
+    "onboarding": {
+      "eyebrow": "Profile setup",
+      "title": "Build your investor profile",
+      "subtitle": "A short setup checklist helps Sahim personalize market news, halal filters, risk signals, and dashboard guidance around your actual situation.",
+      "actions": {
+        "back": "Previous",
+        "next": "Next",
+        "complete": "Save profile",
+        "saving": "Saving..."
+      },
+      "saveError": "We could not save your profile. Please try again.",
+      "disclaimer": "Sahim uses this information to personalize educational insights. It is not licensed investment advice.",
+      "steps": {
+        "identity": {
+          "title": "Basic profile",
+          "body": "Start with the information needed for language, currency, market context, and user identity."
+        },
+        "suitability": {
+          "title": "Investment context",
+          "body": "These fields mirror common investor-profile factors such as objective, experience, time horizon, liquidity needs, and reliance on invested funds."
+        },
+        "preferences": {
+          "title": "Markets and interests",
+          "body": "Choose the markets, sectors, and news rhythm Sahim should prioritize in your dashboard."
+        },
+        "risk": {
+          "title": "Risk wizard",
+          "body": "Answer the risk behavior questions. Sahim reuses your age, experience, and time horizon from the previous step so you do not repeat yourself.",
+          "derived": "Already covered: age range, investment experience, and time horizon are pulled from your investment context."
+        },
+        "review": {
+          "title": "Ready to personalize",
+          "body": "Review the profile summary. Saving will update your dashboard and store your risk profile."
+        }
+      },
+      "fields": {
+        "name": "Name",
+        "country": "Country",
+        "age": "Age range",
+        "currency": "Base currency",
+        "objective": "Primary objective",
+        "experience": "Investment experience",
+        "horizon": "Time horizon",
+        "liquidity": "Liquidity needs",
+        "reliance": "Reliance on funds",
+        "halal": "Halal preference",
+        "markets": "Preferred markets",
+        "sectors": "Interested sectors",
+        "newsCadence": "News frequency"
+      },
+      "review": {
+        "profile": "Profile",
+        "location": "Location",
+        "objective": "Objective",
+        "markets": "Markets",
+        "sectors": "Sectors",
+        "risk": "Risk profile",
+        "unnamed": "Investor"
+      },
+      "options": {
+        "country": {
+          "sa": "Saudi Arabia",
+          "ae": "United Arab Emirates",
+          "eg": "Egypt",
+          "qa": "Qatar",
+          "kw": "Kuwait",
+          "bh": "Bahrain",
+          "om": "Oman",
+          "us": "United States",
+          "other": "Other"
+        },
+        "age": {
+          "under25": "Under 25",
+          "25to40": "25 to 40",
+          "41to55": "41 to 55",
+          "over55": "Over 55"
+        },
+        "objective": {
+          "learn": "Learn and understand markets",
+          "preserve": "Preserve capital",
+          "balanced": "Balanced growth",
+          "income": "Income and dividends",
+          "growth": "Long-term growth"
+        },
+        "experience": {
+          "beginner": "Beginner",
+          "some": "Some experience",
+          "confident": "Confident investor",
+          "advanced": "Advanced"
+        },
+        "horizon": {
+          "under1": "Less than 1 year",
+          "1to3": "1 to 3 years",
+          "3to7": "3 to 7 years",
+          "over7": "More than 7 years"
+        },
+        "liquidity": {
+          "high": "I may need cash soon",
+          "medium": "Some access matters",
+          "low": "Long-term funds"
+        },
+        "reliance": {
+          "essential": "Essential money",
+          "important": "Important savings",
+          "flexible": "Flexible savings",
+          "surplus": "Surplus capital"
+        },
+        "halal": {
+          "strict": "Strict Shariah-first filter",
+          "balanced": "Show halal context with analysis",
+          "informational": "Informational only"
+        },
+        "market": {
+          "tadawul": "Tadawul",
+          "adx": "ADX",
+          "dfm": "DFM",
+          "egx": "EGX",
+          "us": "US stocks",
+          "global": "Global watchlist"
+        },
+        "sector": {
+          "technology": "Technology",
+          "financials": "Financials",
+          "healthcare": "Healthcare",
+          "energy": "Energy",
+          "consumer": "Consumer",
+          "industrials": "Industrials",
+          "realEstate": "Real estate",
+          "materials": "Materials"
+        },
+        "news": {
+          "marketOpen": "Market open brief",
+          "daily": "Daily digest",
+          "weekly": "Weekly roundup",
+          "alertsOnly": "Important alerts only"
+        }
+      }
+    },
     "nav": {
       "label": "Dashboard navigation",
       "home": "Home",

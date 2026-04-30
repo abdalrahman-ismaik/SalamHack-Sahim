@@ -17,6 +17,7 @@ import { DashboardUpgradeCheck } from '@/components/dashboard/DashboardUpgradeCh
 import { DashboardAlertsBanner } from '@/components/dashboard/DashboardAlertsBanner';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { DashboardSupportChat } from '@/components/dashboard/DashboardSupportChat';
+import { DashboardOnboardingChecklist } from '@/components/dashboard/DashboardOnboardingChecklist';
 import { staggerContainer } from '@/lib/motion';
 import { useDashboardKPI } from '@/hooks/useDashboardKPI';
 import { useDashboardPortfolio } from '@/hooks/useDashboardPortfolio';
@@ -96,6 +97,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardShell selectedTicker={selectedTicker}>
+      <DashboardOnboardingChecklist />
       <DashboardUpgradeCheck />
       <DashboardAlertsBanner />
 

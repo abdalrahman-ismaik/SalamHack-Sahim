@@ -1,0 +1,146 @@
+.outerContainer {
+  display: flex;
+  min-height: 100%;
+  flex: 1 1 0%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepCircleContainer {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 56rem;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(135deg, rgba(197, 160, 89, 0.12), transparent 22rem),
+    rgba(12, 12, 12, 0.96);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.58);
+}
+
+.stepIndicatorRow {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  padding: 1.25rem 1.25rem 0.5rem;
+}
+
+.stepContentDefault {
+  position: relative;
+  overflow: hidden;
+}
+
+.stepDefault {
+  padding: 1.25rem;
+}
+
+.footerContainer {
+  padding: 0 1.25rem 1.25rem;
+}
+
+.footerNav {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.footerNavSpread {
+  justify-content: space-between;
+}
+
+.footerNavEnd {
+  justify-content: flex-end;
+}
+
+.backButton {
+  min-height: 2.75rem;
+  cursor: pointer;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.5rem 1rem;
+  color: rgba(255, 255, 255, 0.62);
+  transition: all 200ms ease;
+}
+
+.backButton:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+
+.backButtonInactive {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.nextButton {
+  display: flex;
+  min-height: 2.75rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #c5a059;
+  color: #050505;
+  font-weight: 700;
+  padding: 0.5rem 1.15rem;
+  transition: all 200ms ease;
+}
+
+.nextButton:hover {
+  transform: translateY(-1px);
+  background-color: #f0d590;
+}
+
+.stepIndicator {
+  position: relative;
+  cursor: pointer;
+  outline: none;
+}
+
+.stepIndicatorInner {
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-weight: 700;
+}
+
+.activeDot {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background-color: #050505;
+}
+
+.stepNumber {
+  font-size: 0.875rem;
+}
+
+.stepConnector {
+  position: relative;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  height: 0.125rem;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+.stepConnectorInner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+.checkIcon {
+  height: 1rem;
+  width: 1rem;
+  color: #050505;
+}
