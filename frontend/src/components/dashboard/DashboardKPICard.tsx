@@ -32,7 +32,31 @@ export interface DashboardKPICardProps {
   icon?: React.ReactNode;
   cta?: { label: string; href: string };
   loading?: boolean;
+  tone?: 'gold' | 'green' | 'amber' | 'blue';
 }
+
+const toneClasses = {
+  gold: {
+    icon: 'border-[#C5A059]/25 bg-[#C5A059]/10 text-[#E8D4B0]',
+    glow: 'from-[#C5A059]/20',
+    value: 'text-[#F4E5C8]',
+  },
+  green: {
+    icon: 'border-[#00E676]/25 bg-[#00E676]/10 text-[#7CFFBA]',
+    glow: 'from-[#00E676]/15',
+    value: 'text-[#DFFFEF]',
+  },
+  amber: {
+    icon: 'border-[#FFB300]/25 bg-[#FFB300]/10 text-[#FFD67A]',
+    glow: 'from-[#FFB300]/15',
+    value: 'text-[#FFE7AD]',
+  },
+  blue: {
+    icon: 'border-sky-300/20 bg-sky-300/10 text-sky-200',
+    glow: 'from-sky-300/15',
+    value: 'text-sky-50',
+  },
+};
 
 export function DashboardKPICard({
   label,
@@ -41,8 +65,10 @@ export function DashboardKPICard({
   icon,
   cta,
   loading = false,
+  tone = 'gold',
 }: DashboardKPICardProps) {
   const locale = useLocale();
+  const styles = toneClasses[tone];
 
   const getLocalizedHref = (href: string) => {
     if (href.startsWith(`/${locale}/`)) {
@@ -56,14 +82,14 @@ export function DashboardKPICard({
 
   if (loading) {
     return (
-      <div className="bg-[#121212] border border-[#2A2A2A] rounded-2xl px-6 py-6 space-y-4">
+      <div className="min-h-[176px] rounded-xl border border-white/10 bg-white/[0.035] px-5 py-5">
         <div className="flex items-center justify-between">
-          <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
-          <div className="h-8 w-8 bg-white/10 rounded animate-pulse" />
+          <div className="h-4 w-24 animate-pulse rounded bg-white/10" />
+          <div className="h-10 w-10 animate-pulse rounded-lg bg-white/10" />
         </div>
-        <div className="space-y-2">
-          <div className="h-8 w-16 bg-white/10 rounded animate-pulse" />
-          <div className="h-3 w-32 bg-white/10 rounded animate-pulse" />
+        <div className="mt-8 space-y-3">
+          <div className="h-8 w-20 animate-pulse rounded bg-white/10" />
+          <div className="h-3 w-36 animate-pulse rounded bg-white/10" />
         </div>
       </div>
     );
@@ -74,20 +100,25 @@ export function DashboardKPICard({
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      className="bg-white/5 border border-white/10 rounded-2xl px-6 py-6 space-y-3 hover:bg-white/[0.07] transition-colors"
+      className="group relative min-h-[176px] overflow-hidden rounded-xl border border-white/10 bg-[#101010]/85 px-5 py-5 shadow-[0_18px_50px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#C5A059]/30 hover:bg-[#141414]"
     >
+      <div className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${styles.glow} to-transparent opacity-70`} />
       {/* Header: Label + Icon */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-400">{label}</h3>
-        {icon && <div className="text-[#C5A059] w-6 h-6">{icon}</div>}
+      <div className="relative flex items-start justify-between gap-4">
+        <h3 className="text-sm font-medium leading-5 text-white/62">{label}</h3>
+        {icon && (
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${styles.icon}`}>
+            {icon}
+          </div>
+        )}
       </div>
 
       {/* Primary Value */}
-      <div>
-        <p className="text-3xl font-bold text-white">
+      <div className="relative mt-6">
+        <p className={`text-2xl font-semibold leading-tight tracking-normal md:text-3xl ${styles.value}`}>
           {value ?? '—'}
         </p>
-        {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
+        {subtitle && <p className="mt-2 text-xs leading-5 text-white/45">{subtitle}</p>}
       </div>
 
       {/* CTA Link (optional) */}
@@ -96,7 +127,7 @@ export function DashboardKPICard({
           href={getLocalizedHref(cta.href)}
           role="button"
           tabIndex={0}
-          className="inline-block mt-3 text-xs text-[#C5A059] hover:text-[#E8D4B0] font-semibold transition-colors"
+          className="relative mt-4 inline-flex items-center rounded-full border border-[#C5A059]/25 bg-[#C5A059]/10 px-3 py-1.5 text-xs font-semibold text-[#E8D4B0] transition-colors hover:border-[#C5A059]/45 hover:bg-[#C5A059]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
         >
           {cta.label} →
         </Link>

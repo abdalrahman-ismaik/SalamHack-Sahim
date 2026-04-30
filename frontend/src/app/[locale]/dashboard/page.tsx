@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { Activity, Eye, Landmark, ShieldCheck } from 'lucide-react';
 import { TickerStrip } from '@/components/TickerStrip';
 import { DashboardKPICard } from '@/components/dashboard/DashboardKPICard';
 import { DashboardZone } from '@/components/dashboard/DashboardZone';
@@ -15,95 +16,90 @@ import { TierBadge } from '@/components/dashboard/TierBadge';
 import { DashboardUpgradeCheck } from '@/components/dashboard/DashboardUpgradeCheck';
 import { DashboardAlertsBanner } from '@/components/dashboard/DashboardAlertsBanner';
 import { staggerContainer } from '@/lib/motion';
-import type { DashboardKPI, DashboardNewsItem, SectorBar, UserTier } from '@/lib/types';
+import { useDashboardKPI } from '@/hooks/useDashboardKPI';
+import { useDashboardPortfolio } from '@/hooks/useDashboardPortfolio';
+import { useDashboardNews } from '@/hooks/useDashboardNews';
+import { useSectorPerformance } from '@/hooks/useSectorPerformance';
+import { useUserTier } from '@/hooks/useUserTier';
+import { useWatchlist } from '@/hooks/useWatchlist';
 import { motion } from 'framer-motion';
 
-// TODO: Remove these mocks and restore live dashboard hooks after backend/Firebase stabilization.
-const MOCK_TIER: UserTier = 'pro';
-const MOCK_KPI: DashboardKPI = {
-  watchlistCount: 12,
-  halalComplianceRate: 0.83,
-  riskProfile: '62',
-  lastZakatDate: '2026-03-18T00:00:00Z',
-  lastViewedTicker: 'AAPL',
-};
-const MOCK_PORTFOLIO_SECTORS = [
-  { sector: 'Technology', value: 5 },
-  { sector: 'Energy', value: 3 },
-  { sector: 'Healthcare', value: 2 },
-];
-const MOCK_SECTOR_PERFORMANCE: SectorBar[] = [
-  { sector: 'Technology', value: 4.2, positive: true },
-  { sector: 'Banks', value: -1.4, positive: false },
-  { sector: 'Energy', value: 2.6, positive: true },
-  { sector: 'Healthcare', value: 1.1, positive: true },
-  { sector: 'Materials', value: -0.8, positive: false },
-];
-const MOCK_NEWS_ITEMS: DashboardNewsItem[] = [
-  {
-    ticker: 'AAPL',
-    headline: 'نتائج قوية للشركة تدعم النظرة الإيجابية على المدى القريب',
-    source: 'Bloomberg',
-    timestamp: '2026-04-30T07:30:00Z',
-    url: '#',
-    halalStatus: 'Halal',
-  },
-  {
-    ticker: 'TSLA',
-    headline: 'تقلبات مرتفعة بعد إعلان الإنتاج ربع السنوي',
-    source: 'Reuters',
-    timestamp: '2026-04-30T06:15:00Z',
-    url: '#',
-    halalStatus: 'PurificationRequired',
-  },
-  {
-    ticker: 'NVDA',
-    headline: 'الطلب على حلول الذكاء الاصطناعي يواصل دفع الإيرادات',
-    source: 'CNBC',
-    timestamp: '2026-04-29T20:40:00Z',
-    url: '#',
-    halalStatus: 'Halal',
-  },
-  {
-    ticker: 'TASI',
-    headline: 'مؤشر السوق السعودي يغلق على ارتفاع مدعوم بقطاع الطاقة',
-    source: 'Argaam',
-    timestamp: '2026-04-29T18:05:00Z',
-    url: '#',
-    halalStatus: 'Halal',
-  },
-];
-const MOCK_RISK_SCORE = 62;
+const DEFAULT_TICKER = 'AAPL';
+
+function normalizeComplianceRate(rate: number | null | undefined) {
+  if (rate == null) return null;
+  const normalized = rate <= 1 ? rate * 100 : rate;
+  return Math.max(0, Math.min(100, Math.round(normalized)));
+}
+
+function parseRiskScore(riskProfile: string | null | undefined) {
+  if (!riskProfile) return null;
+  const score = Number.parseFloat(riskProfile);
+  if (!Number.isFinite(score)) return null;
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function daysSince(dateString: string | null | undefined) {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return null;
+  const diff = Date.now() - date.getTime();
+  return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+}
 
 export default function DashboardPage() {
   const locale = useLocale();
   const isRTL = locale === 'ar';
   const t = useTranslations('dashboard');
-  const tier = MOCK_TIER;
-  const kpi = MOCK_KPI;
-  const kpiLoading = false;
-  const portfolioSectors = MOCK_PORTFOLIO_SECTORS;
-  const portfolioLoading = false;
-  const [period, setPeriod] = useState<'week' | 'month' | 'quarter'>('month');
-  const sectors = MOCK_SECTOR_PERFORMANCE;
-  const sectorsLoading = false;
-  const newsItems = MOCK_NEWS_ITEMS;
-  const newsLoading = false;
+  const tier = useUserTier();
+  const expandedTier = tier === 'pro' || tier === 'enterprise';
+  const newsLimit: 3 | 6 = expandedTier ? 6 : 3;
 
-  const [selectedTicker, setSelectedTicker] = useState<string>(MOCK_KPI.lastViewedTicker ?? 'AAPL');
+  const { kpi, loading: kpiLoading } = useDashboardKPI();
+  const { tickers, loading: watchlistLoading } = useWatchlist();
+  const { sectors: portfolioSectors, loading: portfolioLoading } = useDashboardPortfolio();
+  const [period, setPeriod] = useState<'week' | 'month' | 'quarter'>('week');
+  const { sectors, loading: sectorsLoading } = useSectorPerformance(period);
+  const { items: newsItems, loading: newsLoading } = useDashboardNews(tickers, newsLimit);
 
-  // Handle ticker selection from TickerStrip
+  const [selectedTicker, setSelectedTicker] = useState<string>(DEFAULT_TICKER);
+  const [tickerWasSelected, setTickerWasSelected] = useState(false);
+
+  useEffect(() => {
+    if (!expandedTier && period !== 'week') {
+      setPeriod('week');
+    }
+  }, [expandedTier, period]);
+
+  useEffect(() => {
+    if (!tickerWasSelected && kpi.lastViewedTicker) {
+      setSelectedTicker(kpi.lastViewedTicker);
+    }
+  }, [kpi.lastViewedTicker, tickerWasSelected]);
+
   const handleTickerClick = (symbol: string) => {
-    setSelectedTicker(symbol);
+    setTickerWasSelected(true);
+    setSelectedTicker(symbol.toUpperCase());
   };
+
+  const complianceRate = normalizeComplianceRate(kpi.halalComplianceRate);
+  const riskScore = parseRiskScore(kpi.riskProfile);
+  const riskLabel = useMemo(() => {
+    if (riskScore == null) return kpi.riskProfile || t('riskUnknown');
+    if (riskScore <= 33) return t('risk.low');
+    if (riskScore <= 66) return t('risk.moderate');
+    return t('risk.high');
+  }, [kpi.riskProfile, riskScore, t]);
+  const zakatDays = daysSince(kpi.lastZakatDate);
 
   return (
     <main
       dir={isRTL ? 'rtl' : 'ltr'}
-      className={`min-h-screen bg-[#0a0a0a] ${
+      className={`relative min-h-screen overflow-hidden bg-[#050505] pb-12 ${
         isRTL ? 'font-[var(--font-arabic)] text-right' : 'font-[var(--font-latin)] text-left'
       }`}
     >
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(197,160,89,0.09)_0%,rgba(5,5,5,0)_24rem),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100%_100%,72px_72px,72px_72px]" />
       <DashboardUpgradeCheck />
       <DashboardAlertsBanner />
 
@@ -112,23 +108,28 @@ export default function DashboardPage() {
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="space-y-6"
+        className="relative space-y-7"
       >
         {/* Header */}
-        <div className="px-4 py-6 border-b border-[#2A2A2A]">
-          <div className="mx-auto max-w-7xl">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold text-white">
+        <div className="border-b border-white/10 px-4 py-8">
+          <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl space-y-3">
+              <h1 className="text-3xl font-semibold tracking-normal text-white md:text-4xl">
                 {t('greeting')}
               </h1>
+              <p className="max-w-xl text-sm leading-6 text-white/58">{t('subtitle')}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="hidden rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/55 sm:block">
+                {selectedTicker}
+              </div>
               <TierBadge />
             </div>
-            <p className="text-sm text-gray-400">{t('subtitle')}</p>
           </div>
         </div>
 
         {/* Zone 1: Scrolling Ticker Strip */}
-        <DashboardZone title={t('zone1Title')}>
+        <DashboardZone title={t('zone1Title')} density="edge">
           <TickerStrip onTickerClick={handleTickerClick} />
         </DashboardZone>
 
@@ -139,51 +140,51 @@ export default function DashboardPage() {
               <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 <DashboardKPICard
                   label={t('kpi.watchlist')}
-                  value={kpi.watchlistCount}
+                  value={kpi.watchlistCount > 0 ? kpi.watchlistCount : t('kpi.noWatchlistItems')}
                   subtitle={t('kpi.watchlistSubtitle')}
-                  loading={kpiLoading}
-                  icon={<span>📊</span>}
+                  loading={kpiLoading || watchlistLoading}
+                  icon={<Eye className="h-5 w-5" aria-hidden="true" />}
+                  tone="gold"
                 />
                 <DashboardKPICard
                   label={t('kpi.compliance')}
-                  value={
-                    kpi.halalComplianceRate !== null
-                      ? `${Math.round(kpi.halalComplianceRate * 100)}%`
-                      : null
-                  }
+                  value={complianceRate !== null ? `${complianceRate}%` : '—'}
                   subtitle={t('kpi.complianceSubtitle')}
                   loading={kpiLoading}
-                  icon={<span>✓</span>}
+                  icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
+                  tone="green"
                 />
                 <DashboardKPICard
                   label={t('kpi.riskProfile')}
-                  value={kpi.riskProfile ?? t('kpi.notComputed')}
+                  value={riskScore !== null ? `${riskScore}/100` : (kpi.riskProfile ?? t('kpi.notCalculated'))}
                   subtitle={t('kpi.riskSubtitle')}
                   loading={kpiLoading}
                   cta={
-                    !kpi.riskProfile
+                    riskScore === null && !kpi.riskProfile
                       ? {
                           label: t('kpi.computeRisk'),
-                          href: `/${locale}/tools/risk-wizard`,
+                          href: '/tools/risk-wizard',
                         }
                       : undefined
                   }
-                  icon={<span>⚠️</span>}
+                  icon={<Activity className="h-5 w-5" aria-hidden="true" />}
+                  tone="amber"
                 />
                 <DashboardKPICard
                   label={t('kpi.zakat')}
-                  value={kpi.lastZakatDate ? 'تم' : t('kpi.notSet')}
+                  value={zakatDays !== null ? t('kpi.daysSinceZakat', { days: zakatDays }) : t('kpi.notSet')}
                   subtitle={t('kpi.zakatSubtitle')}
                   loading={kpiLoading}
                   cta={
                     !kpi.lastZakatDate
                       ? {
                           label: t('kpi.calculateZakat'),
-                          href: `/${locale}/tools/zakat`,
+                          href: '/tools/zakat',
                         }
                       : undefined
                   }
-                  icon={<span>💰</span>}
+                  icon={<Landmark className="h-5 w-5" aria-hidden="true" />}
+                  tone="blue"
                 />
               </div>
             </DashboardZone>
@@ -227,6 +228,7 @@ export default function DashboardPage() {
                 <div className={`lg:col-span-7 ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
                   <DashboardSectorChart
                     sectors={sectors}
+                    period={period}
                     onPeriodChange={setPeriod}
                     loading={sectorsLoading}
                     tier={tier}
@@ -237,8 +239,8 @@ export default function DashboardPage() {
                 {/* Risk Gauge (5 cols) */}
                 <div className={`lg:col-span-5 ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
                   <DashboardRiskGauge
-                    score={MOCK_RISK_SCORE}
-                    label={kpi.riskProfile || t('riskUnknown')}
+                    score={riskScore}
+                    label={riskLabel}
                     loading={kpiLoading}
                     locale={locale}
                   />
@@ -252,7 +254,7 @@ export default function DashboardPage() {
         <div className="px-4 pb-12">
           <div className="mx-auto max-w-7xl">
             <DashboardZone title={t('zone6Title')}>
-              <DashboardNewsFeed items={newsItems} loading={newsLoading} tier={tier} />
+              <DashboardNewsFeed items={newsItems} loading={watchlistLoading || newsLoading} tier={tier} />
             </DashboardZone>
           </div>
         </div>

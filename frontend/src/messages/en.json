@@ -565,7 +565,8 @@
       "status": {
         "halal": "Halal",
         "purification": "Purification",
-        "nonHalal": "Non-Halal"
+        "nonHalal": "Non-Halal",
+        "unknown": "Undetermined"
       },
       "time": {
         "now": "Now",

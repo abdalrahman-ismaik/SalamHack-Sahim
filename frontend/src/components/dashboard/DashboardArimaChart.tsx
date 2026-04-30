@@ -21,6 +21,7 @@ import { Line } from 'react-chartjs-2';
 import { useLocale, useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ArrowUpRight, TrendingUp } from 'lucide-react';
 import { fadeInUp } from '@/lib/motion';
 import { useDashboardArima } from '@/hooks/useDashboardArima';
 import type { UserTier } from '@/lib/types';
@@ -45,12 +46,16 @@ export function DashboardArimaChart({
   const t = useTranslations('dashboard.arima');
   const tDash = useTranslations('dashboard');
   const { data, loading, error } = useDashboardArima(ticker);
-  const isFreeTier = tier === 'free';
+  const isFreeTier = tier === 'free' || tier === 'guest';
   const chartSeries = isFreeTier ? data.slice(0, 7) : data;
+  const horizonLabel = isFreeTier ? t('days7') : t('days30');
 
   if (loading) {
     return (
-      <div className="bg-[#121212] border border-[#2A2A2A] rounded-2xl p-6 h-64 animate-pulse" />
+      <div className="h-[380px] animate-pulse rounded-xl border border-white/10 bg-white/[0.035] p-6">
+        <div className="h-5 w-32 rounded bg-white/10" />
+        <div className="mt-8 h-64 rounded bg-white/10" />
+      </div>
     );
   }
 
@@ -60,9 +65,21 @@ export function DashboardArimaChart({
         variants={fadeInUp}
         initial="hidden"
         animate="visible"
-        className="bg-white/5 border border-white/10 rounded-2xl p-8 h-64 flex flex-col items-center justify-center"
+        className="flex h-[380px] flex-col justify-between rounded-xl border border-white/10 bg-[#101010]/85 p-6"
       >
-        <p className="text-center text-gray-400 text-sm">{t('empty')}</p>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-[#C5A059]">{ticker}</p>
+            <h3 className="mt-1 text-lg font-semibold text-white">{t('title')}</h3>
+          </div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#C5A059]/25 bg-[#C5A059]/10 text-[#E8D4B0]">
+            <TrendingUp className="h-5 w-5" aria-hidden="true" />
+          </div>
+        </div>
+        <div className="mx-auto max-w-sm text-center">
+          <p className="text-sm leading-6 text-white/55">{t('empty')}</p>
+        </div>
+        <p className="text-xs text-white/45">{tDash('disclaimer.investmentAdvice')}</p>
       </motion.div>
     );
   }
@@ -71,32 +88,34 @@ export function DashboardArimaChart({
   const prices = chartSeries.map(d => d.price);
   const ciUpper = chartSeries.map(d => d.ci_upper);
   const ciLower = chartSeries.map(d => d.ci_lower);
-  const dates = chartSeries.map(d => d.date);
+  const dates = chartSeries.map(d => {
+    const date = new Date(d.date);
+    return Number.isNaN(date.getTime())
+      ? d.date
+      : date.toLocaleDateString(activeLocale === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' });
+  });
 
   const chartData = {
     labels: dates,
     datasets: [
       {
-        // Confidence interval upper band (filled)
-        label: t('ciUpper'),
-        data: ciUpper,
-        borderColor: 'transparent',
-        backgroundColor: 'rgba(197, 160, 89, 0.1)', // Gold with low opacity
-        fill: true,
-        pointRadius: 0,
-        borderWidth: 0,
-        tension: 0.3,
-      },
-      {
-        // Confidence interval lower band (filled)
         label: t('ciLower'),
         data: ciLower,
         borderColor: 'transparent',
-        backgroundColor: 'rgba(197, 160, 89, 0.1)',
-        fill: false,
         pointRadius: 0,
         borderWidth: 0,
-        tension: 0.3,
+        fill: false,
+        tension: 0.35,
+      },
+      {
+        label: t('ciUpper'),
+        data: ciUpper,
+        borderColor: 'transparent',
+        backgroundColor: 'rgba(197, 160, 89, 0.13)',
+        fill: '-1',
+        pointRadius: 0,
+        borderWidth: 0,
+        tension: 0.35,
       },
       {
         // Actual price line
@@ -104,21 +123,25 @@ export function DashboardArimaChart({
         data: prices,
         borderColor: '#C5A059',
         backgroundColor: 'transparent',
-        borderWidth: 3,
+        borderWidth: 2.5,
         fill: false,
-        pointRadius: 4,
+        pointRadius: 3,
         pointBackgroundColor: '#C5A059',
-        pointBorderColor: '#0a0a0a',
+        pointBorderColor: '#050505',
         pointBorderWidth: 2,
-        pointHoverRadius: 6,
-        tension: 0.3,
+        pointHoverRadius: 5,
+        tension: 0.35,
       },
     ],
   };
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
+    interaction: {
+      intersect: false,
+      mode: 'index' as const,
+    },
     plugins: {
       legend: {
         display: true,
@@ -129,6 +152,7 @@ export function DashboardArimaChart({
           font: { size: 11, family: isRTL ? "'Cairo', 'Segoe UI', 'Arial'" : "'Segoe UI', 'Arial'" },
           padding: 12,
           usePointStyle: true,
+          boxWidth: 8,
         },
       },
       tooltip: {
@@ -153,7 +177,7 @@ export function DashboardArimaChart({
       x: {
         reverse: isRTL,
         grid: {
-          color: 'rgba(255, 255, 255, 0.05)',
+          color: 'rgba(255, 255, 255, 0.045)',
           borderColor: 'rgba(255, 255, 255, 0.1)',
         },
         ticks: {
@@ -163,7 +187,7 @@ export function DashboardArimaChart({
       },
       y: {
         grid: {
-          color: 'rgba(255, 255, 255, 0.05)',
+          color: 'rgba(255, 255, 255, 0.045)',
           borderColor: 'rgba(255, 255, 255, 0.1)',
         },
         ticks: {
@@ -180,32 +204,44 @@ export function DashboardArimaChart({
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      className="bg-white/5 border border-white/10 rounded-2xl p-6"
+      className="relative overflow-hidden rounded-xl border border-white/10 bg-[#101010]/90 p-6 shadow-[0_22px_60px_rgba(0,0,0,0.32)]"
     >
-      <h3 className="text-sm font-semibold text-white mb-4">{ticker} {t('forecast')}</h3>
-      <div role="img" aria-label={`${ticker} ${t('title')}`}>
-        <Line data={chartData} options={chartOptions} height={200} />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A059]/50 to-transparent" />
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#C5A059]">{ticker}</p>
+          <h3 className="mt-1 text-lg font-semibold text-white">{t('forecast')}</h3>
+        </div>
+        <span className="rounded-full border border-[#C5A059]/25 bg-[#C5A059]/10 px-3 py-1 text-xs font-semibold text-[#E8D4B0]">
+          {horizonLabel}
+        </span>
+      </div>
+      <div className="h-[250px] min-h-[220px]" role="img" aria-label={`${ticker} ${t('title')}`}>
+        <Line data={chartData} options={chartOptions} />
       </div>
 
-      <div className="mt-4">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <Link
           href={`/${activeLocale}/stock/${ticker}`}
           role="button"
           tabIndex={0}
-          className="text-xs font-semibold text-[#C5A059] hover:text-[#E8D4B0] transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#E8D4B0] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
         >
           {t('viewFull')}
+          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
-      </div>
 
-      {isFreeTier && (
-        <div className="mt-4 rounded-lg border border-[#C5A059]/30 bg-[#C5A059]/10 px-3 py-2 text-xs text-[#E8D4B0] flex items-center justify-between gap-2">
-          <span>{t('upgradeBanner')}</span>
-          <Link href={`/${activeLocale}/pricing`} role="button" tabIndex={0} className="font-semibold text-[#C5A059] hover:text-[#E8D4B0] transition-colors">
-            {t('days30')}
+        {isFreeTier && (
+          <Link
+            href={`/${activeLocale}/pricing`}
+            role="button"
+            tabIndex={0}
+            className="rounded-full border border-[#C5A059]/25 bg-[#C5A059]/10 px-3 py-1.5 text-xs font-semibold text-[#E8D4B0] transition-colors hover:bg-[#C5A059]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
+          >
+            {t('upgradeBanner')}
           </Link>
-        </div>
-      )}
+        )}
+      </div>
 
       <p className="mt-3 text-white/40 text-xs">{tDash('disclaimer.investmentAdvice')}</p>
     </motion.div>

@@ -19,8 +19,9 @@ const STOCK_ITEMS = [
 
 const HALAL_COLORS: Record<string, { bg: string; text: string; icon: string }> = {
   Halal: { bg: 'bg-[#00E676]/10', text: 'text-[#00E676]', icon: '✓' },
-  PurificationRequired: { bg: 'bg-[#FFB300]/10', text: 'text-[#FFB300]', icon: '⚠' },
-  NonHalal: { bg: 'bg-[#FF1744]/10', text: 'text-[#FF1744]', icon: '✕' },
+  PurificationRequired: { bg: 'bg-[#FFB300]/10', text: 'text-[#FFB300]', icon: '!' },
+  NonHalal: { bg: 'bg-[#FF1744]/10', text: 'text-[#FF1744]', icon: '×' },
+  Unknown: { bg: 'bg-white/10', text: 'text-white/55', icon: '?' },
 };
 
 export interface TickerStripProps {
@@ -46,9 +47,9 @@ export function TickerStrip({ onTickerClick }: TickerStripProps) {
   };
 
   return (
-    <div className="w-full overflow-hidden py-3 border-y border-[#2A2A2A] bg-[#0a0a0a]/80 backdrop-blur-sm">
+    <div className="w-full overflow-hidden border-y border-white/10 bg-[#080808]/82 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-sm">
       <div
-        className="flex gap-8 animate-[ticker-scroll_60s_linear_infinite] whitespace-nowrap"
+        className="flex animate-[ticker-scroll_60s_linear_infinite] gap-3 whitespace-nowrap hover:[animation-play-state:paused]"
         style={{ width: 'max-content' }}
       >
         {tickerItems.map((item, i) => {
@@ -62,7 +63,7 @@ export function TickerStrip({ onTickerClick }: TickerStripProps) {
               tabIndex={0}
               onClick={() => handleClick(item.symbol)}
               onKeyDown={(e) => handleKeyDown(e, item.symbol)}
-              className="ticker-item flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity group"
+              className="ticker-item group flex cursor-pointer items-center gap-3 rounded-full border border-white/10 bg-white/[0.025] px-3 py-2 transition-all hover:border-[#C5A059]/25 hover:bg-white/[0.055] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
               title={t('ticker.clickToView', { symbol: item.symbol })}
             >
               {/* Stock symbol + price */}
@@ -79,20 +80,18 @@ export function TickerStrip({ onTickerClick }: TickerStripProps) {
                   id={`halal-badge-${item.symbol}-${i}`}
                   aria-describedby={`halal-tooltip-${item.symbol}-${i}`}
                   tabIndex={0}
-                  className={`${halalStyle.bg} ${halalStyle.text} rounded px-2 py-0.5 text-xs font-semibold flex items-center gap-1 group-hover:opacity-100 opacity-70 transition-opacity cursor-help`}
+                  className={`${halalStyle.bg} ${halalStyle.text} flex cursor-help items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold opacity-75 transition-opacity group-hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]`}
                 >
                   <span>{halalStyle.icon}</span>
                 </div>
                 <div
                   id={`halal-tooltip-${item.symbol}-${i}`}
                   role="tooltip"
-                  className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 rounded bg-[#1a1a1a] border border-white/10 px-2 py-1.5 text-xs text-white/80 opacity-0 group-hover/badge:opacity-100 focus-within:opacity-100 transition-opacity z-50 text-center whitespace-normal"
+                  className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-48 -translate-x-1/2 rounded-lg border border-white/10 bg-[#1a1a1a] px-2 py-1.5 text-center text-xs text-white/80 opacity-0 transition-opacity group-hover/badge:opacity-100 group-focus-within/badge:opacity-100 whitespace-normal"
                 >
                   {t('disclaimer.halal')}
                 </div>
               </div>
-
-              <span className="text-[#2A2A2A] mx-1">|</span>
             </div>
           );
         })}

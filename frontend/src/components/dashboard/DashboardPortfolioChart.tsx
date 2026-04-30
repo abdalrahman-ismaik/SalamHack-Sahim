@@ -19,6 +19,7 @@ import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { useLocale, useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { PieChart } from 'lucide-react';
 import { fadeInUp } from '@/lib/motion';
 
 // Import Chart.js registry (ensures all elements registered)
@@ -42,7 +43,10 @@ export function DashboardPortfolioChart({
 
   if (loading) {
     return (
-      <div className="bg-[#121212] border border-[#2A2A2A] rounded-2xl p-6 h-64 animate-pulse" />
+      <div className="h-[380px] animate-pulse rounded-xl border border-white/10 bg-white/[0.035] p-6">
+        <div className="h-5 w-36 rounded bg-white/10" />
+        <div className="mx-auto mt-8 h-56 w-56 rounded-full bg-white/10" />
+      </div>
     );
   }
 
@@ -52,9 +56,18 @@ export function DashboardPortfolioChart({
         variants={fadeInUp}
         initial="hidden"
         animate="visible"
-        className="bg-white/5 border border-white/10 rounded-2xl p-8 h-64 flex items-center justify-center"
+        className="flex h-[380px] flex-col justify-between rounded-xl border border-white/10 bg-[#101010]/85 p-6"
       >
-        <p className="text-center text-gray-400 text-sm">{t('empty')}</p>
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="text-lg font-semibold text-white">{t('title')}</h3>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#C5A059]/25 bg-[#C5A059]/10 text-[#E8D4B0]">
+            <PieChart className="h-5 w-5" aria-hidden="true" />
+          </div>
+        </div>
+        <div className="mx-auto flex h-48 w-48 items-center justify-center rounded-full border border-dashed border-white/15 bg-white/[0.025] p-8 text-center">
+          <p className="text-sm leading-6 text-white/55">{t('empty')}</p>
+        </div>
+        <div />
       </motion.div>
     );
   }
@@ -63,9 +76,9 @@ export function DashboardPortfolioChart({
   const colors = [
     '#C5A059', // Gold
     '#00E676', // Green
-    '#FF1744', // Red
-    '#6E7A8A', // Gray
-    '#7C8AA1', // Light gray
+    '#38BDF8', // Sky
+    '#F97316', // Orange
+    '#A78BFA', // Violet
   ];
 
   const chartData = {
@@ -75,16 +88,17 @@ export function DashboardPortfolioChart({
         data: sectors.map(s => s.value),
         backgroundColor: sectors.map((_, i) => colors[i % colors.length]),
         borderColor: '#0a0a0a',
-        borderWidth: 2,
+        borderWidth: 4,
         hoverBorderColor: '#C5A059',
-        hoverBorderWidth: 3,
+        hoverBorderWidth: 4,
       },
     ],
   };
 
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
+    cutout: '70%',
     plugins: {
       legend: {
         position: 'bottom' as const,
@@ -94,6 +108,7 @@ export function DashboardPortfolioChart({
           font: { size: 12, family: isRTL ? "'Cairo', 'Segoe UI', 'Arial'" : "'Segoe UI', 'Arial'" },
           padding: 12,
           usePointStyle: true,
+          boxWidth: 8,
         },
       },
       tooltip: {
@@ -118,10 +133,23 @@ export function DashboardPortfolioChart({
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      className="bg-white/5 border border-white/10 rounded-2xl p-6"
+      className="relative overflow-hidden rounded-xl border border-white/10 bg-[#101010]/90 p-6 shadow-[0_22px_60px_rgba(0,0,0,0.32)]"
     >
-      <div role="img" aria-label={t('title')}>
-        <Doughnut data={chartData} options={chartOptions} height={200} />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#00E676]/40 to-transparent" />
+      <div className="mb-5 flex items-center justify-between gap-4">
+        <h3 className="text-lg font-semibold text-white">{t('title')}</h3>
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#00E676]/20 bg-[#00E676]/10 text-[#7CFFBA]">
+          <PieChart className="h-5 w-5" aria-hidden="true" />
+        </div>
+      </div>
+      <div className="relative h-[290px] min-h-[240px]" role="img" aria-label={t('title')}>
+        <Doughnut data={chartData} options={chartOptions} />
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center pb-10">
+          <div className="text-center">
+            <p className="text-3xl font-semibold text-white">{sectors.reduce((sum, item) => sum + item.value, 0)}</p>
+            <p className="mt-1 text-xs text-white/45">{t('title')}</p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

@@ -202,7 +202,7 @@ export const GUEST_SESSION: UserSession = {
 
 export interface DashboardKPI {
   watchlistCount: number;
-  halalComplianceRate: number;        // 0–100 percentage
+  halalComplianceRate: number | null; // 0–100 percentage, or null when watchlist is empty
   riskProfile: string | null;          // e.g., "Conservative", "Moderate", "Aggressive", or null
   lastZakatDate: string | null;        // ISO 8601, or null if never calculated
   lastViewedTicker: string | null;     // e.g., "AAPL", or null if no history

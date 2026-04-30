@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { useLocale } from 'next-intl';
 import { useTranslations } from 'next-intl';
 
 export interface UpgradeOverlayProps {
@@ -9,7 +7,6 @@ export interface UpgradeOverlayProps {
 }
 
 export function UpgradeOverlay({ visible }: UpgradeOverlayProps) {
-  const locale = useLocale();
   const t = useTranslations('dashboard.tier');
 
   if (!visible) {
@@ -18,19 +15,14 @@ export function UpgradeOverlay({ visible }: UpgradeOverlayProps) {
 
   return (
     <div
-      className="absolute inset-0 z-10 rounded-xl bg-black/65 backdrop-blur-[1px] flex items-center justify-center p-4"
+      className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-black/70 p-4 backdrop-blur-[2px]"
       aria-label={t('proFeature')}
     >
-      <div className="text-center space-y-3">
+      <div className="space-y-3 text-center">
         <p className="text-sm font-semibold text-white">{t('upgrade')}</p>
-        <Link
-          href={`/${locale}/pricing`}
-          role="button"
-          tabIndex={0}
-          className="inline-flex items-center rounded-lg bg-[#C5A059] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#E8D4B0] transition-colors"
-        >
+        <span className="inline-flex items-center rounded-full bg-[#C5A059] px-3 py-1.5 text-xs font-semibold text-black">
           {t('proOnly')}
-        </Link>
+        </span>
       </div>
     </div>
   );

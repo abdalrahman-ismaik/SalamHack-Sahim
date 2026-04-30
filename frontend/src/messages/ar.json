@@ -564,7 +564,8 @@
       "status": {
         "halal": "حلال",
         "purification": "تنقية",
-        "nonHalal": "غير حلال"
+        "nonHalal": "غير حلال",
+        "unknown": "غير محدد"
       },
       "time": {
         "now": "الآن",

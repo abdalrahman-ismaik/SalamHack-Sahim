@@ -14,6 +14,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { fadeInUp } from '@/lib/motion';
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import type { DashboardNewsItem } from '@/lib/types';
 
 export interface DashboardNewsCardProps {
@@ -24,13 +25,22 @@ const HALAL_BADGE_COLORS: Record<string, { bg: string; text: string }> = {
   Halal: { bg: 'bg-[#00E676]/10', text: 'text-[#00E676]' },
   PurificationRequired: { bg: 'bg-[#FFB300]/10', text: 'text-[#FFB300]' },
   NonHalal: { bg: 'bg-[#FF1744]/10', text: 'text-[#FF1744]' },
+  Unknown: { bg: 'bg-white/10', text: 'text-white/55' },
 };
 
 export function DashboardNewsCard({ item }: DashboardNewsCardProps) {
   const locale = useLocale();
   const t = useTranslations('dashboard.news');
   const tDash = useTranslations('dashboard');
-  const halalColors = HALAL_BADGE_COLORS[item.halalStatus] || HALAL_BADGE_COLORS.Halal;
+  const halalColors = HALAL_BADGE_COLORS[item.halalStatus] || HALAL_BADGE_COLORS.Unknown;
+  const badgeLabel =
+    item.halalStatus === 'Halal'
+      ? `✓ ${t('status.halal')}`
+      : item.halalStatus === 'PurificationRequired'
+        ? `! ${t('status.purification')}`
+        : item.halalStatus === 'NonHalal'
+          ? `× ${t('status.nonHalal')}`
+          : `? ${t('status.unknown')}`;
 
   // Format timestamp as relative time
   const formatTimestamp = (ts: string) => {
@@ -56,30 +66,27 @@ export function DashboardNewsCard({ item }: DashboardNewsCardProps) {
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      className="bg-white/5 border border-white/10 rounded-lg p-4 hover:bg-white/[0.07] transition-colors"
+      className="group relative min-h-[190px] overflow-hidden rounded-xl border border-white/10 bg-[#101010]/85 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#C5A059]/25 hover:bg-[#141414]"
     >
-      <div className="space-y-3">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C5A059]/35 to-transparent" />
+      <div className="relative flex h-full flex-col space-y-3">
         {/* Header: Ticker + Halal Badge */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-mono font-bold text-[#C5A059]">
+          <span className="rounded-full border border-[#C5A059]/20 bg-[#C5A059]/10 px-2.5 py-1 text-xs font-bold text-[#E8D4B0]">
             {item.ticker}
           </span>
           <div className="relative group/badge">
             <div
               aria-describedby={`halal-tooltip-news-${item.ticker}`}
               tabIndex={0}
-              className={`${halalColors.bg} ${halalColors.text} rounded px-2 py-0.5 text-xs font-semibold cursor-help`}
+              className={`${halalColors.bg} ${halalColors.text} cursor-help rounded-full px-2.5 py-1 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]`}
             >
-              {item.halalStatus === 'Halal'
-                ? `✓ ${t('status.halal')}`
-                : item.halalStatus === 'PurificationRequired'
-                  ? `⚠ ${t('status.purification')}`
-                  : `✕ ${t('status.nonHalal')}`}
+              {badgeLabel}
             </div>
             <div
               id={`halal-tooltip-news-${item.ticker}`}
               role="tooltip"
-              className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 rounded bg-[#1a1a1a] border border-white/10 px-2 py-1.5 text-xs text-white/80 opacity-0 group-hover/badge:opacity-100 focus-within:opacity-100 transition-opacity z-50 text-center whitespace-normal"
+              className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 w-52 -translate-x-1/2 rounded-lg border border-white/10 bg-[#1a1a1a] px-2 py-1.5 text-center text-xs text-white/80 opacity-0 transition-opacity group-hover/badge:opacity-100 group-focus-within/badge:opacity-100"
             >
               {tDash('disclaimer.halal')}
             </div>
@@ -87,12 +94,12 @@ export function DashboardNewsCard({ item }: DashboardNewsCardProps) {
         </div>
 
         {/* Headline (Arabic, 2-line clamp) */}
-        <h4 className="text-sm font-semibold text-white line-clamp-2 leading-relaxed" dir="rtl">
+        <h4 className="line-clamp-2 text-sm font-semibold leading-7 text-white" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
           {item.headline}
         </h4>
 
         {/* Footer: Source + Timestamp + Link */}
-        <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-white/5">
+        <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-3 text-xs text-white/40">
           <span>{item.source}</span>
           <span>{formatTimestamp(item.timestamp)}</span>
         </div>
@@ -102,9 +109,10 @@ export function DashboardNewsCard({ item }: DashboardNewsCardProps) {
           href={`/${locale}/stock/${item.ticker}`}
           role="button"
           tabIndex={0}
-          className="inline-block mt-2 text-xs text-[#C5A059] hover:text-[#E8D4B0] font-semibold transition-colors"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#E8D4B0] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
         >
-          {t('readMore')} →
+          {t('readMore')}
+          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
       </div>
     </motion.div>

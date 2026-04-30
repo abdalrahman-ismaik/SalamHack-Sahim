@@ -18,7 +18,7 @@
 
 import { useEffect, useState } from 'react';
 import { getSectors } from '@/lib/api';
-import type { SectorBar } from '@/lib/types';
+import type { SectorBar, SectorComparison } from '@/lib/types';
 
 interface UseSectorPerformanceResult {
   sectors: SectorBar[];
@@ -27,6 +27,31 @@ interface UseSectorPerformanceResult {
 
 // Mock market index for fetching overall sector performance
 const MARKET_INDEX = 'TASI';
+
+function toSectorBars(result: unknown): SectorBar[] {
+  if (Array.isArray(result)) {
+    return result
+      .filter((item): item is SectorBar => (
+        typeof item?.sector === 'string' &&
+        typeof item?.value === 'number'
+      ))
+      .map(item => ({
+        ...item,
+        positive: typeof item.positive === 'boolean' ? item.positive : item.value >= 0,
+      }));
+  }
+
+  const comparison = result as Partial<SectorComparison> | null;
+  if (comparison?.sector && typeof comparison.avg_score === 'number') {
+    return [{
+      sector: comparison.sector,
+      value: Math.round((comparison.avg_score - 50) * 10) / 10,
+      positive: comparison.avg_score >= 50,
+    }];
+  }
+
+  return [];
+}
 
 export function useSectorPerformance(
   _period: 'week' | 'month' | 'quarter' = 'month'
@@ -40,9 +65,7 @@ export function useSectorPerformance(
         setLoading(true);
         const result = await getSectors(MARKET_INDEX);
         
-        // Transform SectorComparison to SectorBar array if needed
-        // For now, assume result is already compatible with SectorBar[]
-        setSectors(result as unknown as SectorBar[]);
+        setSectors(toSectorBars(result));
       } catch (error) {
         console.warn('[useSectorPerformance] Error fetching sectors:', error);
         setSectors([]);

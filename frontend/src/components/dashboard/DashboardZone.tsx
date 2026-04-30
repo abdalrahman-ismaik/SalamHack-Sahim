@@ -19,17 +19,23 @@ import { fadeInUp } from '@/lib/motion';
 export interface DashboardZoneProps {
   title?: string;
   loading?: boolean;
+  density?: 'default' | 'edge';
   children: React.ReactNode;
 }
 
-export function DashboardZone({ title, loading = false, children }: DashboardZoneProps) {
+export function DashboardZone({
+  title,
+  loading = false,
+  density = 'default',
+  children,
+}: DashboardZoneProps) {
   if (loading) {
     return (
-      <div className="space-y-3">
+      <div className={density === 'edge' ? 'space-y-3' : 'space-y-3'}>
         {title && (
           <div className="h-5 w-32 bg-white/10 rounded animate-pulse" />
         )}
-        <div className="bg-[#121212] border border-[#2A2A2A] rounded-2xl h-48 animate-pulse" />
+        <div className="h-48 animate-pulse rounded-xl border border-white/10 bg-white/[0.04]" />
       </div>
     );
   }
@@ -39,10 +45,10 @@ export function DashboardZone({ title, loading = false, children }: DashboardZon
       variants={fadeInUp}
       initial="hidden"
       animate="visible"
-      className="space-y-3"
+      className={density === 'edge' ? 'space-y-3' : 'space-y-4'}
     >
       {title && (
-        <h2 className="text-sm font-semibold text-white uppercase tracking-wide opacity-60">
+        <h2 className="text-sm font-semibold text-white/70">
           {title}
         </h2>
       )}
