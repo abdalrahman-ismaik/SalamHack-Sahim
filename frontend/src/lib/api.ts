@@ -12,6 +12,8 @@ import type {
   ArimaForecast,
   SectorComparison,
   AllocationResult,
+  SupportChatRequest,
+  SupportChatResponse,
 } from "./types";
 
 const BASE_URL =
@@ -107,5 +109,14 @@ export async function getAllocation(
   return apiFetch<AllocationResult>("/api/allocate", {
     method: "POST",
     body: JSON.stringify({ tickers, budget }),
+  });
+}
+
+export async function sendSupportChatMessage(
+  payload: SupportChatRequest
+): Promise<SupportChatResponse> {
+  return apiFetch<SupportChatResponse>("/api/support/chat", {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
 }

@@ -6,6 +6,8 @@ const COOKIE_NAME =
 
 const TIER_KEY         = 'salam_user_tier';
 const POST_SIGNIN_KEY  = 'salam_show_upgrade';
+const PROFILE_NAME_KEY = 'salam_user_name';
+const PROFILE_PHOTO_KEY = 'salam_user_photo_url';
 
 // ---------------------------------------------------------------------------
 // Cookie helpers (client-side only)
@@ -41,6 +43,42 @@ export function setStoredTier(tier: ClientTier): void {
   if (typeof window !== 'undefined') {
     localStorage.setItem(TIER_KEY, tier);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Profile helpers (localStorage, client-side only)
+// ---------------------------------------------------------------------------
+
+export interface StoredProfile {
+  name: string | null;
+  photoURL: string | null;
+}
+
+export function getStoredProfile(): StoredProfile {
+  if (typeof window === 'undefined') return { name: null, photoURL: null };
+  return {
+    name: localStorage.getItem(PROFILE_NAME_KEY),
+    photoURL: localStorage.getItem(PROFILE_PHOTO_KEY),
+  };
+}
+
+export function setStoredProfile(profile: StoredProfile): void {
+  if (typeof window === 'undefined') return;
+
+  const name = profile.name?.trim();
+  const photoURL = profile.photoURL?.trim();
+
+  if (name) localStorage.setItem(PROFILE_NAME_KEY, name);
+  else localStorage.removeItem(PROFILE_NAME_KEY);
+
+  if (photoURL) localStorage.setItem(PROFILE_PHOTO_KEY, photoURL);
+  else localStorage.removeItem(PROFILE_PHOTO_KEY);
+}
+
+export function clearStoredProfile(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(PROFILE_NAME_KEY);
+  localStorage.removeItem(PROFILE_PHOTO_KEY);
 }
 
 // ---------------------------------------------------------------------------
@@ -84,6 +122,7 @@ export async function signOutAndRedirect(locale: string): Promise<void> {
   }
   clearAuthCookie();
   localStorage.removeItem(TIER_KEY);
+  clearStoredProfile();
   sessionStorage.removeItem(POST_SIGNIN_KEY);
   window.location.href = `/${locale}`;
 }

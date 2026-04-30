@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { setAuthCookie, setStoredTier, flagPostSignIn } from '@/lib/firebase-session';
+import { setAuthCookie, setStoredTier, flagPostSignIn, setStoredProfile } from '@/lib/firebase-session';
 
 const schema = z.object({
   name:     z.string().min(1),
@@ -42,6 +42,7 @@ export function SignUpForm({ returnTo, plan }: Props) {
       const cred = await createUserWithEmailAndPassword(auth, data.email, data.password);
       await updateProfile(cred.user, { displayName: data.name });
       setAuthCookie();
+      setStoredProfile({ name: data.name, photoURL: cred.user.photoURL });
       setStoredTier('free'); // New accounts always start on free
       flagPostSignIn();
       const safe = safeReturnTo(returnTo, window.location.origin);
@@ -58,8 +59,9 @@ export function SignUpForm({ returnTo, plan }: Props) {
 
   async function onGoogleSignIn() {
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const cred = await signInWithPopup(auth, new GoogleAuthProvider());
       setAuthCookie();
+      setStoredProfile({ name: cred.user.displayName, photoURL: cred.user.photoURL });
       setStoredTier('free');
       flagPostSignIn();
       const safe = safeReturnTo(returnTo, window.location.origin);

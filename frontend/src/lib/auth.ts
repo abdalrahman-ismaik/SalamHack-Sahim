@@ -30,7 +30,7 @@ export function getUserFromCookie(): UserSession {
     // Non-JWT marker (e.g. 'firebase') → authenticated free user;
     // actual tier is hydrated client-side from localStorage.
     if (parts.length !== 3) {
-      return { id: null, name: null, locale: 'ar', tier: 'free' };
+      return { id: null, name: null, photoURL: null, locale: 'ar', tier: 'free' };
     }
 
     const payload = JSON.parse(
@@ -39,6 +39,7 @@ export function getUserFromCookie(): UserSession {
 
     const rawTier   = payload.tier   as unknown;
     const rawLocale = payload.locale as unknown;
+    const rawPhoto  = (payload.picture ?? payload.photoURL ?? payload.avatar_url) as unknown;
 
     const tier: UserTier =
       typeof rawTier === 'string' && VALID_TIERS.includes(rawTier as UserTier)
@@ -53,6 +54,7 @@ export function getUserFromCookie(): UserSession {
     return {
       id:     typeof payload.sub  === 'string' ? payload.sub  : null,
       name:   typeof payload.name === 'string' ? payload.name : null,
+      photoURL: typeof rawPhoto === 'string' && rawPhoto.trim() ? rawPhoto : null,
       locale,
       tier,
     };

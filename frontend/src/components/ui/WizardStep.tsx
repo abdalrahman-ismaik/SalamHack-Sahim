@@ -15,6 +15,7 @@ interface WizardStepProps {
   onPrev:        () => void;
   isFirst:       boolean;
   isLast:        boolean;
+  isSubmitting?: boolean;
 }
 
 export function WizardStep({
@@ -28,6 +29,7 @@ export function WizardStep({
   onPrev,
   isFirst,
   isLast,
+  isSubmitting = false,
 }: WizardStepProps) {
   const t = useTranslations('riskWizard');
 
@@ -47,14 +49,14 @@ export function WizardStep({
           onSelect(Math.max(0, (selectedIndex ?? options.length) - 1));
           break;
         case 'Enter':
-          if (selectedIndex !== null) onNext();
+          if (selectedIndex !== null && !isSubmitting) onNext();
           break;
         case 'Escape':
           if (!isFirst) onPrev();
           break;
       }
     },
-    [selectedIndex, options.length, onSelect, onNext, onPrev, isFirst],
+    [selectedIndex, options.length, onSelect, onNext, onPrev, isFirst, isSubmitting],
   );
 
   useEffect(() => {
@@ -104,6 +106,7 @@ export function WizardStep({
                 type="button"
                 role="radio"
                 aria-checked={isSelected}
+                disabled={isSubmitting}
                 onClick={() => onSelect(idx)}
                 className={[
                   'min-h-[44px] px-5 py-3 rounded-xl border-2 text-right text-base transition-all',
@@ -123,26 +126,27 @@ export function WizardStep({
         <div className="flex justify-between gap-4 pt-2">
           {!isFirst && (
             <button
-              type="button"
-              onClick={onPrev}
-              className="min-h-[44px] px-6 py-2 rounded-xl border border-gray-600 text-gray-300 hover:border-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-            >
+            type="button"
+            onClick={onPrev}
+            disabled={isSubmitting}
+            className="min-h-[44px] px-6 py-2 rounded-xl border border-gray-600 text-gray-300 hover:border-gray-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          >
               {t('previous')}
             </button>
           )}
           <button
             type="button"
             onClick={onNext}
-            disabled={selectedIndex === null}
+            disabled={selectedIndex === null || isSubmitting}
             className={[
               'min-h-[44px] flex-1 px-6 py-2 rounded-xl font-semibold transition-colors',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400',
-              selectedIndex !== null
+              selectedIndex !== null && !isSubmitting
                 ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                 : 'bg-gray-700 text-gray-500 cursor-not-allowed',
             ].join(' ')}
           >
-            {isLast ? t('calculate') : t('next')}
+            {isSubmitting ? t('saving') : isLast ? t('calculate') : t('next')}
           </button>
         </div>
       </motion.div>

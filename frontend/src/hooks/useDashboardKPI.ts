@@ -18,7 +18,8 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '@/providers/UserContext';
 import { db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import type { DashboardKPI } from '@/lib/types';
+import { getStoredRiskProfile } from '@/lib/risk-profile-storage';
+import type { DashboardKPI, RiskProfile } from '@/lib/types';
 
 interface UseDashboardKPIResult {
   kpi: DashboardKPI;
@@ -33,6 +34,16 @@ const DEFAULT_KPI: DashboardKPI = {
   lastViewedTicker: null,
 };
 
+function kpiFromStoredRiskProfile(): DashboardKPI {
+  const profile = getStoredRiskProfile();
+  if (!profile) return DEFAULT_KPI;
+
+  return {
+    ...DEFAULT_KPI,
+    riskProfile: String(profile.score),
+  };
+}
+
 export function useDashboardKPI(): UseDashboardKPIResult {
   const session = useContext(UserContext);
   const [kpi, setKpi] = useState<DashboardKPI>(DEFAULT_KPI);
@@ -40,7 +51,7 @@ export function useDashboardKPI(): UseDashboardKPIResult {
 
   useEffect(() => {
     if (!session?.id) {
-      setKpi(DEFAULT_KPI);
+      setKpi(kpiFromStoredRiskProfile());
       setLoading(false);
       return;
     }
@@ -49,23 +60,37 @@ export function useDashboardKPI(): UseDashboardKPIResult {
       try {
         setLoading(true);
         const userRef = doc(db, 'users', session.id);
-        const snapshot = await getDoc(userRef);
-        
+        const profileRef = doc(db, 'users', session.id, 'risk_profile', 'current');
+
+        const [snapshot, profileSnapshot] = await Promise.all([
+          getDoc(userRef),
+          getDoc(profileRef).catch(() => null),
+        ]);
+
+        const localProfile = getStoredRiskProfile();
+        const firestoreProfile =
+          profileSnapshot?.exists() ? (profileSnapshot.data() as RiskProfile) : null;
+        const savedProfile = firestoreProfile ?? localProfile;
+        const savedRiskScore = savedProfile?.score != null ? String(savedProfile.score) : null;
+
         if (snapshot.exists()) {
           const data = snapshot.data();
           setKpi({
             watchlistCount: data?.watchlistCount ?? 0,
             halalComplianceRate: data?.halalComplianceRate ?? null,
-            riskProfile: data?.riskProfile ?? null,
+            riskProfile: data?.riskProfile ?? savedRiskScore,
             lastZakatDate: data?.lastZakatDate ?? null,
             lastViewedTicker: data?.lastViewedTicker ?? null,
           });
         } else {
-          setKpi(DEFAULT_KPI);
+          setKpi({
+            ...DEFAULT_KPI,
+            riskProfile: savedRiskScore,
+          });
         }
       } catch (error) {
         console.warn('[useDashboardKPI] Error fetching KPI:', error);
-        setKpi(DEFAULT_KPI);
+        setKpi(kpiFromStoredRiskProfile());
       } finally {
         setLoading(false);
       }

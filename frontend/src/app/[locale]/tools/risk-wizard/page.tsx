@@ -8,8 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { RiskWizard } from '@/components/RiskWizard';
 import type { RiskProfile } from '@/lib/types';
-
-const LOCALSTORAGE_KEY = 'ahim_risk_profile';
+import { getStoredRiskProfile, setStoredRiskProfile } from '@/lib/risk-profile-storage';
 
 export default function RiskWizardPage() {
   const t = useTranslations('riskWizard');
@@ -42,10 +41,7 @@ export default function RiskWizardPage() {
       }
 
       if (!initialProfile) {
-        const raw = localStorage.getItem(LOCALSTORAGE_KEY);
-        if (raw) {
-          try { setInitial(JSON.parse(raw) as RiskProfile); } catch { /* ignore */ }
-        }
+        setInitial(getStoredRiskProfile());
       }
 
       setLoaded(true);
@@ -59,13 +55,23 @@ export default function RiskWizardPage() {
     const withUid: RiskProfile = { ...profile, user_id: uid };
 
     // Always persist to localStorage (works for guests too)
-    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(withUid));
+    setStoredRiskProfile(withUid);
 
-    // If signed in, also persist to Firestore
+    // If signed in, persist both the full profile and the KPI fields the dashboard reads.
     if (uid) {
       try {
-        const ref = doc(db, 'users', uid, 'risk_profile', 'current');
-        await setDoc(ref, withUid);
+        const profileRef = doc(db, 'users', uid, 'risk_profile', 'current');
+        const userRef = doc(db, 'users', uid);
+
+        await Promise.all([
+          setDoc(profileRef, withUid),
+          setDoc(userRef, {
+            riskProfile: String(withUid.score),
+            riskProfileLabel: withUid.label,
+            riskProfileAnswers: withUid.answers,
+            riskProfileCompletedAt: withUid.completed_at,
+          }, { merge: true }),
+        ]);
       } catch {
         // Silently ignore — localStorage copy is already saved
       }

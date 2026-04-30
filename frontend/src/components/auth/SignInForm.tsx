@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { setAuthCookie, getStoredTier, setStoredTier, flagPostSignIn } from '@/lib/firebase-session';
+import { setAuthCookie, getStoredTier, setStoredTier, flagPostSignIn, setStoredProfile } from '@/lib/firebase-session';
 
 const schema = z.object({
   email:    z.string().email(),
@@ -37,8 +37,9 @@ export function SignInForm({ returnTo }: Props) {
 
   async function onSubmit(data: Fields) {
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const cred = await signInWithEmailAndPassword(auth, data.email, data.password);
       setAuthCookie();
+      setStoredProfile({ name: cred.user.displayName, photoURL: cred.user.photoURL });
       // Preserve existing tier; default to free for first-time sign-ins
       if (!localStorage.getItem('salam_user_tier')) setStoredTier('free');
       if (getStoredTier() === 'free') flagPostSignIn();
@@ -54,8 +55,9 @@ export function SignInForm({ returnTo }: Props) {
 
   async function onGoogleSignIn() {
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const cred = await signInWithPopup(auth, new GoogleAuthProvider());
       setAuthCookie();
+      setStoredProfile({ name: cred.user.displayName, photoURL: cred.user.photoURL });
       if (!localStorage.getItem('salam_user_tier')) setStoredTier('free');
       if (getStoredTier() === 'free') flagPostSignIn();
       const safe = safeReturnTo(returnTo, window.location.origin);

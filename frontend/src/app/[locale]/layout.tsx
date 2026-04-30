@@ -1,8 +1,7 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import UserProvider from '@/providers/UserProvider';
-import { ParticleBackground } from '@/components/ParticleBackground';
-import { NavBar } from '@/components/NavBar';
+import { AppChrome } from '@/components/AppChrome';
 
 export default async function LocaleLayout({
   children,
@@ -24,13 +23,7 @@ export default async function LocaleLayout({
       />
       <NextIntlClientProvider locale={locale} messages={messages}>
         <UserProvider>
-          <div className="relative min-h-screen bg-[#050505] text-white">
-            <ParticleBackground />
-            <NavBar />
-            <div className="pt-24">
-              {children}
-            </div>
-          </div>
+          <AppChrome>{children}</AppChrome>
         </UserProvider>
       </NextIntlClientProvider>
     </>

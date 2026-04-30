@@ -22,7 +22,7 @@ export function LanguageSwitcher() {
   return (
     <button
       onClick={switchLocale}
-      className="text-sm font-semibold text-gray-400 hover:text-[#C5A059] px-3 py-1.5 rounded-lg border border-[#2A2A2A] hover:border-[#C5A059]/40 transition-all duration-200"
+      className="flex h-11 items-center rounded-xl border border-white/10 bg-white/[0.045] px-3 text-sm font-semibold text-white/70 transition-all duration-200 hover:border-[#C5A059]/40 hover:text-[#E8D4B0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
       aria-label={locale === "ar" ? "Switch to English" : "التبديل إلى العربية"}
     >
       {locale === "ar" ? "EN" : "عربي"}

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { WizardStep } from '@/components/ui/WizardStep';
 import type { RiskLabel, RiskProfile } from '@/lib/types';
@@ -37,7 +38,7 @@ const LABEL_COLORS: Record<RiskLabel, string> = {
 // Props
 // ---------------------------------------------------------------------------
 interface RiskWizardProps {
-  onComplete?: (profile: RiskProfile) => void;
+  onComplete?: (profile: RiskProfile) => void | Promise<void>;
   initialAnswers?: Partial<Record<QuestionKey, number>>;
 }
 
@@ -46,11 +47,13 @@ interface RiskWizardProps {
 // ---------------------------------------------------------------------------
 export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps) {
   const t = useTranslations('riskWizard');
+  const locale = useLocale();
 
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Partial<Record<QuestionKey, number>>>(initialAnswers);
   const [result, setResult] = useState<RiskProfile | null>(null);
   const [methodologyOpen, setMethodologyOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const currentKey = QUESTION_KEYS[step];
   const totalSteps = QUESTION_KEYS.length;
@@ -67,6 +70,7 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
   );
 
   const handleNext = useCallback(() => {
+    if (isSaving) return;
     if (answers[currentKey] === undefined) return;
 
     if (step < totalSteps - 1) {
@@ -94,9 +98,14 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
       completed_at: new Date().toISOString(),
     };
 
-    setResult(profile);
-    onComplete?.(profile);
-  }, [answers, currentKey, step, totalSteps, onComplete]);
+    setIsSaving(true);
+    Promise.resolve()
+      .then(() => onComplete?.(profile))
+      .finally(() => {
+        setResult(profile);
+        setIsSaving(false);
+      });
+  }, [answers, currentKey, step, totalSteps, onComplete, isSaving]);
 
   const handlePrev = useCallback(() => setStep(s => Math.max(0, s - 1)), []);
 
@@ -166,14 +175,22 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
         {/* Disclaimer */}
         <p className="text-xs text-gray-500 leading-relaxed">{t('disclaimer')}</p>
 
-        {/* Retake */}
-        <button
-          type="button"
-          onClick={() => { setResult(null); setStep(0); setAnswers({}); }}
-          className="min-h-[44px] w-full rounded-xl border border-gray-600 text-gray-400 hover:border-gray-400 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-        >
-          {t('retake')}
-        </button>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link
+            href={`/${locale}/dashboard`}
+            className="flex min-h-[44px] w-full items-center justify-center rounded-xl bg-[#C5A059] px-4 text-sm font-semibold text-black transition-transform hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F0D590]"
+          >
+            {t('returnToDashboard')}
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => { setResult(null); setStep(0); setAnswers({}); }}
+            className="min-h-[44px] w-full rounded-xl border border-gray-600 px-4 text-sm text-gray-400 transition-colors hover:border-gray-400 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          >
+            {t('retake')}
+          </button>
+        </div>
       </motion.div>
     );
   }
@@ -196,6 +213,7 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
       onPrev={handlePrev}
       isFirst={step === 0}
       isLast={step === totalSteps - 1}
+      isSubmitting={isSaving}
     />
   );
 }

@@ -397,6 +397,7 @@
     "next": "Next",
     "previous": "Previous",
     "calculate": "Calculate My Risk Profile",
+    "saving": "Saving...",
     "result": {
       "conservative": "Conservative Investor",
       "moderate": "Balanced Investor",
@@ -411,6 +412,7 @@
     "howCalculated": "How is this calculated?",
     "howCalculatedText": "Your score is calculated from 6 factors: investment horizon (25%), maximum acceptable drawdown (20%), age (15%), financial knowledge (15%), income stability (15%), and patience during downturns (10%).",
     "saveProfile": "Save Profile",
+    "returnToDashboard": "Return to Dashboard",
     "retake": "Retake Wizard",
     "questions": {
       "q1": "What is your investment time horizon?",
@@ -475,6 +477,8 @@
   "dashboard": {
     "greeting": "Welcome to Your Dashboard",
     "subtitle": "Track your halal portfolio, risk, and market signals in one place",
+    "homeEyebrow": "Dashboard Home",
+    "selectedSignal": "Selected signal",
     "zone1Title": "Live Ticker",
     "zone2Title": "Portfolio KPIs",
     "zone3Title": "Forecast & Allocation",
@@ -482,6 +486,107 @@
     "zone5Title": "Sector & Risk",
     "zone6Title": "News Feed",
     "riskUnknown": "Risk level not computed",
+    "nav": {
+      "label": "Dashboard navigation",
+      "home": "Home",
+      "homeDescription": "Dashboard overview, hot news, KPIs, charts, and services",
+      "workspace": "Investor workspace",
+      "advisorTitle": "Need a direction?",
+      "advisorBody": "Start with the Risk Wizard, then use Sahim's tools to understand halal status, risk, news, and allocation.",
+      "advisorCta": "Open Risk Wizard",
+      "selectedTicker": "Selected",
+      "welcome": "Welcome back",
+      "defaultUser": "Sahim Investor",
+      "signOut": "Sign out"
+    },
+    "search": {
+      "label": "Search dashboard pages and services",
+      "placeholder": "Search services, pages, tickers, and tools",
+      "empty": "No matching service or page found"
+    },
+    "guide": {
+      "open": "Open dashboard guide",
+      "close": "Close guide",
+      "eyebrow": "Quick guide",
+      "title": "How to use Sahim",
+      "subtitle": "A short walkthrough to help you start from the right place and move through the dashboard confidently.",
+      "stepCount": "Step {current} of {total}",
+      "previous": "Previous",
+      "next": "Next",
+      "finish": "Finish",
+      "steps": {
+        "start": {
+          "label": "Start here",
+          "title": "Begin with your investment profile",
+          "body": "Use the Risk Wizard first so Sahim can frame risk signals around your tolerance. This gives the rest of the dashboard better context."
+        },
+        "search": {
+          "label": "Search",
+          "title": "Use search to jump anywhere",
+          "body": "The top search bar finds Sahim pages, tools, and services. Search for halal checks, forecasts, zakat, sectors, or stock pages."
+        },
+        "services": {
+          "label": "Services",
+          "title": "Open tools from the sidebar",
+          "body": "The sidebar keeps every Sahim service one click away. Free tools are available immediately, while Pro tools show upgrade prompts when needed."
+        },
+        "insights": {
+          "label": "Insights",
+          "title": "Read the dashboard from top to bottom",
+          "body": "Start with hot news, then scan KPIs, forecasts, portfolio allocation, sector performance, and risk. Use ticker clicks to update the forecast."
+        },
+        "support": {
+          "label": "Support",
+          "title": "Ask the support agent",
+          "body": "Use the floating support chat when you are unsure where to go. It can explain Sahim services and guide you through the website."
+        }
+      }
+    },
+    "notifications": {
+      "open": "Open notifications",
+      "close": "Close notifications",
+      "dismiss": "Dismiss notification",
+      "title": "Notifications",
+      "subtitle": "Market, halal, and account updates",
+      "empty": "You're all caught up.",
+      "market": {
+        "title": "Market pulse is active",
+        "body": "Your dashboard is tracking hot market signals and watchlist news.",
+        "time": "Now"
+      },
+      "halal": {
+        "title": "Halal checks are available",
+        "body": "Open any stock to review its latest Shariah compliance status.",
+        "time": "Today"
+      },
+      "zakat": {
+        "title": "Zakat reminder",
+        "body": "Use the Zakat Calculator to estimate your portfolio obligation.",
+        "time": "This week"
+      }
+    },
+    "support": {
+      "open": "Open support chat",
+      "close": "Close support chat",
+      "title": "Sahim Support Agent",
+      "subtitle": "Gemini-powered website assistant",
+      "welcome": "Hi, I can help you understand Sahim services, find pages, and use the dashboard.",
+      "placeholder": "Ask about any service...",
+      "send": "Send message",
+      "thinking": "Thinking...",
+      "fallback": "I could not reach the assistant right now, but I can still help you navigate Sahim services.",
+      "disclaimer": "Support answers are informational and are not licensed investment advice."
+    },
+    "newsStack": {
+      "eyebrow": "News Agent",
+      "title": "Hot market news",
+      "open": "Open stock view",
+      "time": {
+        "now": "Now",
+        "minutesAgo": "{count}m ago",
+        "hoursAgo": "{count}h ago"
+      }
+    },
     "ticker": {
       "clickToView": "Click to view {symbol} ARIMA chart"
     },

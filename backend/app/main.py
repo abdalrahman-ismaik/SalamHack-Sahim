@@ -125,8 +125,10 @@ from app.api.stock import router as stock_router  # noqa: E402
 from app.api.sectors import router as sectors_router  # noqa: E402
 from app.api.allocator import router as allocator_router  # noqa: E402
 from app.api.tools import router as tools_router  # noqa: E402
+from app.api.support import router as support_router  # noqa: E402
 
 app.include_router(stock_router, prefix="/api")
 app.include_router(sectors_router, prefix="/api")
 app.include_router(allocator_router, prefix="/api")
 app.include_router(tools_router, prefix="/api/tools")
+app.include_router(support_router, prefix="/api/support")

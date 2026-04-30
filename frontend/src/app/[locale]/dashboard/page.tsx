@@ -11,10 +11,12 @@ import { DashboardPortfolioChart } from '@/components/dashboard/DashboardPortfol
 import { DashboardSectorChart } from '@/components/dashboard/DashboardSectorChart';
 import { DashboardRiskGauge } from '@/components/dashboard/DashboardRiskGauge';
 import { DashboardNewsFeed } from '@/components/dashboard/DashboardNewsFeed';
+import { DashboardNewsStack } from '@/components/dashboard/DashboardNewsStack';
 import { ServiceCardGrid } from '@/components/dashboard/ServiceCardGrid';
-import { TierBadge } from '@/components/dashboard/TierBadge';
 import { DashboardUpgradeCheck } from '@/components/dashboard/DashboardUpgradeCheck';
 import { DashboardAlertsBanner } from '@/components/dashboard/DashboardAlertsBanner';
+import { DashboardShell } from '@/components/dashboard/DashboardShell';
+import { DashboardSupportChat } from '@/components/dashboard/DashboardSupportChat';
 import { staggerContainer } from '@/lib/motion';
 import { useDashboardKPI } from '@/hooks/useDashboardKPI';
 import { useDashboardPortfolio } from '@/hooks/useDashboardPortfolio';
@@ -93,51 +95,33 @@ export default function DashboardPage() {
   const zakatDays = daysSince(kpi.lastZakatDate);
 
   return (
-    <main
-      dir={isRTL ? 'rtl' : 'ltr'}
-      className={`relative min-h-screen overflow-hidden bg-[#050505] pb-12 ${
-        isRTL ? 'font-[var(--font-arabic)] text-right' : 'font-[var(--font-latin)] text-left'
-      }`}
-    >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(197,160,89,0.09)_0%,rgba(5,5,5,0)_24rem),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100%_100%,72px_72px,72px_72px]" />
+    <DashboardShell selectedTicker={selectedTicker}>
       <DashboardUpgradeCheck />
       <DashboardAlertsBanner />
 
-      {/* Zone 1: Header + Ticker Strip */}
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         animate="visible"
-        className="relative space-y-7"
+        className="space-y-6 p-4 md:p-6"
       >
-        {/* Header */}
-        <div className="border-b border-white/10 px-4 py-8">
-          <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-2xl space-y-3">
-              <h1 className="text-3xl font-semibold tracking-normal text-white md:text-4xl">
-                {t('greeting')}
-              </h1>
-              <p className="max-w-xl text-sm leading-6 text-white/58">{t('subtitle')}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="hidden rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/55 sm:block">
-                {selectedTicker}
-              </div>
-              <TierBadge />
-            </div>
-          </div>
-        </div>
-
-        {/* Zone 1: Scrolling Ticker Strip */}
         <DashboardZone title={t('zone1Title')} density="edge">
-          <TickerStrip onTickerClick={handleTickerClick} />
+          <div className="overflow-hidden rounded-[24px] border border-white/10">
+            <TickerStrip onTickerClick={handleTickerClick} />
+          </div>
         </DashboardZone>
 
-        {/* Zone 2: KPI Cards (Grid) */}
-        <div className="px-4">
-          <div className="mx-auto max-w-7xl">
+        <div className="grid gap-5 xl:grid-cols-12">
+          <div className="xl:col-span-4">
+            <DashboardNewsStack
+              items={newsItems}
+              loading={watchlistLoading || newsLoading}
+            />
+          </div>
+
+          <div className="space-y-5 xl:col-span-8">
             <DashboardZone title={t('zone2Title')}>
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <DashboardKPICard
                   label={t('kpi.watchlist')}
                   value={kpi.watchlistCount > 0 ? kpi.watchlistCount : t('kpi.noWatchlistItems')}
@@ -188,20 +172,13 @@ export default function DashboardPage() {
                 />
               </div>
             </DashboardZone>
-          </div>
-        </div>
 
-        {/* Zone 3: Charts (ARIMA + Portfolio) */}
-        <div className="px-4">
-          <div className="mx-auto max-w-7xl">
             <DashboardZone title={t('zone3Title')}>
               <div className="grid gap-6 grid-cols-1 lg:grid-cols-12">
-                {/* ARIMA Chart (7 cols) */}
                 <div className={`lg:col-span-7 ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
                   <DashboardArimaChart ticker={selectedTicker} tier={tier} locale={locale} />
                 </div>
 
-                {/* Portfolio Chart (5 cols) */}
                 <div className={`lg:col-span-5 ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
                   <DashboardPortfolioChart sectors={portfolioSectors} loading={portfolioLoading} locale={locale} />
                 </div>
@@ -210,55 +187,40 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Zone 4: Service Cards */}
-        <div className="px-4 pb-12">
-          <div className="mx-auto max-w-7xl">
-            <DashboardZone title={t('zone4Title')}>
-              <ServiceCardGrid />
-            </DashboardZone>
-          </div>
-        </div>
+        <DashboardZone title={t('zone4Title')}>
+          <ServiceCardGrid />
+        </DashboardZone>
 
-        {/* Zone 5: Sector Chart + Risk Gauge */}
-        <div className="px-4">
-          <div className="mx-auto max-w-7xl">
-            <DashboardZone title={t('zone5Title')}>
-              <div className="grid gap-6 grid-cols-1 lg:grid-cols-12">
-                {/* Sector Chart (7 cols) */}
-                <div className={`lg:col-span-7 ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
-                  <DashboardSectorChart
-                    sectors={sectors}
-                    period={period}
-                    onPeriodChange={setPeriod}
-                    loading={sectorsLoading}
-                    tier={tier}
-                    locale={locale}
-                  />
-                </div>
+        <DashboardZone title={t('zone5Title')}>
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-12">
+            <div className={`lg:col-span-7 ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
+              <DashboardSectorChart
+                sectors={sectors}
+                period={period}
+                onPeriodChange={setPeriod}
+                loading={sectorsLoading}
+                tier={tier}
+                locale={locale}
+              />
+            </div>
 
-                {/* Risk Gauge (5 cols) */}
-                <div className={`lg:col-span-5 ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
-                  <DashboardRiskGauge
-                    score={riskScore}
-                    label={riskLabel}
-                    loading={kpiLoading}
-                    locale={locale}
-                  />
-                </div>
-              </div>
-            </DashboardZone>
+            <div className={`lg:col-span-5 ${isRTL ? 'lg:order-1' : 'lg:order-2'}`}>
+              <DashboardRiskGauge
+                score={riskScore}
+                label={riskLabel}
+                loading={kpiLoading}
+                locale={locale}
+              />
+            </div>
           </div>
-        </div>
+        </DashboardZone>
 
-        {/* Zone 6: News Feed */}
-        <div className="px-4 pb-12">
-          <div className="mx-auto max-w-7xl">
-            <DashboardZone title={t('zone6Title')}>
-              <DashboardNewsFeed items={newsItems} loading={watchlistLoading || newsLoading} tier={tier} />
-            </DashboardZone>
-          </div>
-        </div>
+        <DashboardZone title={t('zone6Title')}>
+          <DashboardNewsFeed items={newsItems} loading={watchlistLoading || newsLoading} tier={tier} />
+        </DashboardZone>
       </motion.div>
-    </main>
+
+      <DashboardSupportChat />
+    </DashboardShell>
   );
 }

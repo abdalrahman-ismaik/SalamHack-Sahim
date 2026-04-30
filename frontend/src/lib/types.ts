@@ -185,6 +185,7 @@ export type UserTier = 'guest' | 'free' | 'pro' | 'enterprise';
 export interface UserSession {
   id:     string | null;
   name:   string | null;
+  photoURL: string | null;
   locale: 'ar' | 'en';
   tier:   UserTier;
 }
@@ -192,6 +193,7 @@ export interface UserSession {
 export const GUEST_SESSION: UserSession = {
   id:     null,
   name:   null,
+  photoURL: null,
   locale: 'ar',
   tier:   'guest',
 };
@@ -255,6 +257,26 @@ export interface ServiceCard {
   requiredTier: UserTier;              // 'free', 'pro', 'enterprise'
   href: string;                        // route path
   available?: boolean;                 // optional compat field
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard Support Chat
+// ---------------------------------------------------------------------------
+
+export interface SupportChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface SupportChatRequest {
+  message: string;
+  locale: 'ar' | 'en' | string;
+  history?: SupportChatMessage[];
+}
+
+export interface SupportChatResponse {
+  reply: string;
+  source: 'gemini' | 'fallback';
 }
 
 // ---------------------------------------------------------------------------
