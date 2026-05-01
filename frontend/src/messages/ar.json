@@ -254,6 +254,49 @@
       "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح.",
       "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
       "formLabel": "نموذج الاشتراك في النشرة الإخبارية"
+    },
+    "about": {
+      "eyebrow": "من نحن",
+      "title": "فريق المطورين",
+      "subtitle": "فريق من أربعة مطورين يبني أدوات استثمار عربية حصرية.",
+      "members": [
+        {
+          "name": "عبدالرحمن اسميك",
+          "title": "تصميم المنتج والواجهة الأمامية",
+          "handle": "abd-alrahman",
+          "status": "تجربة المنتج وتصميم الواجهة والتنفيذ",
+          "contactText": "Full-stack",
+          "initials": "AI",
+          "avatarUrl": "/images/001_abd.jpg"
+        },
+        {
+          "name": "محمد الأشموني",
+          "title": "مطور الخلفية",
+          "handle": "mohamed",
+          "status": "FastAPI والتخزين المؤقت والمسارات",
+          "contactText": "API",
+          "initials": "ME",
+          "avatarUrl": "/images/002_mohamed.jpg"
+        },
+        {
+          "name": "رنيم عبيدات",
+          "title": "مطورة خلفية وواجهة أمامية",
+          "handle": "raneem",
+          "status": "واجهات API وتجارب الواجهة والتحسينات",
+          "contactText": "Full-stack",
+          "initials": "RO",
+          "avatarUrl": "/images/003_Raneem.jpeg"
+        },
+        {
+          "name": "أسامة عايش",
+          "title": "مطور الذكاء الاصطناعي والبيانات",
+          "handle": "osama",
+          "status": "التقييمات والأخبار والرؤى",
+          "contactText": "AI",
+          "initials": "OA",
+          "avatarUrl": "/images/004_osama.jpg"
+        }
+      ]
     }
   },
   "auth": {
@@ -327,7 +370,7 @@
     "pro": {
       "name": "احترافي",
       "tagline": "للمستثمر الجاد",
-      "price": "قريباً",
+      "price": "9.90 دولار / شهر",
       "cta": "ابدأ التجربة الاحترافية",
       "features": [
         "كل مزايا المجاني",
@@ -896,6 +939,10 @@
       "zakatCalculatorDesc": "احسب الزكاة الواجبة على محفظتك"
     },
     "tier": {
+      "guest": "زائر",
+      "free": "مجاني",
+      "pro": "احترافي",
+      "enterprise": "مؤسسي",
       "upgrade": "ترقِّ للوصول",
       "proOnly": "ميزة برو فقط",
       "proFeature": "متاح للمشتركين في برو فقط"

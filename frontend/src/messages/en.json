@@ -256,6 +256,49 @@
       "invalidEmail": "Please enter a valid email address.",
       "genericError": "Something went wrong. Please try again.",
       "formLabel": "Newsletter subscription form"
+    },
+    "about": {
+      "eyebrow": "About Us",
+      "title": "Built by a focused 4-developer hackathon team",
+      "subtitle": "A four-person team building Arabic-first investing tools for the hackathon.",
+      "members": [
+        {
+          "name": "Abd Alrahman Ismaik",
+          "title": "Full-stack, Product Design & Frontend Developer",
+          "handle": "abd-alrahman",
+          "status": "Product experience, interface design, and implementation",
+          "contactText": "Full-stack",
+          "initials": "AI",
+          "avatarUrl": "/images/001_abd.jpg"
+        },
+        {
+          "name": "Mohamed Elashmouney",
+          "title": "Backend Developer",
+          "handle": "mohamed",
+          "status": "FastAPI, cache, and data routes",
+          "contactText": "API",
+          "initials": "ME",
+          "avatarUrl": "/images/002_mohamed.jpg"
+        },
+        {
+          "name": "Raneem Obiedat",
+          "title": "Backend & Frontend Developer",
+          "handle": "raneem",
+          "status": "APIs, frontend flows, and polish",
+          "contactText": "Full-stack",
+          "initials": "RO",
+          "avatarUrl": "/images/003_Raneem.jpeg"
+        },
+        {
+          "name": "Osama Ayesh",
+          "title": "AI & Data Developer",
+          "handle": "osama",
+          "status": "Scores, news, and insights",
+          "contactText": "AI",
+          "initials": "OA",
+          "avatarUrl": "/images/004_osama.jpg"
+        }
+      ]
     }
   },
   "auth": {
@@ -329,7 +372,7 @@
     "pro": {
       "name": "Pro",
       "tagline": "For serious investors",
-      "price": "Coming Soon",
+      "price": "$9.90 / month",
       "cta": "Start Pro Trial",
       "features": [
         "Everything in Free",
@@ -897,6 +940,10 @@
       "zakatCalculatorDesc": "Calculate Zakat due on your portfolio"
     },
     "tier": {
+      "guest": "Guest",
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise",
       "upgrade": "Upgrade to Access",
       "proOnly": "Pro feature only",
       "proFeature": "Available to Pro subscribers only"

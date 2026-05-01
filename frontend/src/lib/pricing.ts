@@ -11,7 +11,7 @@ export const PRICING_PLANS: PricingPlan[] = [
   {
     id:           'pro',
     tier:         1,
-    monthlyPrice: null,
+    monthlyPrice: 9.9,
     highlighted:  true,
     ctaVariant:   'default',
   },

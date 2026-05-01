@@ -5,7 +5,7 @@ import { useLocale } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { safeReturnTo } from '@/middleware';
+import { safeReturnTo } from '@/lib/safe-return';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';

@@ -8,6 +8,7 @@ const TestimonialsSection = dynamic(() => import('@/components/landing/Testimoni
 const FaqSection          = dynamic(() => import('@/components/landing/FaqSection').then(m => ({ default: m.FaqSection })));
 const CtaBannerSection    = dynamic(() => import('@/components/landing/CtaBannerSection').then(m => ({ default: m.CtaBannerSection })));
 const NewsletterSection   = dynamic(() => import('@/components/landing/NewsletterSection').then(m => ({ default: m.NewsletterSection })));
+const AboutUsSection      = dynamic(() => import('@/components/landing/AboutUsSection').then(m => ({ default: m.AboutUsSection })));
 const FooterSection       = dynamic(() => import('@/components/landing/FooterSection').then(m => ({ default: m.FooterSection })));
 
 export default function LandingPage() {
@@ -20,6 +21,7 @@ export default function LandingPage() {
       <FaqSection />
       <CtaBannerSection />
       <NewsletterSection />
+      <AboutUsSection />
       <FooterSection />
     </main>
   );

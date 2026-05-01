@@ -4,22 +4,40 @@
 
 **SalamHack 2026 | Track 3: Understanding & Managing Money**
 
-$ahim helps first-time investors understand stocks before making decisions. It combines market data, mathematical risk analysis, AI news summaries, Shariah-compliance signals, and beginner-friendly tools into one bilingual web MVP.
+$ahim helps first-time investors understand stocks before making decisions. It starts by building a lightweight investor profile, then combines market data, mathematical risk analysis, AI news summaries, Shariah-compliance signals, and beginner-friendly tools into one bilingual web MVP.
 
 ---
 
 ## One-Minute Pitch
 
-Beginner investors in the Arab world often rely on social media tips, fragmented English-first research, and unclear Shariah-compliance information. $ahim turns that confusion into a simple, explainable workflow:
+Beginner investors in the Arab world often start with scattered advice, English-first research, and uncertainty about risk or Shariah compliance. $ahim turns that journey into a guided, personalized experience:
 
-1. Search a stock or company.
-2. Get a traffic-light Investment Readiness Score.
-3. See the math behind the score: volatility, VaR, Sharpe ratio, beta, and sentiment.
-4. Check Halal/Shariah status with visible disclaimers.
-5. Read AI-generated Arabic news insights.
-6. Save watchlists, risk profiles, Zakat metadata, and alerts for future sessions.
+1. The user creates a profile and chooses Arabic or English.
+2. $ahim builds a beginner risk profile from simple questions about comfort level, horizon, and market knowledge.
+3. The user searches for a stock or company.
+4. $ahim returns a traffic-light Investment Readiness Score with the math behind it: volatility, VaR, Sharpe ratio, beta, and sentiment.
+5. The stock is checked for Halal/Shariah status with clear disclaimers.
+6. AI-generated Arabic news insights explain what happened, why it matters, and what risks or opportunities to watch.
+7. The user's watchlist, risk profile, Zakat reminder, last viewed ticker, and alerts personalize the dashboard for future sessions.
 
-The goal is not to tell users what to buy. The goal is to help Arabic-speaking beginners understand risk, compliance, and market context in a language and format they can actually use.
+The goal is not to tell users what to buy. The goal is to help Arabic-speaking beginners understand risk, compliance, and market context in a format that feels personal, trustworthy, and easy to act on.
+
+---
+
+## Personalized User Journey
+
+$ahim is designed to start with the user, not the stock. The MVP builds a small profile from signals the user intentionally gives us, then uses that profile to personalize the dashboard and guide them toward the most relevant tools.
+
+| Step | User Signal | How $ahim Uses It |
+|---|---|---|
+| Account creation | Name, email, locale, access tier | Creates a persistent profile and renders Arabic RTL or English LTR by default |
+| Risk Wizard | Investment horizon, age range, knowledge level, income stability, drawdown tolerance, patience | Produces a conservative/moderate/aggressive profile and powers the dashboard risk card/gauge |
+| Stock exploration | Last viewed ticker and searched companies | Defaults dashboard charts and quick actions to stocks the user already cares about |
+| Watchlist | Saved tickers and Halal snapshot | Personalizes dashboard KPIs, portfolio visuals, news feed, and compliance monitoring |
+| Zakat Calculator | Latest Zakat result metadata only | Shows a reminder state without storing raw portfolio value or liability inputs |
+| Compliance alerts | Pro/Enterprise alert preferences per ticker | Lets users monitor Shariah status changes for stocks they follow |
+
+In the hackathon MVP, this profile is intentionally lightweight and demo-safe. It does not store brokerage credentials, real transactions, KYC documents, payment methods, or raw Zakat inputs.
 
 ---
 
@@ -44,11 +62,12 @@ Use this path for the final hackathon presentation:
 3. Open a stock detail page such as `http://localhost:3000/ar/stock/AAPL`.
 4. Show the traffic-light score, score components, Halal panel, AI news panel, ARIMA forecast, and sector comparison.
 5. Sign in or create an account to show the soft sign-in gate and saved user state.
-6. Open the dashboard at `http://localhost:3000/ar/dashboard`.
-7. Show the watchlist KPI, Halal compliance rate, risk status, Zakat reminder, ticker strip, charts, service cards, news feed, and support chat.
-8. Open the Risk Wizard at `http://localhost:3000/ar/tools/risk-wizard`.
-9. Open the Zakat Calculator at `http://localhost:3000/ar/tools/zakat`.
-10. Toggle a compliance alert on a saved ticker to show the Pro-tier storage boundary.
+6. Open the Risk Wizard at `http://localhost:3000/ar/tools/risk-wizard` and complete a profile.
+7. Save a ticker to the watchlist from a stock page.
+8. Open the Zakat Calculator at `http://localhost:3000/ar/tools/zakat` and save the latest reminder metadata.
+9. Open the dashboard at `http://localhost:3000/ar/dashboard`.
+10. Show how the dashboard adapts around the user's watchlist, risk status, last viewed ticker, Zakat reminder, tier, service cards, news feed, and support chat.
+11. Toggle a compliance alert on a saved ticker to show the Pro-tier storage boundary.
 
 ---
 
@@ -59,6 +78,7 @@ Use this path for the final hackathon presentation:
 | Landing + SaaS UX | Premium landing page, feature sections, pricing section, bilingual nav, CTA to stock search |
 | Authentication | Firebase Auth-based sign-in/sign-up pages and auth presence handling |
 | Soft sign-in gate | Guests see a teaser stock result, then a blocking sign-in modal to continue |
+| User profile personalization | Firestore-backed profile, locale, tier, risk profile, watchlist, last viewed ticker, Zakat reminder, and alert preferences |
 | Dashboard | Six-zone premium dashboard: ticker strip, KPI cards, ARIMA/portfolio visuals, service grid, sector/risk insights, news feed |
 | Stock analysis | Stock detail page with Investment Readiness Score, risk panel, Halal panel, news panel, ARIMA chart, sector comparison |
 | AI news | Gemini-backed Arabic news summarization and sentiment fallback behavior |
@@ -73,7 +93,31 @@ Use this path for the final hackathon presentation:
 
 ## Product Features
 
-### 1. Investment Readiness Score
+### 1. User Profile & Personalization
+
+$ahim creates a lightweight profile once the user signs in. That profile is used to tailor the product experience without collecting sensitive financial accounts.
+
+Personalization inputs:
+
+- Locale and layout direction
+- Free/Pro/Enterprise tier
+- Risk Wizard score and label
+- Watchlist tickers
+- Last viewed ticker
+- Latest Zakat reminder metadata
+- Compliance alert preferences
+
+Personalized outputs:
+
+- Dashboard risk card and risk gauge
+- Watchlist count and Halal compliance KPI
+- News feed based on saved tickers
+- ARIMA default ticker from the user's last viewed stock
+- Zakat reminder CTA or last-calculated state
+- Tier-aware service cards and upgrade prompts
+- Pro-only Shariah compliance alerts
+
+### 2. Investment Readiness Score
 
 The core score is a 0-100 beginner-readiness indicator:
 
@@ -93,7 +137,7 @@ Score weights currently implemented in `backend/app/services/score_engine.py`:
 | Beta | 15% |
 | News sentiment | 15% |
 
-### 2. Risk Analysis
+### 3. Risk Analysis
 
 The backend computes professional risk metrics and the frontend explains them in an accessible UI:
 
@@ -104,7 +148,7 @@ The backend computes professional risk metrics and the frontend explains them in
 - RSI, MACD, moving averages, and fundamentals where provider data is available
 - Low-confidence state for insufficient historical data
 
-### 3. Halal / Shariah Screening
+### 4. Halal / Shariah Screening
 
 $ahim presents a Shariah status layer next to the stock analysis:
 
@@ -117,7 +161,7 @@ The model supports provider-backed verdicts and ratio fields such as debt-to-mar
 
 > التحقق النهائي من الحلية يقع على عاتق المستخدم
 
-### 4. Arabic AI News Intelligence
+### 5. Arabic AI News Intelligence
 
 The news agent fetches recent stock-related news and uses Gemini to produce:
 
@@ -127,13 +171,13 @@ The news agent fetches recent stock-related news and uses Gemini to produce:
 - Key opportunities
 - Graceful neutral fallback when the model or news source is unavailable
 
-### 5. ARIMA Forecast
+### 6. ARIMA Forecast
 
 The ARIMA service produces a statistical projection with confidence intervals for supported tickers. It is presented as informational analysis only:
 
 > هذا تقدير إحصائي مستقل، وليس نصيحة استثمارية مرخصة
 
-### 6. Beginner + Islamic Finance Tools
+### 7. Beginner + Islamic Finance Tools
 
 | Tool | Purpose |
 |---|---|
@@ -236,6 +280,7 @@ users/{uid}/alert_preferences/{ticker}
 ### What We Store
 
 - Profile metadata and locale
+- Lightweight onboarding/investment preferences
 - Free/Pro/Enterprise tier
 - Watchlist tickers
 - Dashboard KPI metadata
