@@ -2,6 +2,7 @@
 
 import { ReactNode, useContext, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   BadgeCheck,
@@ -50,6 +51,7 @@ const GUIDE_STEPS = ['start', 'search', 'services', 'insights', 'support'] as co
 
 export function DashboardShell({ children, selectedTicker }: DashboardShellProps) {
   const locale = useLocale();
+  const pathname = usePathname();
   const navT = useTranslations('dashboard.nav');
   const searchT = useTranslations('dashboard.search');
   const guideT = useTranslations('dashboard.guide');
@@ -149,7 +151,7 @@ export function DashboardShell({ children, selectedTicker }: DashboardShellProps
           <nav aria-label={navT('label')} className="min-h-0 overflow-y-auto pe-1">
             <ul className="space-y-1">
               {navigation.map((item) => {
-                const active = item.id === 'home';
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 const Icon = item.Icon;
                 return (
                   <li key={item.id}>
@@ -269,8 +271,8 @@ export function DashboardShell({ children, selectedTicker }: DashboardShellProps
             </div>
 
             <nav aria-label={navT('label')} className="mt-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
-              {navigation.slice(0, 7).map(item => {
-                const active = item.id === 'home';
+              {navigation.map(item => {
+                const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 const Icon = item.Icon;
                 return (
                   <Link
