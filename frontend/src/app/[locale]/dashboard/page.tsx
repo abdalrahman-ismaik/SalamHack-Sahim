@@ -77,6 +77,7 @@ export default function DashboardPage() {
 
   const [selectedTicker, setSelectedTicker] = useState<string>(DEFAULT_TICKER);
   const [tickerWasSelected, setTickerWasSelected] = useState(false);
+  const [profileFormRequest, setProfileFormRequest] = useState(0);
 
   useEffect(() => {
     if (!expandedTier && period !== 'week') {
@@ -111,8 +112,11 @@ export default function DashboardPage() {
   const zakatDays = daysSince(kpi.lastZakatDate);
 
   return (
-    <DashboardShell selectedTicker={selectedTicker}>
-      <DashboardOnboardingChecklist />
+    <DashboardShell
+      selectedTicker={selectedTicker}
+      onOpenProfileForm={() => setProfileFormRequest(request => request + 1)}
+    >
+      <DashboardOnboardingChecklist openRequest={profileFormRequest} />
       <DashboardUpgradeCheck />
       <DashboardAlertsBanner />
 

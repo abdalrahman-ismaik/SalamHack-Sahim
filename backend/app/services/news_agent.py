@@ -1,6 +1,8 @@
-"""News analysis agent (Groq primary).
+"""News analysis agent (Gemini primary, Groq optional fallback).
 
-Uses Groq Chat Completions API (OpenAI-compatible) with JSON output mode.
+Uses Gemini JSON output when configured, then Groq Chat Completions as an
+optional fallback. If both are unavailable, it returns deterministic article
+summaries so the news panel still has useful content.
 Returns a normalized 5-field dict for frontend consumption.
 """
 
@@ -18,6 +20,10 @@ from app.config import get_settings
 logger = logging.getLogger(__name__)
 
 _AGENT_TIMEOUT = 30.0  # seconds
+_GEMINI_MODEL = "gemini-1.5-flash"
+_GEMINI_URL = (
+    f"https://generativelanguage.googleapis.com/v1beta/models/{_GEMINI_MODEL}:generateContent"
+)
 _GROQ_API_BASE = "https://api.groq.com/openai/v1/chat/completions"
 _CANDIDATE_MODELS = (
     # Try light model first, then stronger one.
@@ -40,17 +46,13 @@ async def analyse_news(
     articles: list[dict],
     company_name: Optional[str] = None,
 ) -> dict:
-    """Analyse news articles via Groq LLM endpoint.
+    """Analyse news articles via Gemini/Groq LLM endpoints.
 
     Falls back to heuristic extraction on timeout/error.
     """
     settings = get_settings()
 
     if not articles:
-        return _fallback_result()
-
-    if not settings.groq_api_key:
-        logger.warning("GROQ_API_KEY not configured — returning fallback sentiment")
         return _fallback_result()
 
     name = company_name or ticker
@@ -66,47 +68,87 @@ async def analyse_news(
     )
 
     raw_content: str | None = None
-    for model_name in _CANDIDATE_MODELS:
+    raw_source = "AI"
+
+    if settings.gemini_api_key:
         try:
             payload = {
-                "model": model_name,
-                "messages": [
-                    {"role": "system", "content": "أنت محلل مالي خبير. أعد JSON فقط."},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.2,
-                "max_tokens": 600,
-                "response_format": {"type": "json_object"},
-            }
-            headers = {
-                "Authorization": f"Bearer {settings.groq_api_key}",
-                "Content-Type": "application/json",
+                "contents": [{"role": "user", "parts": [{"text": user_prompt}]}],
+                "generationConfig": {
+                    "temperature": 0.2,
+                    "topP": 0.9,
+                    "maxOutputTokens": 600,
+                    "responseMimeType": "application/json",
+                },
             }
             async with httpx.AsyncClient(timeout=httpx.Timeout(_AGENT_TIMEOUT)) as client:
                 resp = await asyncio.wait_for(
-                    client.post(_GROQ_API_BASE, json=payload, headers=headers),
+                    client.post(
+                        _GEMINI_URL,
+                        params={"key": settings.gemini_api_key},
+                        json=payload,
+                    ),
                     timeout=_AGENT_TIMEOUT,
                 )
                 resp.raise_for_status()
                 data = resp.json()
-            raw_content = (
-                data.get("choices", [{}])[0]
-                .get("message", {})
-                .get("content", "")
-            )
-            logger.debug("Groq model %s succeeded for %s", model_name, ticker)
-            break
+            raw_content = data["candidates"][0]["content"]["parts"][0]["text"]
+            raw_source = "Gemini"
+            logger.debug("Gemini news analysis succeeded for %s", ticker)
         except asyncio.TimeoutError:
-            logger.warning("Groq timeout for %s on model %s", ticker, model_name)
+            logger.warning("Gemini timeout for %s", ticker)
+        except (KeyError, IndexError, TypeError) as exc:
+            logger.warning("Unexpected Gemini response shape for %s: %s", ticker, exc)
         except Exception as exc:
-            logger.warning("Groq error for %s on model %s: %s", ticker, model_name, exc)
+            logger.warning("Gemini error for %s: %s", ticker, exc)
+    else:
+        logger.warning("GEMINI_API_KEY not configured — skipping Gemini news analysis")
+
+    if raw_content is None and settings.groq_api_key:
+        for model_name in _CANDIDATE_MODELS:
+            try:
+                payload = {
+                    "model": model_name,
+                    "messages": [
+                        {"role": "system", "content": "أنت محلل مالي خبير. أعد JSON فقط."},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "temperature": 0.2,
+                    "max_tokens": 600,
+                    "response_format": {"type": "json_object"},
+                }
+                headers = {
+                    "Authorization": f"Bearer {settings.groq_api_key}",
+                    "Content-Type": "application/json",
+                }
+                async with httpx.AsyncClient(timeout=httpx.Timeout(_AGENT_TIMEOUT)) as client:
+                    resp = await asyncio.wait_for(
+                        client.post(_GROQ_API_BASE, json=payload, headers=headers),
+                        timeout=_AGENT_TIMEOUT,
+                    )
+                    resp.raise_for_status()
+                    data = resp.json()
+                raw_content = (
+                    data.get("choices", [{}])[0]
+                    .get("message", {})
+                    .get("content", "")
+                )
+                raw_source = "Groq"
+                logger.debug("Groq model %s succeeded for %s", model_name, ticker)
+                break
+            except asyncio.TimeoutError:
+                logger.warning("Groq timeout for %s on model %s", ticker, model_name)
+            except Exception as exc:
+                logger.warning("Groq error for %s on model %s: %s", ticker, model_name, exc)
+    elif raw_content is None:
+        logger.warning("No Gemini/Groq news AI key configured — returning article-based fallback")
 
     if raw_content is None:
         return _fallback_result(articles)
 
     try:
         content = raw_content or "{}"
-        logger.debug("Raw Groq response for %s: %r", ticker, content)
+        logger.debug("Raw %s response for %s: %r", raw_source, ticker, content)
 
         # Clean markdown codeblocks in case the model ignored response_mime_type
         content = content.strip()
@@ -120,7 +162,13 @@ async def analyse_news(
 
         data = json.loads(content)
     except (json.JSONDecodeError, ValueError) as exc:
-        logger.error("Failed to parse Groq response for %s: %s\nRaw content: %r", ticker, exc, content)
+        logger.error(
+            "Failed to parse %s response for %s: %s\nRaw content: %r",
+            raw_source,
+            ticker,
+            exc,
+            content,
+        )
         return _fallback_result(articles)
 
     return {
@@ -133,7 +181,11 @@ async def analyse_news(
 
 
 def _fallback_summary_ar(articles: list[dict]) -> str:
-    titles = [str(a.get("title", "")).strip() for a in articles[:3] if str(a.get("title", "")).strip()]
+    titles = [
+        str(a.get("title", "")).strip()
+        for a in articles[:3]
+        if str(a.get("title", "")).strip()
+    ]
     if not titles:
         return ""
     # Simple deterministic fallback summary in Arabic when AI is unavailable.
@@ -143,7 +195,7 @@ def _fallback_summary_ar(articles: list[dict]) -> str:
 def _fallback_key_points(articles: list[dict]) -> tuple[list[str], list[str], str]:
     """Derive simple risk/opportunity bullets from article titles/snippets.
 
-    Keeps the endpoint useful even when Gemini quota is exhausted.
+    Keeps the endpoint useful even when the AI summarizer is unavailable.
     """
     corpus = " ".join(
         f"{a.get('title', '')} {a.get('snippet', '')}" for a in articles[:5]

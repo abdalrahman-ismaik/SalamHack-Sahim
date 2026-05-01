@@ -458,7 +458,7 @@ export function HeroSection() {
               {t('subheadline')}
             </p>
             <div className="hero-fade-up mt-8 flex flex-wrap gap-3" style={{ animationDelay: '320ms' }}>
-              <a href={`/${locale}#try-stock`}>
+              <a href={`/${locale}#stock-search`}>
                 <Button variant="gold" size="lg">{t('cta')}</Button>
               </a>
               <a href={`/${locale}#pricing`}>

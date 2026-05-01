@@ -2,9 +2,10 @@
 
 import { useContext, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { ShieldCheck, Sparkles, UserRound, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import Stepper, { Step } from '@/components/ui/Stepper';
 import { UserContext } from '@/providers/UserContext';
@@ -32,6 +33,10 @@ interface OnboardingProfile {
   interestedSectors: string[];
   newsCadence: string;
   riskAnswers: Record<RiskQuestionKey, number>;
+}
+
+interface DashboardOnboardingChecklistProps {
+  openRequest?: number;
 }
 
 const ONBOARDING_PROFILE_KEY = 'sahim_investor_profile';
@@ -144,13 +149,54 @@ function riskAnswersFromProfile(profile: OnboardingProfile): Record<RiskQuestion
   };
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseProfileValue(value: unknown): Partial<OnboardingProfile> | null {
+  return isRecord(value) ? (value as Partial<OnboardingProfile>) : null;
+}
+
+function readStoredInvestmentProfile(uid: string): Partial<OnboardingProfile> | null {
+  try {
+    const raw = localStorage.getItem(`${ONBOARDING_PROFILE_KEY}_${uid}`);
+    return raw ? parseProfileValue(JSON.parse(raw)) : null;
+  } catch {
+    return null;
+  }
+}
+
+function mergeProfile(
+  current: OnboardingProfile,
+  incoming: Partial<OnboardingProfile> | null,
+  displayName: string,
+): OnboardingProfile {
+  const merged = { ...current, ...(incoming ?? {}) };
+  const riskAnswers = isRecord(merged.riskAnswers)
+    ? { ...current.riskAnswers, ...merged.riskAnswers }
+    : current.riskAnswers;
+
+  return {
+    ...merged,
+    name: String(merged.name || displayName || ''),
+    preferredMarkets: Array.isArray(merged.preferredMarkets)
+      ? merged.preferredMarkets
+      : current.preferredMarkets,
+    interestedSectors: Array.isArray(merged.interestedSectors)
+      ? merged.interestedSectors
+      : current.interestedSectors,
+    riskAnswers,
+  };
+}
+
 function useOptionLabels(namespace: string, keys: string[]) {
   const t = useTranslations(namespace);
   return useMemo(() => keys.map(value => ({ value, label: t(value) })), [keys, t]);
 }
 
-export function DashboardOnboardingChecklist() {
+export function DashboardOnboardingChecklist({ openRequest = 0 }: DashboardOnboardingChecklistProps) {
   const locale = useLocale();
+  const router = useRouter();
   const t = useTranslations('dashboard.onboarding');
   const riskT = useTranslations('riskWizard');
   const session = useContext(UserContext);
@@ -161,6 +207,7 @@ export function DashboardOnboardingChecklist() {
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile>(DEFAULT_PROFILE);
+  const [profileCompleted, setProfileCompleted] = useState(false);
 
   const countryOptions = useOptionLabels('dashboard.onboarding.options.country', COUNTRY_OPTIONS);
   const currencyOptions = useMemo(() => CURRENCY_OPTIONS.map(value => ({ value, label: value })), []);
@@ -188,28 +235,20 @@ export function DashboardOnboardingChecklist() {
       const storedProfile = getStoredProfile();
       const displayName = user.displayName ?? session.name ?? storedProfile.name ?? '';
       const draft = localStorage.getItem(draftKey(user.uid));
+      const storedInvestmentProfile = readStoredInvestmentProfile(user.uid);
       if (draft) {
         try {
           const parsed = JSON.parse(draft) as Partial<OnboardingProfile>;
-          setProfile(prev => ({
-            ...prev,
-            ...parsed,
-            name: (((parsed.name ?? prev.name) || displayName)).trim(),
-          }));
+          setProfile(prev => mergeProfile(prev, parsed, displayName));
         } catch {
-          setProfile(prev => ({
-            ...prev,
-            name: prev.name || displayName,
-          }));
+          setProfile(prev => mergeProfile(prev, storedInvestmentProfile, displayName));
         }
       } else {
-        setProfile(prev => ({
-          ...prev,
-          name: prev.name || displayName,
-        }));
+        setProfile(prev => mergeProfile(prev, storedInvestmentProfile, displayName));
       }
 
       if (localStorage.getItem(completionKey(user.uid)) === '1') {
+        setProfileCompleted(true);
         setChecking(false);
         setOpen(false);
         return;
@@ -221,12 +260,18 @@ export function DashboardOnboardingChecklist() {
         const data = snapshot.exists() ? snapshot.data() : null;
 
         if (data?.onboarding?.completedAt) {
+          setProfileCompleted(true);
           localStorage.setItem(completionKey(user.uid), '1');
+          if (!draft) {
+            setProfile(prev => mergeProfile(prev, parseProfileValue(data?.investmentProfile), displayName));
+          }
           setOpen(false);
         } else {
+          setProfileCompleted(false);
           setOpen(true);
         }
       } catch {
+        setProfileCompleted(false);
         setOpen(true);
       } finally {
         setChecking(false);
@@ -235,6 +280,13 @@ export function DashboardOnboardingChecklist() {
 
     return unsubscribe;
   }, [session.name]);
+
+  useEffect(() => {
+    if (openRequest <= 0) return;
+    setError(null);
+    setCurrentStep(1);
+    setOpen(true);
+  }, [openRequest]);
 
   const setField = <Key extends keyof OnboardingProfile>(field: Key, value: OnboardingProfile[Key]) => {
     setProfile(prev => ({ ...prev, [field]: value }));
@@ -351,8 +403,12 @@ export function DashboardOnboardingChecklist() {
       ]);
 
       localStorage.removeItem(draftKey(uid));
+      setProfileCompleted(true);
       setOpen(false);
       setCurrentStep(1);
+      window.dispatchEvent(new Event('sahim:onboarding-completed'));
+      router.replace(`/${locale}/dashboard`);
+      router.refresh();
     } catch {
       localStorage.removeItem(completionKey(uid));
       setError(t('saveError'));
@@ -369,8 +425,20 @@ export function DashboardOnboardingChecklist() {
       <div className="mx-auto flex min-h-full max-w-6xl items-center justify-center">
         <div className="w-full">
           <div className="mx-auto mb-4 max-w-3xl text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#C5A059]/30 bg-[#C5A059]/15 text-[#F0D590]">
-              <Sparkles className="h-6 w-6" aria-hidden="true" />
+            <div className="relative">
+              {profileCompleted && (
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="absolute end-0 top-0 rounded-xl p-2 text-white/45 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
+                  aria-label={t('actions.close')}
+                >
+                  <X className="h-5 w-5" aria-hidden="true" />
+                </button>
+              )}
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#C5A059]/30 bg-[#C5A059]/15 text-[#F0D590]">
+                <Sparkles className="h-6 w-6" aria-hidden="true" />
+              </div>
             </div>
             <p className="text-xs font-semibold uppercase tracking-wide text-[#C5A059]">{t('eyebrow')}</p>
             <h2 className="mt-2 text-2xl font-semibold text-white md:text-3xl">{t('title')}</h2>

@@ -593,7 +593,8 @@
         "back": "Previous",
         "next": "Next",
         "complete": "Save profile",
-        "saving": "Saving..."
+        "saving": "Saving...",
+        "close": "Close profile setup"
       },
       "saveError": "We could not save your profile. Please try again.",
       "disclaimer": "Sahim uses this information to personalize educational insights. It is not licensed investment advice.",
@@ -747,6 +748,8 @@
       "eyebrow": "Quick guide",
       "title": "How to use Sahim",
       "subtitle": "A short walkthrough to help you start from the right place and move through the dashboard confidently.",
+      "profileCta": "Edit investor profile",
+      "profileCtaBody": "Update your info, interests, markets, and risk preferences.",
       "stepCount": "Step {current} of {total}",
       "previous": "Previous",
       "next": "Next",

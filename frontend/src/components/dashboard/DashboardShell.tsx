@@ -33,6 +33,7 @@ import { signOutAndRedirect } from '@/lib/firebase-session';
 interface DashboardShellProps {
   children: ReactNode;
   selectedTicker: string;
+  onOpenProfileForm?: () => void;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -49,7 +50,7 @@ const iconMap: Record<string, LucideIcon> = {
 
 const GUIDE_STEPS = ['start', 'search', 'services', 'insights', 'support'] as const;
 
-export function DashboardShell({ children, selectedTicker }: DashboardShellProps) {
+export function DashboardShell({ children, selectedTicker, onOpenProfileForm }: DashboardShellProps) {
   const locale = useLocale();
   const pathname = usePathname();
   const navT = useTranslations('dashboard.nav');
@@ -304,6 +305,24 @@ export function DashboardShell({ children, selectedTicker }: DashboardShellProps
                 <p className="text-xs font-semibold uppercase tracking-wide text-[#C5A059]">{guideT('eyebrow')}</p>
                 <h2 className="mt-2 text-2xl font-semibold text-white">{guideT('title')}</h2>
                 <p className="mt-2 text-sm leading-6 text-white/52">{guideT('subtitle')}</p>
+                {onOpenProfileForm && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGuideOpen(false);
+                      onOpenProfileForm();
+                    }}
+                    className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-[#C5A059]/25 bg-[#C5A059]/10 px-4 py-3 text-start transition-colors hover:border-[#C5A059]/40 hover:bg-[#C5A059]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#C5A059]/25 bg-[#C5A059]/15 text-[#F0D590]">
+                      <UserRound className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-semibold text-white">{guideT('profileCta')}</span>
+                      <span className="mt-0.5 block text-xs leading-5 text-white/52">{guideT('profileCtaBody')}</span>
+                    </span>
+                  </button>
+                )}
               </div>
               <button
                 type="button"

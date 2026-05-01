@@ -258,7 +258,7 @@ export function FeaturesSection() {
         >
           <div className="flex flex-col gap-5">
             <div className="w-10 h-1 rounded-full bg-[#C5A059]" />
-            <h3 className="text-2xl md:text-3xl font-bold text-white leading-snug">
+            <h3 id="stock-search" className="scroll-mt-32 text-2xl md:text-3xl font-bold text-white leading-snug">
               {tH('showcase1Title')}
             </h3>
             <p className="text-gray-400 leading-relaxed text-base md:text-lg">

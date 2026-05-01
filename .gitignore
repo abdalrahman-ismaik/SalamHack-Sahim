@@ -50,3 +50,10 @@ desktop.ini
 # Logs
 *.log
 logs/
+
+# Public repo cleanup / internal process files
+PROGRESS.md
+.agents/
+.specify/
+originalReference/dashboardDesign/
+originalReference/~$*.docx

@@ -97,6 +97,12 @@ export function useDashboardKPI(): UseDashboardKPIResult {
     };
 
     fetchKPI();
+
+    window.addEventListener('sahim:onboarding-completed', fetchKPI);
+
+    return () => {
+      window.removeEventListener('sahim:onboarding-completed', fetchKPI);
+    };
   }, [session?.id]);
 
   return { kpi, loading };
