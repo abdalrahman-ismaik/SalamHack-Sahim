@@ -108,6 +108,10 @@ function completionKey(uid: string) {
   return `sahim_onboarding_completed_${uid}`;
 }
 
+function draftKey(uid: string) {
+  return `sahim_onboarding_draft_${uid}`;
+}
+
 function riskLabel(score: number): RiskLabel {
   if (score <= 40) return 'conservative';
   if (score <= 70) return 'moderate';
@@ -153,6 +157,7 @@ export function DashboardOnboardingChecklist() {
   const [open, setOpen] = useState(false);
   const [checking, setChecking] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile>(DEFAULT_PROFILE);
 
@@ -181,10 +186,27 @@ export function DashboardOnboardingChecklist() {
 
       const storedProfile = getStoredProfile();
       const displayName = user.displayName ?? session.name ?? storedProfile.name ?? '';
-      setProfile(prev => ({
-        ...prev,
-        name: prev.name || displayName,
-      }));
+      const draft = localStorage.getItem(draftKey(user.uid));
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft) as Partial<OnboardingProfile>;
+          setProfile(prev => ({
+            ...prev,
+            ...parsed,
+            name: (((parsed.name ?? prev.name) || displayName)).trim(),
+          }));
+        } catch {
+          setProfile(prev => ({
+            ...prev,
+            name: prev.name || displayName,
+          }));
+        }
+      } else {
+        setProfile(prev => ({
+          ...prev,
+          name: prev.name || displayName,
+        }));
+      }
 
       if (localStorage.getItem(completionKey(user.uid)) === '1') {
         setChecking(false);
@@ -241,6 +263,46 @@ export function DashboardOnboardingChecklist() {
     }));
   };
 
+  useEffect(() => {
+    if (!uid || !open) return;
+    localStorage.setItem(draftKey(uid), JSON.stringify(profile));
+  }, [uid, open, profile]);
+
+  const canProceed = useMemo(() => {
+    if (currentStep === 1) {
+      return (
+        profile.name.trim().length > 1 &&
+        Boolean(profile.country) &&
+        Boolean(profile.ageRange) &&
+        Boolean(profile.baseCurrency)
+      );
+    }
+    if (currentStep === 2) {
+      return (
+        Boolean(profile.objective) &&
+        Boolean(profile.experience) &&
+        Boolean(profile.timeHorizon) &&
+        Boolean(profile.liquidityNeeds) &&
+        Boolean(profile.relianceOnFunds) &&
+        Boolean(profile.halalPreference)
+      );
+    }
+    if (currentStep === 3) {
+      return (
+        profile.preferredMarkets.length > 0 &&
+        profile.interestedSectors.length > 0 &&
+        Boolean(profile.newsCadence)
+      );
+    }
+    if (currentStep === 4) {
+      return RISK_BEHAVIOR_KEYS.every(key => {
+        const answer = profile.riskAnswers[key];
+        return Number.isFinite(answer) && answer >= 0 && answer <= 3;
+      });
+    }
+    return true;
+  }, [currentStep, profile]);
+
   const completeOnboarding = async () => {
     if (!uid) return;
 
@@ -288,7 +350,9 @@ export function DashboardOnboardingChecklist() {
         setDoc(riskRef, riskProfile, { merge: true }),
       ]);
 
+      localStorage.removeItem(draftKey(uid));
       setOpen(false);
+      setCurrentStep(1);
     } catch {
       localStorage.removeItem(completionKey(uid));
       setError(t('saveError'));
@@ -315,11 +379,12 @@ export function DashboardOnboardingChecklist() {
 
           <Stepper
             disableStepIndicators
+            onStepChange={setCurrentStep}
             backButtonText={t('actions.back')}
             nextButtonText={t('actions.next')}
             completeButtonText={saving ? t('actions.saving') : t('actions.complete')}
             onFinalStepCompleted={completeOnboarding}
-            nextButtonProps={{ disabled: saving }}
+            nextButtonProps={{ disabled: saving || !canProceed }}
           >
             <Step>
               <section className="space-y-5">

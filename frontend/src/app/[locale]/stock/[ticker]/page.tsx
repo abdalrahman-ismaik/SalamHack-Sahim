@@ -18,6 +18,7 @@ import { SignInGateModal } from "@/components/ui/SignInGateModal";
 import { useUserTier } from "@/hooks/useUserTier";
 import { useSoftGate } from "@/hooks/useSoftGate";
 import { useLastViewedTicker } from "@/hooks/useLastViewedTicker";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
 interface StockPageProps {
   params: {
@@ -74,7 +75,7 @@ export default function StockPage({ params }: StockPageProps) {
     red: t("score.low"),
   };
 
-  return (
+  const content = (
     <main className="min-h-screen px-4 py-8" dir="rtl">
       <div className="max-w-2xl mx-auto space-y-6">
 
@@ -223,4 +224,10 @@ export default function StockPage({ params }: StockPageProps) {
       )}
     </main>
   );
+
+  if (isGuest) {
+    return content;
+  }
+
+  return <DashboardShell selectedTicker={ticker}>{content}</DashboardShell>;
 }
