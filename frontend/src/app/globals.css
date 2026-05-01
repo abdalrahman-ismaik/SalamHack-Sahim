@@ -271,6 +271,12 @@
   50%       { transform: translateY(7px); }
 }
 
+@keyframes hero-card-shine {
+  from { transform: translateX(0) skewX(-16deg); opacity: 0; }
+  28%  { opacity: 1; }
+  to   { transform: translateX(360%) skewX(-16deg); opacity: 0; }
+}
+
 .hero-fade-up {
   opacity: 0;
   animation: hero-fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;

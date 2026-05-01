@@ -11,23 +11,44 @@ import {
   Search,
   ShieldCheck,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { GradientText } from '@/components/ui/GradientText';
 import { TickerStrip } from '@/components/TickerStrip';
 
+type ChartKind = 'bars' | 'ring' | 'line' | 'sentiment' | 'stack' | 'pulse';
+
+type FeatureCard = {
+  id: string;
+  Icon: LucideIcon;
+  title: string;
+  progress: number;
+  values: number[];
+  chart: ChartKind;
+  color: string;
+  fill: string;
+  accent: string;
+  border: string;
+  bg: string;
+};
+
+const CARD_ROTATION_MS = 3000;
+const CARD_TRANSITION_MS = 2600;
+
 function FeatureShowcase() {
   const t = useTranslations('landing.hero.featureShowcase');
   const [activeIndex, setActiveIndex] = useState(0);
+  const [stackDirection, setStackDirection] = useState<'right' | 'left'>('right');
 
-  const cards = [
+  const cards: FeatureCard[] = [
     {
       id: 'score',
       Icon: Search,
       title: t('cards.score.title'),
-      stat: '0-100',
-      statLabel: t('cards.score.stat'),
       progress: 78,
       values: [34, 48, 42, 61, 55, 78, 68, 84],
+      chart: 'bars',
+      color: '#C5A059',
       fill: 'bg-[#C5A059]',
       accent: 'text-[#C5A059]',
       border: 'border-[#C5A059]/35',
@@ -37,10 +58,10 @@ function FeatureShowcase() {
       id: 'halal',
       Icon: ShieldCheck,
       title: t('cards.halal.title'),
-      stat: 'AAOIFI',
-      statLabel: t('cards.halal.stat'),
       progress: 92,
       values: [45, 48, 56, 62, 74, 72, 86, 92],
+      chart: 'ring',
+      color: '#00E676',
       fill: 'bg-[#00E676]',
       accent: 'text-[#00E676]',
       border: 'border-[#00E676]/35',
@@ -50,10 +71,10 @@ function FeatureShowcase() {
       id: 'risk',
       Icon: Activity,
       title: t('cards.risk.title'),
-      stat: 'VaR',
-      statLabel: t('cards.risk.stat'),
       progress: 66,
       values: [70, 64, 72, 52, 58, 46, 54, 42],
+      chart: 'line',
+      color: '#7dd3fc',
       fill: 'bg-sky-300',
       accent: 'text-sky-300',
       border: 'border-sky-300/30',
@@ -63,10 +84,10 @@ function FeatureShowcase() {
       id: 'news',
       Icon: Newspaper,
       title: t('cards.news.title'),
-      stat: 'AI',
-      statLabel: t('cards.news.stat'),
       progress: 84,
       values: [28, 42, 52, 45, 63, 75, 68, 84],
+      chart: 'sentiment',
+      color: '#c4b5fd',
       fill: 'bg-violet-300',
       accent: 'text-violet-300',
       border: 'border-violet-300/30',
@@ -76,10 +97,10 @@ function FeatureShowcase() {
       id: 'zakat',
       Icon: Landmark,
       title: t('cards.zakat.title'),
-      stat: '85g',
-      statLabel: t('cards.zakat.stat'),
       progress: 58,
       values: [32, 38, 35, 44, 49, 53, 50, 58],
+      chart: 'stack',
+      color: '#6ee7b7',
       fill: 'bg-emerald-300',
       accent: 'text-emerald-300',
       border: 'border-emerald-300/30',
@@ -89,10 +110,10 @@ function FeatureShowcase() {
       id: 'alerts',
       Icon: Bell,
       title: t('cards.alerts.title'),
-      stat: 'Pro',
-      statLabel: t('cards.alerts.stat'),
       progress: 72,
       values: [24, 32, 44, 41, 58, 66, 62, 72],
+      chart: 'pulse',
+      color: '#fcd34d',
       fill: 'bg-amber-300',
       accent: 'text-amber-300',
       border: 'border-amber-300/30',
@@ -100,122 +121,311 @@ function FeatureShowcase() {
     },
   ];
 
-  const active = cards[activeIndex];
-  const ActiveIcon = active.Icon;
-
   useEffect(() => {
     const intervalId = window.setInterval(() => {
       setActiveIndex(current => (current + 1) % cards.length);
-    }, 3800);
+      setStackDirection(current => (current === 'right' ? 'left' : 'right'));
+    }, CARD_ROTATION_MS);
 
     return () => window.clearInterval(intervalId);
   }, [cards.length]);
 
+  function showCard(index: number) {
+    if (index === activeIndex) return;
+
+    const forwardDistance = (index - activeIndex + cards.length) % cards.length;
+    const backwardDistance = (activeIndex - index + cards.length) % cards.length;
+    setStackDirection(forwardDistance <= backwardDistance ? 'right' : 'left');
+    setActiveIndex(index);
+  }
+
   return (
-    <div className="relative w-full max-w-[460px] mx-auto">
-      <div className="absolute inset-0 rotate-2 rounded-[2rem] border border-white/8 bg-white/[0.025]" />
-      <div className="absolute inset-0 -rotate-2 rounded-[2rem] border border-white/8 bg-white/[0.018]" />
+    <div className="relative mx-auto h-[350px] w-full max-w-[430px]">
+      <div className="absolute inset-x-8 bottom-3 h-10 rounded-full bg-black/40 blur-2xl" />
 
-      <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#0d0d0d]/95 p-5 shadow-2xl backdrop-blur-xl">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+      {cards.map((card, index) => {
+        const Icon = card.Icon;
+        const offset = (index - activeIndex + cards.length) % cards.length;
+        const isVisible = offset <= 2;
+        const isFront = offset === 0;
+        const transform =
+          offset === 0
+            ? 'translate3d(0, 0, 0) rotate(0deg) scale(1)'
+            : offset === 1
+              ? `translate3d(${stackDirection === 'right' ? '20px' : '-20px'}, 32px, 0) rotate(${stackDirection === 'right' ? '4deg' : '-4deg'}) scale(0.94)`
+              : offset === 2
+                ? `translate3d(${stackDirection === 'right' ? '-20px' : '20px'}, 64px, 0) rotate(${stackDirection === 'right' ? '-4deg' : '4deg'}) scale(0.88)`
+                : 'translate3d(0, 96px, 0) rotate(0deg) scale(0.82)';
 
-        <div key={active.id} className="hero-fade-up">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#C5A059]">
-                {t('kicker')}
-              </p>
-              <h2 className="mt-3 truncate text-xl font-bold leading-tight text-white">
-                {active.title}
-              </h2>
-            </div>
-            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${active.border} ${active.bg} ${active.accent}`}>
-              <ActiveIcon className="h-6 w-6" aria-hidden="true" />
-            </div>
-          </div>
-
-          <div className="mt-5 rounded-[1.5rem] border border-white/8 bg-white/[0.035] p-4">
-            <div className="flex h-32 items-end gap-2">
-              {active.values.map((value, index) => (
-                <span
-                  key={`${active.id}-${value}-${index}`}
-                  className={`flex-1 rounded-t-xl ${active.fill} opacity-85 transition-all duration-700`}
-                  style={{ height: `${value}%` }}
-                />
-              ))}
-            </div>
-
-            <div className="mt-4 grid grid-cols-3 gap-2">
-              <Metric value={active.stat} label={active.statLabel} tone={active.accent} />
-              <Metric value={t('metrics.fast')} label={t('metrics.fastLabel')} />
-              <Metric value={t('metrics.private')} label={t('metrics.privateLabel')} />
-            </div>
-
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/8">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-[#C5A059] via-[#F0D590] to-[#00E676] transition-all duration-700"
-                style={{ width: `${active.progress}%` }}
+        return (
+          <button
+            key={card.id}
+            type="button"
+            onClick={() => showCard(index)}
+            onFocus={() => showCard(index)}
+            onMouseEnter={() => showCard(index)}
+            className={`group absolute inset-x-0 top-0 h-[286px] overflow-hidden rounded-[2rem] border p-5 text-start shadow-2xl transition-all duration-[2600ms] ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]/70 ${
+              isFront
+                ? card.border
+                : 'border-white/10'
+            }`}
+            style={{
+              transform,
+              zIndex: isFront ? 30 : 20 - offset,
+              opacity: isVisible ? 1 : 0,
+              filter: isFront ? 'brightness(1)' : 'brightness(0.62) saturate(0.86)',
+              pointerEvents: isVisible ? 'auto' : 'none',
+              background: isFront
+                ? `linear-gradient(145deg, ${hexToRgba(card.color, 0.24)}, rgba(13,13,13,0.99) 34%, rgba(5,5,5,1) 100%)`
+                : 'linear-gradient(145deg, rgb(18,18,18), rgb(7,7,7))',
+              boxShadow: isFront
+                ? `0 26px 76px rgba(0,0,0,0.58), 0 0 48px ${hexToRgba(card.color, 0.18)}`
+                : '0 18px 48px rgba(0,0,0,0.48)',
+              transition:
+                `transform ${CARD_TRANSITION_MS}ms cubic-bezier(0.16, 1, 0.3, 1), opacity 1800ms ease, filter ${CARD_TRANSITION_MS}ms ease, box-shadow ${CARD_TRANSITION_MS}ms ease`,
+              willChange: 'transform, opacity, filter',
+            }}
+            aria-label={card.title}
+            aria-pressed={isFront}
+          >
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.07),transparent_42%,rgba(255,255,255,0.035))]" />
+            {isFront && (
+              <span
+                key={`${card.id}-shine`}
+                className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                style={{ animation: 'hero-card-shine 900ms ease-out forwards' }}
               />
+            )}
+
+            <div className="relative flex items-center justify-between gap-4">
+              <span className="truncate text-lg font-bold text-white">
+                {card.title}
+              </span>
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${card.border} ${card.bg} ${card.accent}`}>
+                <Icon className="h-5 w-5" aria-hidden="true" />
+              </span>
             </div>
-          </div>
-        </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {cards.map((card, index) => {
-            const Icon = card.Icon;
-            const selected = index === activeIndex;
-            return (
-              <button
-                key={card.id}
-                type="button"
-                onClick={() => setActiveIndex(index)}
-                onFocus={() => setActiveIndex(index)}
-                onMouseEnter={() => setActiveIndex(index)}
-                className={`group min-h-[76px] rounded-2xl border p-3 text-start transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]/70 ${
-                  selected
-                    ? `${card.border} ${card.bg} shadow-lg shadow-black/20`
-                    : 'border-white/8 bg-white/[0.035] hover:border-white/16 hover:bg-white/[0.055]'
-                }`}
-                aria-pressed={selected}
-              >
-                <div className="flex items-center gap-2">
-                  <Icon className={`h-4 w-4 ${selected ? card.accent : 'text-gray-500 group-hover:text-gray-300'}`} aria-hidden="true" />
-                  <span className="truncate text-xs font-semibold text-white">
-                    {card.title}
-                  </span>
-                </div>
-                <div className="mt-3 flex h-8 items-end gap-1">
-                  {card.values.slice(2).map((value, chartIndex) => (
-                    <span
-                      key={`${card.id}-mini-${chartIndex}`}
-                      className={`flex-1 rounded-full ${selected ? card.fill : 'bg-white/20'} transition-all duration-500`}
-                      style={{ height: `${Math.max(18, value)}%` }}
-                    />
-                  ))}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+            <div className="relative mt-6 h-[178px] overflow-hidden rounded-[1.5rem] border border-white/8 bg-black/20 p-4">
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:24px_24px]" />
+              <FeatureVisual card={card} selected={isFront} large />
+            </div>
 
-        <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-white/8 bg-white/[0.035] px-4 py-3">
-          <p className="truncate text-xs font-semibold text-white">{t('footerTitle')}</p>
-          <span className="rounded-full border border-[#C5A059]/30 bg-[#C5A059]/12 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-[#F0D590]">
-            {t('footerBadge')}
-          </span>
-        </div>
+          </button>
+        );
+      })}
+
+      <div className="absolute bottom-0 left-1/2 z-30 flex -translate-x-1/2 gap-2">
+        {cards.map((card, index) => (
+          <button
+            key={`${card.id}-dot`}
+            type="button"
+            onClick={() => showCard(index)}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              index === activeIndex ? 'w-7 bg-[#C5A059]' : 'w-1.5 bg-white/25 hover:bg-white/45'
+            }`}
+            aria-label={card.title}
+            aria-pressed={index === activeIndex}
+          />
+        ))}
       </div>
     </div>
   );
 }
 
-function Metric({ value, label, tone = 'text-white' }: { value: string; label: string; tone?: string }) {
+function FeatureVisual({ card, selected, large = false }: { card: FeatureCard; selected: boolean; large?: boolean }) {
+  const opacity = selected ? 'opacity-100' : 'opacity-70 group-hover:opacity-90';
+  const height = large ? 'h-full' : 'h-16';
+
+  if (card.chart === 'ring') {
+    return (
+      <div className={`relative flex ${height} items-center justify-center ${opacity} transition-opacity`}>
+        <div
+          className="absolute h-32 w-32 rounded-full opacity-15 blur-xl"
+          style={{ backgroundColor: card.color }}
+        />
+        <div
+          className="relative h-32 w-32 rounded-full p-2 shadow-[0_0_38px_rgba(0,230,118,0.16)]"
+          style={{
+            background: `conic-gradient(${card.color} ${card.progress}%, rgba(255,255,255,0.12) 0)`,
+          }}
+        >
+          <div className="absolute inset-5 rounded-full border border-white/10 bg-[#0d0d0d]" />
+          <div
+            className="absolute inset-9 rounded-full"
+            style={{
+              background: `conic-gradient(rgba(255,255,255,0.16) 55%, ${card.color} 0 84%, rgba(255,255,255,0.07) 0)`,
+            }}
+          />
+          <div className="absolute inset-[52px] rounded-full bg-white" style={{ backgroundColor: card.color }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (card.chart === 'line') {
+    return (
+      <svg className={`relative z-10 h-full w-full ${opacity} transition-opacity`} viewBox="0 0 100 80" role="img" aria-hidden="true">
+        <defs>
+          <linearGradient id={`${card.id}-area`} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stopColor={card.color} stopOpacity="0.42" />
+            <stop offset="100%" stopColor={card.color} stopOpacity="0" />
+          </linearGradient>
+          <filter id={`${card.id}-glow`}>
+            <feGaussianBlur stdDeviation="2.6" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {[18, 38, 58].map(y => (
+          <line key={`${card.id}-grid-${y}`} x1="0" x2="100" y1={y} y2={y} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+        ))}
+        <polygon points={areaPoints(card.values)} fill={`url(#${card.id}-area)`} />
+        <polyline points={sparklinePoints(card.values)} fill="none" stroke={card.color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" filter={`url(#${card.id}-glow)`} />
+        {card.values.slice(-3).map((value, index) => (
+          <circle
+            key={`${card.id}-point-${index}`}
+            cx={70 + index * 12}
+            cy={64 - value * 0.62}
+            r={selected ? 3 : 2}
+            fill={card.color}
+          />
+        ))}
+      </svg>
+    );
+  }
+
+  if (card.chart === 'sentiment') {
+    return (
+      <div className={`relative z-10 grid h-full grid-cols-3 items-end gap-3 ${opacity} transition-opacity`}>
+        {['bg-[#FF1744]', 'bg-[#C5A059]', 'bg-[#00E676]'].map((tone, index) => (
+          <span key={tone} className="relative flex h-full items-end rounded-2xl border border-white/8 bg-white/[0.055] p-2">
+            <span
+              className={`w-full rounded-xl ${tone} shadow-[0_0_24px_rgba(197,160,89,0.18)]`}
+              style={{ height: `${[38, 62, 90][index]}%` }}
+            />
+            <span className={`absolute left-1/2 top-3 h-2 w-2 -translate-x-1/2 rounded-full ${tone}`} />
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  if (card.chart === 'stack') {
+    return (
+      <div className={`relative z-10 flex h-full flex-col justify-center gap-4 ${opacity} transition-opacity`}>
+        {card.values.slice(2, 6).map((value, index) => (
+          <span key={`${card.id}-stack-${index}`} className="relative block h-4 overflow-hidden rounded-full border border-white/8 bg-white/[0.08]">
+            <span
+              className="block h-full rounded-full"
+              style={{
+                width: `${value}%`,
+                background: `linear-gradient(90deg, ${card.color}, rgba(255,255,255,0.62))`,
+                boxShadow: `0 0 24px ${card.color}55`,
+              }}
+            />
+            <span
+              className="absolute top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-white/80"
+              style={{
+                insetInlineStart: `${Math.min(92, value)}%`,
+              }}
+            />
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  if (card.chart === 'pulse') {
+    return (
+      <div className={`relative z-10 flex h-full items-center ${opacity} transition-opacity`}>
+        <svg className="h-full w-full" viewBox="0 0 100 80" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id={`${card.id}-wave`} x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.16)" />
+              <stop offset="45%" stopColor={card.color} />
+              <stop offset="100%" stopColor="rgba(255,255,255,0.16)" />
+            </linearGradient>
+          </defs>
+          {[18, 40, 62].map(y => (
+            <line key={`${card.id}-pulse-grid-${y}`} x1="0" x2="100" y1={y} y2={y} stroke="rgba(255,255,255,0.07)" />
+          ))}
+          <polyline
+            points="0,44 10,44 16,26 23,58 31,18 40,62 49,34 58,44 67,28 75,54 84,38 92,44 100,44"
+            fill="none"
+            stroke={`url(#${card.id}-wave)`}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="4"
+          />
+          {[16, 31, 67, 84].map((x, index) => (
+            <circle key={`${card.id}-pulse-dot-${index}`} cx={x} cy={[26, 18, 28, 38][index]} r="3" fill={card.color} />
+          ))}
+        </svg>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-2xl border border-white/8 bg-white/[0.045] p-3">
-      <p className={`truncate text-base font-bold ${tone}`}>{value}</p>
-      <p className="mt-1 truncate text-[10px] leading-4 text-gray-500">{label}</p>
+    <div className={`relative z-10 flex h-full items-end gap-2 ${opacity} transition-opacity`}>
+      {card.values.map((value, index) => (
+        <span
+          key={`${card.id}-bar-${index}`}
+          className="relative flex-1 rounded-t-2xl border border-white/8"
+          style={{
+            height: `${value}%`,
+            background: index === card.values.length - 1
+              ? `linear-gradient(180deg, rgba(255,255,255,0.82), ${card.color})`
+              : `linear-gradient(180deg, ${card.color}99, rgba(255,255,255,0.12))`,
+            boxShadow: index === card.values.length - 1 ? `0 0 28px ${card.color}66` : undefined,
+          }}
+        >
+          {index === card.values.length - 1 && (
+            <span
+              className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full border border-white/50"
+              style={{ backgroundColor: card.color, boxShadow: `0 0 18px ${card.color}` }}
+            />
+          )}
+        </span>
+      ))}
     </div>
   );
+}
+
+function sparklinePoints(values: number[]) {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+
+  return values
+    .map((value, index) => {
+      const x = (index / (values.length - 1)) * 100;
+      const y = 64 - ((value - min) / range) * 52;
+      return `${x},${y}`;
+    })
+    .join(' ');
+}
+
+function areaPoints(values: number[]) {
+  return `0,80 ${sparklinePoints(values)} 100,80`;
+}
+
+function hexToRgba(hex: string, alpha: number) {
+  const normalized = hex.replace('#', '');
+  const value = Number.parseInt(normalized, 16);
+
+  if (Number.isNaN(value)) {
+    return `rgba(255,255,255,${alpha})`;
+  }
+
+  const red = (value >> 16) & 255;
+  const green = (value >> 8) & 255;
+  const blue = value & 255;
+
+  return `rgba(${red},${green},${blue},${alpha})`;
 }
 
 export function HeroSection() {

@@ -95,21 +95,6 @@ export default function StockPage({ params }: StockPageProps) {
     }
   }
 
-  async function toggleWatchlist() {
-    if (!score) return;
-
-    setWatchlistSaving(true);
-    try {
-      if (isInWatchlist) {
-        await removeTicker(ticker);
-      } else {
-        await saveTicker(ticker, { name: score.name });
-      }
-    } finally {
-      setWatchlistSaving(false);
-    }
-  }
-
   const content = (
     <main className="min-h-screen px-4 py-8" dir="rtl">
       <div className="max-w-2xl mx-auto space-y-6">
