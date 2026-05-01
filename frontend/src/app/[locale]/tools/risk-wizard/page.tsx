@@ -10,6 +10,7 @@ import { mergeUserDocument } from '@/lib/firestore-user';
 import { RiskWizard } from '@/components/RiskWizard';
 import type { RiskProfile } from '@/lib/types';
 import { getStoredRiskProfile, setStoredRiskProfile } from '@/lib/risk-profile-storage';
+import { DashboardShell } from '@/components/dashboard/DashboardShell';
 
 export default function RiskWizardPage() {
   const t = useTranslations('riskWizard');
@@ -86,6 +87,7 @@ export default function RiskWizardPage() {
   }
 
   return (
+    <DashboardShell selectedTicker={ 'AAPL'}>
     <main
       className="mx-auto max-w-xl px-4 py-10"
       dir={locale === 'ar' ? 'rtl' : 'ltr'}
@@ -100,5 +102,6 @@ export default function RiskWizardPage() {
         />
       </div>
     </main>
+    </DashboardShell>
   );
 }
