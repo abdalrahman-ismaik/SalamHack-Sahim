@@ -86,8 +86,8 @@ async def compute_arima_forecast(ticker: str) -> ArimaForecast:
     # Forecast _FORECAST_DAYS steps ahead in log-return space
     try:
         fc = fit.get_forecast(steps=_FORECAST_DAYS)
-        fc_mean = fc.predicted_mean
-        fc_ci = fc.conf_int(alpha=_CI_ALPHA)
+        fc_mean = np.asarray(fc.predicted_mean, dtype=float)
+        fc_ci = np.asarray(fc.conf_int(alpha=_CI_ALPHA), dtype=float)
     except Exception as exc:
         raise DataUnavailableError(ticker, f"ARIMA forecast failed: {exc}") from exc
 
@@ -99,12 +99,12 @@ async def compute_arima_forecast(ticker: str) -> ArimaForecast:
 
     cumulative_log = 0.0
     for i in range(_FORECAST_DAYS):
-        cumulative_log += float(fc_mean.iloc[i])
+        cumulative_log += float(fc_mean[i])
         forecast_prices.append(round(last_price * math.exp(cumulative_log), 4))
 
         # CI: reconstruct from lower/upper log-returns cumsum
-        cum_lo = sum(float(fc_ci.iloc[j, 0]) for j in range(i + 1))
-        cum_hi = sum(float(fc_ci.iloc[j, 1]) for j in range(i + 1))
+        cum_lo = sum(float(fc_ci[j, 0]) for j in range(i + 1))
+        cum_hi = sum(float(fc_ci[j, 1]) for j in range(i + 1))
         ci_lower.append(round(last_price * math.exp(cum_lo), 4))
         ci_upper.append(round(last_price * math.exp(cum_hi), 4))
 
@@ -119,12 +119,12 @@ async def compute_arima_forecast(ticker: str) -> ArimaForecast:
 
     return ArimaForecast(
         ticker=ticker,
-        order=list(order),
-        aic=round(float(fit.aic), 2),
-        forecast_prices=forecast_prices,
+        forecast_dates=dates,
+        forecast_values=forecast_prices,
         ci_lower=ci_lower,
         ci_upper=ci_upper,
-        dates=dates,
-        last_price=round(last_price, 4),
-        calculated_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        order=order,
+        aic=round(float(fit.aic), 2),
+        sufficient_data=True,
+        generated_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
     )

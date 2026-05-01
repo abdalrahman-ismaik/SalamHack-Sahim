@@ -4,7 +4,7 @@ import { useContext, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { ShieldCheck, Sparkles, UserRound } from 'lucide-react';
+import { ShieldCheck, Sparkles, UserRound, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import Stepper, { Step } from '@/components/ui/Stepper';
 import { UserContext } from '@/providers/UserContext';
@@ -32,6 +32,14 @@ interface OnboardingProfile {
   interestedSectors: string[];
   newsCadence: string;
   riskAnswers: Record<RiskQuestionKey, number>;
+}
+
+function isOfflineFirestoreError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const maybe = error as { code?: string; message?: string };
+  const code = maybe.code?.toLowerCase() ?? '';
+  const message = maybe.message?.toLowerCase() ?? '';
+  return code.includes('unavailable') || message.includes('offline');
 }
 
 const ONBOARDING_PROFILE_KEY = 'sahim_investor_profile';
@@ -161,6 +169,10 @@ export function DashboardOnboardingChecklist() {
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<OnboardingProfile>(DEFAULT_PROFILE);
+  const closeLabel = locale === 'ar' ? 'إغلاق' : 'Close';
+  const offlineSaveLabel = locale === 'ar'
+    ? 'أنتِ غير متصلة بالإنترنت حالياً. تم حفظ البيانات محلياً وسيتم المزامنة بعد عودة الاتصال.'
+    : 'You are offline right now. Your data is saved locally and can be synced once connection is back.';
 
   const countryOptions = useOptionLabels('dashboard.onboarding.options.country', COUNTRY_OPTIONS);
   const currencyOptions = useMemo(() => CURRENCY_OPTIONS.map(value => ({ value, label: value })), []);
@@ -305,7 +317,10 @@ export function DashboardOnboardingChecklist() {
   }, [currentStep, profile]);
 
   const completeOnboarding = async () => {
-    if (!uid) return;
+    if (!uid) {
+      setError(t('saveError'));
+      return;
+    }
 
     setSaving(true);
     setError(null);
@@ -322,11 +337,6 @@ export function DashboardOnboardingChecklist() {
       riskScore: riskProfile.score,
       riskLabel: riskProfile.label,
     };
-
-    localStorage.setItem(`${ONBOARDING_PROFILE_KEY}_${uid}`, JSON.stringify(investmentProfile));
-    localStorage.setItem(completionKey(uid), '1');
-    setStoredProfile({ name: profile.name, photoURL: session.photoURL ?? getStoredProfile().photoURL });
-    setStoredRiskProfile(riskProfile);
 
     try {
       const riskRef = doc(db, 'users', uid, 'risk_profile', 'current');
@@ -350,13 +360,16 @@ export function DashboardOnboardingChecklist() {
         setDoc(riskRef, riskProfile, { merge: true }),
       ]);
 
+      localStorage.setItem(`${ONBOARDING_PROFILE_KEY}_${uid}`, JSON.stringify(investmentProfile));
+      localStorage.setItem(completionKey(uid), '1');
+      setStoredProfile({ name: profile.name, photoURL: session.photoURL ?? getStoredProfile().photoURL });
+      setStoredRiskProfile(riskProfile);
       localStorage.removeItem(draftKey(uid));
       setOpen(false);
       setCurrentStep(1);
-    } catch {
+    } catch (err) {
       localStorage.removeItem(completionKey(uid));
-      setError(t('saveError'));
-      throw new Error('Failed to save onboarding profile');
+      setError(isOfflineFirestoreError(err) ? offlineSaveLabel : t('saveError'));
     } finally {
       setSaving(false);
     }
@@ -369,6 +382,17 @@ export function DashboardOnboardingChecklist() {
       <div className="mx-auto flex min-h-full max-w-6xl items-center justify-center">
         <div className="w-full">
           <div className="mx-auto mb-4 max-w-3xl text-center">
+            <div className="mb-3 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-white/70 transition-colors hover:bg-white/[0.12] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C5A059]"
+                aria-label={closeLabel}
+                title={closeLabel}
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#C5A059]/30 bg-[#C5A059]/15 text-[#F0D590]">
               <Sparkles className="h-6 w-6" aria-hidden="true" />
             </div>

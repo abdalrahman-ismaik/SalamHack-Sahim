@@ -90,6 +90,10 @@ export default function Stepper({
     try {
       await onFinalStepCompleted();
       setCurrentStep(totalSteps + 1);
+    } catch (error) {
+      // Let parent components render their own inline error state
+      // without crashing the stepper interaction.
+      console.error('Stepper completion failed:', error);
     } finally {
       setIsCompleting(false);
     }

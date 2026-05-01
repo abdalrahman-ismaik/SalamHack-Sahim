@@ -34,6 +34,14 @@ const DEFAULT_KPI: DashboardKPI = {
   lastViewedTicker: null,
 };
 
+function isOfflineFirestoreError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const maybe = error as { code?: string; message?: string };
+  const code = maybe.code?.toLowerCase() ?? '';
+  const message = maybe.message?.toLowerCase() ?? '';
+  return code.includes('unavailable') || message.includes('offline');
+}
+
 function kpiFromStoredRiskProfile(): DashboardKPI {
   const profile = getStoredRiskProfile();
   if (!profile) return DEFAULT_KPI;
@@ -89,7 +97,9 @@ export function useDashboardKPI(): UseDashboardKPIResult {
           });
         }
       } catch (error) {
-        console.warn('[useDashboardKPI] Error fetching KPI:', error);
+        if (!isOfflineFirestoreError(error)) {
+          console.warn('[useDashboardKPI] Error fetching KPI:', error);
+        }
         setKpi(kpiFromStoredRiskProfile());
       } finally {
         setLoading(false);

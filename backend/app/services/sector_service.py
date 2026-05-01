@@ -10,9 +10,9 @@ import asyncio
 import logging
 from typing import Optional
 
-from app.exceptions import DataUnavailableError
-from app.models.stock import SectorComparison
+from app.models.stock import SectorComparison, SectorStock
 from app.services import market_data
+from app.services.score_engine import compute_score
 
 logger = logging.getLogger(__name__)
 
@@ -43,41 +43,38 @@ async def compare_sector(ticker: str, sector: Optional[str] = None) -> SectorCom
             sector = "Unknown"
 
     logger.info("Sector compare for %s: sector=%s", ticker, sector)
-    peers = _SECTOR_PEERS.get(sector, [])
-    # Exclude the ticker itself
-    peers = [p for p in peers if p.upper() != ticker.upper()][:4]
+    peers = [p for p in _SECTOR_PEERS.get(sector, []) if p.upper() != ticker.upper()][:4]
 
-    # Fetch peer fundamentals concurrently
-    peer_data: dict[str, dict] = {}
-    if peers:
-        results = await asyncio.gather(
-            *[market_data.get_fundamentals(p) for p in peers],
-            return_exceptions=True,
-        )
-        for p, r in zip(peers, results):
-            if isinstance(r, dict):
-                peer_data[p] = r
-            else:
-                logger.warning("Failed to fetch fundamentals for peer %s: %s", p, r)
+    async def _score_stock(symbol: str) -> Optional[SectorStock]:
+        try:
+            ohlcv = await market_data.get_ohlcv(symbol, days=365)
+            closes = ohlcv.get("closes") or []
+            if len(closes) < 2:
+                return None
+            score = compute_score(symbol, symbol, closes, "neutral")
+            return SectorStock(
+                ticker=symbol,
+                name=score.name,
+                composite_score=score.composite_score,
+                band=score.band,
+            )
+        except Exception as exc:
+            logger.warning("Failed sector score for %s: %s", symbol, exc)
+            return None
 
-    # Get subject ticker fundamentals
-    try:
-        subject_fund = await market_data.get_fundamentals(ticker)
-    except DataUnavailableError:
-        subject_fund = {}
+    scored = await asyncio.gather(*[_score_stock(p) for p in peers], return_exceptions=False)
+    top_stocks = [item for item in scored if item is not None]
 
-    def _avg(key: str) -> Optional[float]:
-        vals = [v.get(key) for v in peer_data.values() if v.get(key) is not None]
-        return round(sum(vals) / len(vals), 4) if vals else None
+    if not top_stocks:
+        # Keep endpoint stable even when peer data is missing for an index ticker like TASI.
+        top_stocks = []
+        avg_score = 50.0
+    else:
+        avg_score = round(sum(item.composite_score for item in top_stocks) / len(top_stocks), 2)
 
     return SectorComparison(
-        ticker=ticker,
         sector=sector,
-        peer_tickers=peers,
-        ticker_pe=subject_fund.get("pe_ratio"),
-        sector_avg_pe=_avg("pe_ratio"),
-        ticker_debt_equity=subject_fund.get("debt_equity"),
-        sector_avg_debt_equity=_avg("debt_equity"),
-        ticker_revenue_growth=subject_fund.get("revenue_growth"),
-        sector_avg_revenue_growth=_avg("revenue_growth"),
+        avg_score=avg_score,
+        stock_count=len(top_stocks),
+        top_stocks=top_stocks,
     )
