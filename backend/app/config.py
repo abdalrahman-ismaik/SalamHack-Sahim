@@ -30,6 +30,7 @@ class Settings(BaseSettings):
 
     # --- AI / News APIs ---
     gemini_api_key: str = ""
+    groq_api_key: str = ""
     newsapi_key: str = ""
 
     # --- Halal Screening ---

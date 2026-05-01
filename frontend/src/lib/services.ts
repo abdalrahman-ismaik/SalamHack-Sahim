@@ -53,7 +53,7 @@ export const SERVICES: ServiceCard[] = [
   {
     id:           'news-agent',
     icon:         'Newspaper',
-    href:         '/stock',
+    href:         '/tools/news',
     requiredTier: 'free',
     available:    true,
   },
