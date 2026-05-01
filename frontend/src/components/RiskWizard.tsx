@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -26,6 +26,28 @@ function scoreToLabel(score: number): RiskLabel {
   if (score <= 40) return 'conservative';
   if (score <= 70) return 'moderate';
   return 'aggressive';
+}
+
+function scoreFromAnswers(
+  answers: Partial<Record<QuestionKey, number>>,
+  normalizeByAnsweredWeight: boolean,
+): number {
+  let weightedScore = 0;
+  let answeredWeight = 0;
+
+  for (const key of QUESTION_KEYS) {
+    const answer = answers[key];
+    if (answer === undefined) continue;
+    const normalised = (answer / 3) * 100;
+    weightedScore += normalised * WEIGHTS[key];
+    answeredWeight += WEIGHTS[key];
+  }
+
+  if (answeredWeight === 0) return 0;
+  if (normalizeByAnsweredWeight) {
+    return Math.round(weightedScore / answeredWeight);
+  }
+  return Math.round(weightedScore);
 }
 
 const LABEL_COLORS: Record<RiskLabel, string> = {
@@ -57,12 +79,34 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
 
   const currentKey = QUESTION_KEYS[step];
   const totalSteps = QUESTION_KEYS.length;
-
   // Build options array from i18n
-  const getOptions = (key: QuestionKey): string[] => {
-    const raw = t.raw(`questions.${key}Options`) as string[];
-    return raw;
-  };
+  function getOptions(key: QuestionKey): string[] {
+    return t.raw(`questions.${key}Options`) as string[];
+  }
+
+  const answeredCount = QUESTION_KEYS.filter((key) => answers[key] !== undefined).length;
+
+  const simulation = useMemo(() => {
+    const score = scoreFromAnswers(answers, true);
+    return {
+      score,
+      label: scoreToLabel(score),
+    };
+  }, [answers]);
+
+  const selectedAnswerSummary = useMemo(() => {
+    return QUESTION_KEYS
+      .filter((key) => answers[key] !== undefined)
+      .map((key) => {
+        const idx = answers[key] as number;
+        const options = getOptions(key);
+        return {
+          key,
+          question: t(`questions.${key}`),
+          answer: options[idx] ?? '',
+        };
+      });
+  }, [answers, t]);
 
   const handleSelect = useCallback(
     (idx: number) => setAnswers(prev => ({ ...prev, [currentKey]: idx })),
@@ -79,15 +123,7 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
     }
 
     // Final step — calculate score
-    let score = 0;
-    for (const key of QUESTION_KEYS) {
-      const answer = answers[key] ?? 0;
-      // Each question has 4 options (0–3). Normalise to 0–100 per question.
-      const normalised = (answer / 3) * 100;
-      score += normalised * WEIGHTS[key];
-    }
-
-    const rounded = Math.round(score);
+    const rounded = scoreFromAnswers(answers, false);
     const label = scoreToLabel(rounded);
 
     const profile: RiskProfile = {
@@ -98,11 +134,15 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
       completed_at: new Date().toISOString(),
     };
 
+    // Show computed result immediately so the user sees feedback without waiting for persistence.
+    setResult(profile);
     setIsSaving(true);
     Promise.resolve()
       .then(() => onComplete?.(profile))
+      .catch(() => {
+        // Keep showing the calculated result even if save fails.
+      })
       .finally(() => {
-        setResult(profile);
         setIsSaving(false);
       });
   }, [answers, currentKey, step, totalSteps, onComplete, isSaving]);
@@ -114,6 +154,20 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
   // -------------------------------------------------------------------------
   if (result) {
     const colorClass = LABEL_COLORS[result.label];
+    const equityAllocation = Math.round(20 + (result.score * 0.7));
+    const sukukAllocation = Math.max(0, 100 - equityAllocation);
+    const expectedMaxDrawdown = (5 + result.score * 0.25).toFixed(1);
+    const monthlyVolatility = (2.5 + result.score * 0.08).toFixed(1);
+    const expectedRecoveryMonths = Math.round(2 + result.score * 0.12);
+    const q6Answer = result.answers?.q6;
+    const behaviorHint =
+      q6Answer === 0
+        ? 'You are likely to react quickly to drawdowns.'
+        : q6Answer === 1
+          ? 'You may need short cooling-off time before deciding.'
+          : q6Answer === 2
+            ? 'You can usually tolerate medium-term volatility.'
+            : 'You are likely to stay disciplined in downturns.';
 
     return (
       <motion.div
@@ -127,6 +181,22 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
           <p className="text-3xl font-bold">{t(`result.${result.label}`)}</p>
           <p className="text-sm mt-2 opacity-80">{t(`resultDescription.${result.label}`)}</p>
           <p className="text-xs mt-3 opacity-60">Score: {result.score} / 100</p>
+          {isSaving && (
+            <p className="text-[11px] mt-2 opacity-70">{t('saving')}</p>
+          )}
+        </div>
+
+        {/* Mock simulation based on selected answers */}
+        <div className="rounded-xl border border-[#C5A059]/25 bg-[#C5A059]/10 p-5 space-y-3 text-sm text-white/85">
+          <h3 className="text-sm font-semibold text-[#F0D590]">Risk Simulation (based on your answers)</h3>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <p>Suggested equity allocation: <span className="font-semibold">{equityAllocation}%</span></p>
+            <p>Suggested sukuk/cash allocation: <span className="font-semibold">{sukukAllocation}%</span></p>
+            <p>Estimated max drawdown: <span className="font-semibold">{expectedMaxDrawdown}%</span></p>
+            <p>Estimated monthly volatility: <span className="font-semibold">{monthlyVolatility}%</span></p>
+            <p className="sm:col-span-2">Estimated recovery window: <span className="font-semibold">{expectedRecoveryMonths} months</span></p>
+            <p className="sm:col-span-2 text-white/70">{behaviorHint}</p>
+          </div>
         </div>
 
         {/* Recommendations */}
@@ -202,18 +272,42 @@ export function RiskWizard({ onComplete, initialAnswers = {} }: RiskWizardProps)
   const options  = getOptions(currentKey);
 
   return (
-    <WizardStep
-      stepNumber={step + 1}
-      totalSteps={totalSteps}
-      question={question}
-      options={options}
-      selectedIndex={answers[currentKey] ?? null}
-      onSelect={handleSelect}
-      onNext={handleNext}
-      onPrev={handlePrev}
-      isFirst={step === 0}
-      isLast={step === totalSteps - 1}
-      isSubmitting={isSaving}
-    />
+    <div className="space-y-4">
+      <WizardStep
+        stepNumber={step + 1}
+        totalSteps={totalSteps}
+        question={question}
+        options={options}
+        selectedIndex={answers[currentKey] ?? null}
+        onSelect={handleSelect}
+        onNext={handleNext}
+        onPrev={handlePrev}
+        isFirst={step === 0}
+        isLast={step === totalSteps - 1}
+        isSubmitting={isSaving}
+      />
+
+      {answeredCount > 0 && (
+        <div className="rounded-xl border border-gray-700 bg-gray-800/40 p-4">
+          <p className="text-xs uppercase tracking-wide text-gray-400">{t('simulation.title')}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${LABEL_COLORS[simulation.label]}`}>
+              {t(`result.${simulation.label}`)}
+            </span>
+            <span className="text-sm text-gray-300">
+              {t('simulation.score', { score: simulation.score, answered: answeredCount, total: totalSteps })}
+            </span>
+          </div>
+          <ul className="mt-3 space-y-2">
+            {selectedAnswerSummary.map((item) => (
+              <li key={item.key} className="text-xs text-gray-300">
+                <span className="text-gray-400">{item.question}:</span>{' '}
+                <span className="text-white/90">{item.answer}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
