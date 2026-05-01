@@ -259,10 +259,15 @@ async def get_news(ticker: str) -> NewsAnalysis:
         key_opportunities=analysis.get("key_opportunities", []),
         articles=[],  # raw articles not returned to frontend
         news_unavailable=len(articles) == 0,
-        analysed_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        fetched_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
     )
-    logger.info("News for %s: sentiment=%s articles=%d news_unavailable=%s",
-                ticker, result.sentiment, len(result.key_risks) + len(result.key_opportunities), result.news_unavailable)
+    logger.info(
+        "News for %s: sentiment=%s source_articles=%d news_unavailable=%s",
+        ticker,
+        result.sentiment,
+        len(articles),
+        result.news_unavailable,
+    )
     # TTL=1h handled by _short_cache in cache.py
     set_cached(ticker, "news", result)
     return result

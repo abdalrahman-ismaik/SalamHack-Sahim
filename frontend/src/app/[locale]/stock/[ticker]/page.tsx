@@ -19,6 +19,7 @@ import { ComplianceAlertToggle } from "@/components/ComplianceAlertToggle";
 import { useUserTier } from "@/hooks/useUserTier";
 import { useSoftGate } from "@/hooks/useSoftGate";
 import { useLastViewedTicker } from "@/hooks/useLastViewedTicker";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { useWatchlist } from "@/hooks/useWatchlist";
 
 interface StockPageProps {
@@ -94,7 +95,22 @@ export default function StockPage({ params }: StockPageProps) {
     }
   }
 
-  return (
+  async function toggleWatchlist() {
+    if (!score) return;
+
+    setWatchlistSaving(true);
+    try {
+      if (isInWatchlist) {
+        await removeTicker(ticker);
+      } else {
+        await saveTicker(ticker, { name: score.name });
+      }
+    } finally {
+      setWatchlistSaving(false);
+    }
+  }
+
+  const content = (
     <main className="min-h-screen px-4 py-8" dir="rtl">
       <div className="max-w-2xl mx-auto space-y-6">
 
@@ -257,4 +273,10 @@ export default function StockPage({ params }: StockPageProps) {
       )}
     </main>
   );
+
+  if (isGuest) {
+    return content;
+  }
+
+  return <DashboardShell selectedTicker={ticker}>{content}</DashboardShell>;
 }

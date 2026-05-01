@@ -457,6 +457,10 @@
       "moderate": "You balance growth potential with acceptable risk exposure.",
       "aggressive": "You seek maximum growth and can tolerate significant market volatility."
     },
+    "simulation": {
+      "title": "Live Risk Simulation",
+      "score": "Estimated score: {score}/100 based on {answered}/{total} answered questions"
+    },
     "disclaimer": "This result is for educational purposes only. It does not constitute investment advice. Please consult a qualified financial advisor before making investment decisions.",
     "howCalculated": "How is this calculated?",
     "howCalculatedText": "Your score is calculated from 6 factors: investment horizon (25%), maximum acceptable drawdown (20%), age (15%), financial knowledge (15%), income stability (15%), and patience during downturns (10%).",
