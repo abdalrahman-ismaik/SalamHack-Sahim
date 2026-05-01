@@ -26,8 +26,18 @@ import { useSectorPerformance } from '@/hooks/useSectorPerformance';
 import { useUserTier } from '@/hooks/useUserTier';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { motion } from 'framer-motion';
+import type { SectorBar } from '@/lib/types';
 
 const DEFAULT_TICKER = 'AAPL';
+const MOCK_SECTORS: SectorBar[] = [
+  { sector: 'Technology', value: 4.2, positive: true },
+  { sector: 'Financials', value: 2.8, positive: true },
+  { sector: 'Energy', value: -1.3, positive: false },
+  { sector: 'Healthcare', value: 1.9, positive: true },
+  { sector: 'Industrials', value: 0.7, positive: true },
+  { sector: 'Materials', value: -0.9, positive: false },
+  { sector: 'Real Estate', value: 1.1, positive: true },
+];
 
 function normalizeComplianceRate(rate: number | null | undefined) {
   if (rate == null) return null;
@@ -93,6 +103,10 @@ export default function DashboardPage() {
     if (riskScore <= 66) return t('risk.moderate');
     return t('risk.high');
   }, [kpi.riskProfile, riskScore, t]);
+  const chartSectors = useMemo(
+    () => (sectors.length > 0 ? sectors : MOCK_SECTORS),
+    [sectors],
+  );
   const zakatDays = daysSince(kpi.lastZakatDate);
 
   return (
@@ -197,7 +211,7 @@ export default function DashboardPage() {
           <div className="grid gap-6 grid-cols-1 lg:grid-cols-12">
             <div className={`lg:col-span-7 ${isRTL ? 'lg:order-2' : 'lg:order-1'}`}>
               <DashboardSectorChart
-                sectors={sectors}
+                sectors={chartSectors}
                 period={period}
                 onPeriodChange={setPeriod}
                 loading={sectorsLoading}
