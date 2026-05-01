@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { getHalal } from '@/lib/api';
+import { useUserTier } from '@/hooks/useUserTier';
 import type { HalalStatus, ComplianceAlertPreference, ComplianceChangeNotification } from '@/lib/types';
 
 interface UseComplianceAlertsReturn {
@@ -18,13 +19,18 @@ interface UseComplianceAlertsReturn {
   notifications: ComplianceChangeNotification[];
   dismissNotification: (ticker: string) => void;
   loading: boolean;
+  blockedReason: 'signin' | 'upgrade' | null;
 }
 
 export function useComplianceAlerts(ticker: string): UseComplianceAlertsReturn {
+  const tier = useUserTier();
   const [enabled, setEnabled]             = useState(false);
   const [lastKnownStatus, setLastKnown]   = useState<HalalStatus | null>(null);
   const [notifications, setNotifications] = useState<ComplianceChangeNotification[]>([]);
   const [loading, setLoading]             = useState(true);
+  const canWriteAlerts = tier === 'pro' || tier === 'enterprise';
+  const blockedReason: UseComplianceAlertsReturn['blockedReason'] =
+    tier === 'guest' ? 'signin' : canWriteAlerts ? null : 'upgrade';
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -71,6 +77,9 @@ export function useComplianceAlerts(ticker: string): UseComplianceAlertsReturn {
   const toggle = useCallback(async () => {
     const user = auth.currentUser;
     if (!user) return;
+    if (!canWriteAlerts) {
+      throw new Error('COMPLIANCE_ALERT_UPGRADE_REQUIRED');
+    }
 
     const prefRef = doc(db, `users/${user.uid}/alert_preferences/${ticker}`);
     const newEnabled = !enabled;
@@ -95,11 +104,11 @@ export function useComplianceAlerts(ticker: string): UseComplianceAlertsReturn {
     await setDoc(prefRef, pref, { merge: true });
     setEnabled(newEnabled);
     if (currentStatus) setLastKnown(currentStatus);
-  }, [enabled, lastKnownStatus, ticker]);
+  }, [canWriteAlerts, enabled, lastKnownStatus, ticker]);
 
   const dismissNotification = useCallback((t: string) => {
     setNotifications(prev => prev.filter(n => n.ticker !== t));
   }, []);
 
-  return { enabled, toggle, lastKnownStatus, notifications, dismissNotification, loading };
+  return { enabled, toggle, lastKnownStatus, notifications, dismissNotification, loading, blockedReason };
 }

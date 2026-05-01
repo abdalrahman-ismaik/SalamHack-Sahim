@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import Stepper, { Step } from '@/components/ui/Stepper';
 import { UserContext } from '@/providers/UserContext';
 import { auth, db } from '@/lib/firebase';
+import { mergeUserDocument } from '@/lib/firestore-user';
 import { getStoredProfile, setStoredProfile } from '@/lib/firebase-session';
 import { setStoredRiskProfile } from '@/lib/risk-profile-storage';
 import type { RiskLabel, RiskProfile } from '@/lib/types';
@@ -266,11 +267,10 @@ export function DashboardOnboardingChecklist() {
     setStoredRiskProfile(riskProfile);
 
     try {
-      const userRef = doc(db, 'users', uid);
       const riskRef = doc(db, 'users', uid, 'risk_profile', 'current');
 
       await Promise.all([
-        setDoc(userRef, {
+        mergeUserDocument(uid, {
           name: profile.name,
           country: profile.country,
           ageRange: profile.ageRange,
@@ -284,7 +284,7 @@ export function DashboardOnboardingChecklist() {
           riskProfileLabel: riskProfile.label,
           riskProfileAnswers: riskProfile.answers,
           riskProfileCompletedAt: riskProfile.completed_at,
-        }, { merge: true }),
+        }),
         setDoc(riskRef, riskProfile, { merge: true }),
       ]);
 

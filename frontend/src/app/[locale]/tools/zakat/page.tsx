@@ -1,27 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { onAuthStateChanged } from 'firebase/auth';
 import { ZakatCalculator } from '@/components/ZakatCalculator';
-import { useSoftGate } from '@/hooks/useSoftGate';
-import type { GoldPriceData } from '@/lib/types';
+import { auth } from '@/lib/firebase';
+import { saveLastZakatResult } from '@/lib/firestore-user';
+import type { GoldPriceData, ZakatResult } from '@/lib/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
 
 export default function ZakatPage() {
   const t = useTranslations('zakatCalculator');
-  const { gateOpen } = useSoftGate(false); // only open gate if user is guest; controlled externally
   const [goldPrice, setGoldPrice] = useState<GoldPriceData | null>(null);
   const [loading, setLoading]     = useState(true);
   const [isGuest, setIsGuest]     = useState(false);
+  const [uid, setUid]             = useState<string | null>(null);
 
   useEffect(() => {
-    // Check auth state to determine guest
-    import('@/lib/firebase').then(({ auth }) => {
-      const unsubscribe = auth.onAuthStateChanged(user => {
-        setIsGuest(!user);
-      });
-      return unsubscribe;
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setUid(user?.uid ?? null);
+      setIsGuest(!user);
     });
 
     fetch(`${API_BASE}/api/tools/gold-price`)
@@ -29,7 +28,19 @@ export default function ZakatPage() {
       .then(setGoldPrice)
       .catch(() => setGoldPrice(null))
       .finally(() => setLoading(false));
+
+    return unsubscribe;
   }, []);
+
+  const handleCalculated = useCallback(async (result: ZakatResult) => {
+    if (!uid) return;
+
+    try {
+      await saveLastZakatResult(uid, result);
+    } catch {
+      // The calculator result remains valid even if persistence is unavailable.
+    }
+  }, [uid]);
 
   return (
     <main
@@ -43,7 +54,7 @@ export default function ZakatPage() {
           <div className="h-48 rounded-2xl bg-gray-900 animate-pulse" aria-label="loading" />
         ) : (
           <div className="rounded-2xl border border-gray-700 bg-gray-900/70 p-6 space-y-6">
-            <ZakatCalculator goldPrice={goldPrice} />
+            <ZakatCalculator goldPrice={goldPrice} onCalculated={handleCalculated} />
 
             {/* Soft gate for guests — save prompt below calculator */}
             {isGuest && (

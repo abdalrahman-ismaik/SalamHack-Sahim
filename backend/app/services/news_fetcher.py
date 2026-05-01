@@ -2,6 +2,8 @@
 
 NewsAPI free tier: 100 req/day, English results.
 GDELT: unlimited free, query by company name.
+When both providers fail, callers receive an empty list and keep the user in a
+reduced-mode flow instead of blocking Firestore-owned dashboard state.
 """
 
 from __future__ import annotations

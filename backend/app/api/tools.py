@@ -14,10 +14,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["tools"])
 
-_GOLD_CACHE_KEY = ("__global__", "gold_price")
-_GOLD_TTL_SECONDS = 3600  # 1 hour
-
-
 @router.get("/gold-price", response_model=GoldPriceResponse)
 async def gold_price_endpoint() -> GoldPriceResponse:
     """Return the current gold price per gram in USD, AED, and SAR.
@@ -25,10 +21,10 @@ async def gold_price_endpoint() -> GoldPriceResponse:
     Cached for 1 hour. Falls back to static values when Twelve Data is
     unavailable, so this endpoint always returns 200.
     """
-    cached = get_cached("__global__", "gold_price")
+    cached = get_cached("__global__", "gold-price")
     if cached is not None:
         return GoldPriceResponse(**cached)
 
     data = await get_gold_price()
-    set_cached("__global__", "gold_price", data)
+    set_cached("__global__", "gold-price", data)
     return GoldPriceResponse(**data)

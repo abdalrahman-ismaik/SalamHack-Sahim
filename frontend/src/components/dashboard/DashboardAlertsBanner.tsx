@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { auth, db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import type { ComplianceAlertPreference, ComplianceChangeNotification, HalalStatus } from '@/lib/types';
 import { getHalal } from '@/lib/api';
 import { ComplianceNotificationBanner } from '@/components/ComplianceNotificationBanner';
@@ -27,6 +26,15 @@ export function DashboardAlertsBanner() {
             try {
               const verdict = await getHalal(ticker);
               if (verdict.status !== pref.last_known_status) {
+                await setDoc(
+                  doc(db, `users/${user.uid}/alert_preferences/${ticker}`),
+                  {
+                    last_known_status: verdict.status,
+                    updated_at: new Date().toISOString(),
+                  },
+                  { merge: true },
+                );
+
                 return {
                   ticker,
                   previous_status: pref.last_known_status as HalalStatus,

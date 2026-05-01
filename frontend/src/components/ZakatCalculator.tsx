@@ -12,6 +12,7 @@ const ZAKAT_RATE = 0.025;
 
 interface ZakatCalculatorProps {
   goldPrice: GoldPriceData | null;
+  onCalculated?: (result: ZakatResult) => void | Promise<void>;
 }
 
 function getPriceForCurrency(gold: GoldPriceData, currency: Currency): number {
@@ -20,7 +21,7 @@ function getPriceForCurrency(gold: GoldPriceData, currency: Currency): number {
   return gold.price_per_gram_usd;
 }
 
-export function ZakatCalculator({ goldPrice }: ZakatCalculatorProps) {
+export function ZakatCalculator({ goldPrice, onCalculated }: ZakatCalculatorProps) {
   const t = useTranslations('zakatCalculator');
 
   const [portfolio,   setPortfolio]   = useState('');
@@ -55,7 +56,7 @@ export function ZakatCalculator({ goldPrice }: ZakatCalculatorProps) {
     const nisabValue   = NISAB_GOLD_GRAMS * pricePerGram;
     const belowNisab   = net < nisabValue;
 
-    setResult({
+    const nextResult: ZakatResult = {
       net_value:       net,
       nisab_value:     nisabValue,
       nisab_source:    goldPrice?.source === 'TwelveData' ? 'api' : 'static',
@@ -63,7 +64,10 @@ export function ZakatCalculator({ goldPrice }: ZakatCalculatorProps) {
       zakat_due:       belowNisab ? null : parseFloat((net * ZAKAT_RATE).toFixed(2)),
       below_nisab:     belowNisab,
       currency,
-    });
+    };
+
+    setResult(nextResult);
+    void onCalculated?.(nextResult);
   }
 
   return (

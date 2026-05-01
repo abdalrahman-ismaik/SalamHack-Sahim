@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { setAuthCookie, setStoredTier, flagPostSignIn, setStoredProfile } from '@/lib/firebase-session';
+import { ensureUserDocument } from '@/lib/firestore-user';
 
 const schema = z.object({
   name:     z.string().min(1),
@@ -44,6 +45,8 @@ export function SignUpForm({ returnTo, plan }: Props) {
       setAuthCookie();
       setStoredProfile({ name: data.name, photoURL: cred.user.photoURL });
       setStoredTier('free'); // New accounts always start on free
+      await ensureUserDocument(cred.user, { tier: 'free', locale: locale as 'ar' | 'en', name: data.name })
+        .catch(error => console.warn('[SignUpForm] Firestore user sync failed:', error));
       flagPostSignIn();
       const safe = safeReturnTo(returnTo, window.location.origin);
       window.location.href = safe || `/${locale}/dashboard`;
@@ -63,6 +66,8 @@ export function SignUpForm({ returnTo, plan }: Props) {
       setAuthCookie();
       setStoredProfile({ name: cred.user.displayName, photoURL: cred.user.photoURL });
       setStoredTier('free');
+      await ensureUserDocument(cred.user, { tier: 'free', locale: locale as 'ar' | 'en' })
+        .catch(error => console.warn('[SignUpForm] Firestore user sync failed:', error));
       flagPostSignIn();
       const safe = safeReturnTo(returnTo, window.location.origin);
       window.location.href = safe || `/${locale}/dashboard`;

@@ -15,12 +15,20 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '@/providers/UserContext';
-import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import {
+  listWatchlistTickers,
+  normalizeWatchlistTicker,
+  removeWatchlistItem,
+  saveWatchlistItem,
+} from '@/lib/watchlist-storage';
+import type { HalalStatus } from '@/lib/types';
 
 interface UseWatchlistResult {
   tickers: string[];
   loading: boolean;
+  saveTicker: (ticker: string, metadata?: { name?: string | null; exchange?: string | null; halalStatus?: HalalStatus | null }) => Promise<void>;
+  removeTicker: (ticker: string) => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 export function useWatchlist(): UseWatchlistResult {
@@ -28,31 +36,46 @@ export function useWatchlist(): UseWatchlistResult {
   const [tickers, setTickers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const refresh = async () => {
     if (!session?.id) {
       setTickers([]);
       setLoading(false);
       return;
     }
 
-    const fetchWatchlist = async () => {
-      try {
-        setLoading(true);
-        const watchlistRef = collection(db, `users/${session.id}/watchlist`);
-        const snapshot = await getDocs(watchlistRef);
-        
-        const tickerList = snapshot.docs.map(doc => doc.id);
-        setTickers(tickerList);
-      } catch (error) {
-        console.warn('[useWatchlist] Error fetching watchlist:', error);
-        setTickers([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    try {
+      setLoading(true);
+      setTickers(await listWatchlistTickers(session.id));
+    } catch (error) {
+      console.warn('[useWatchlist] Error fetching watchlist:', error);
+      setTickers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchWatchlist();
+  useEffect(() => {
+    void refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.id]);
 
-  return { tickers, loading };
+  const saveTicker: UseWatchlistResult['saveTicker'] = async (ticker, metadata = {}) => {
+    if (!session?.id) return;
+    const normalized = normalizeWatchlistTicker(ticker);
+    if (!normalized) return;
+
+    await saveWatchlistItem(session.id, { ticker: normalized, ...metadata });
+    setTickers(prev => Array.from(new Set([...prev, normalized])).sort());
+  };
+
+  const removeTicker: UseWatchlistResult['removeTicker'] = async ticker => {
+    if (!session?.id) return;
+    const normalized = normalizeWatchlistTicker(ticker);
+    if (!normalized) return;
+
+    await removeWatchlistItem(session.id, normalized);
+    setTickers(prev => prev.filter(item => item !== normalized));
+  };
+
+  return { tickers, loading, saveTicker, removeTicker, refresh };
 }

@@ -119,7 +119,9 @@
     "invalidTicker": "Invalid ticker symbol",
     "notFound": "Data not found",
     "serviceUnavailable": "Service temporarily unavailable — please try again later",
-    "generic": "Something went wrong — please try again"
+    "generic": "Something went wrong — please try again",
+    "persistenceUnavailable": "We could not save this yet. You can keep using the page.",
+    "storageEmpty": "Nothing saved yet."
   },
   "nav": {
     "home": "Home",
@@ -139,13 +141,57 @@
     "hero": {
       "headline": "Smart Investing for Arabic-Speaking Beginners",
       "subheadline": "Understand any MENA stock in plain Arabic — AI-powered scores, risk insights, news analysis, and Shariah compliance in one place.",
-      "cta": "Analyse a Stock Free",
+      "cta": "Try It Now",
       "ctaSecondary": "See Pricing",
       "tryDemo": "or try a stock for free — no account needed",
       "badge": "AI-Powered · MENA Markets",
       "statUsers": "Investors",
       "statMarkets": "Markets Covered",
-      "statUptime": "Uptime"
+      "statUptime": "Uptime",
+      "featureShowcase": {
+        "kicker": "Platform suite",
+        "metrics": {
+          "fast": "3s",
+          "fastLabel": "Dashboard target",
+          "private": "Owner",
+          "privateLabel": "Scoped data"
+        },
+        "footerTitle": "One connected workspace",
+        "footerBody": "Search, assess, save, and monitor from the same Arabic-first flow.",
+        "footerBadge": "MVP ready",
+        "cards": {
+          "score": {
+            "title": "Stock intelligence",
+            "body": "Search any company and get a plain-language readiness score with risk, sentiment, and fundamentals in context.",
+            "stat": "Readiness score"
+          },
+          "halal": {
+            "title": "Shariah screening",
+            "body": "Review halal status with clear sources, AAOIFI-aware ratios, and the right disclaimer beside every result.",
+            "stat": "Standards-aware"
+          },
+          "risk": {
+            "title": "Risk dashboard",
+            "body": "Turn volatility, VaR, Sharpe, and beta into a beginner-friendly view that supports better decisions.",
+            "stat": "Advanced metrics"
+          },
+          "news": {
+            "title": "AI news brief",
+            "body": "Summarize market news into Arabic and English insights so users can scan risks and opportunities faster.",
+            "stat": "Bilingual summaries"
+          },
+          "zakat": {
+            "title": "Zakat tools",
+            "body": "Estimate portfolio Zakat with live or fallback gold prices while keeping sensitive inputs out of storage.",
+            "stat": "Gold nisab basis"
+          },
+          "alerts": {
+            "title": "Compliance alerts",
+            "body": "Let Pro users privately save ticker alerts and watch for meaningful Shariah status changes.",
+            "stat": "Private monitoring"
+          }
+        }
+      }
     },
     "features": {
       "title": "Built for Beginner Investors",
@@ -475,7 +521,10 @@
     "dismissAll": "Dismiss All",
     "noAlerts": "No compliance changes detected.",
     "savedSuccess": "Alert preference saved.",
-    "saveError": "Failed to save preference. Please try again."
+    "saveError": "Failed to save preference. Please try again.",
+    "upgradeRequired": "Upgrade to Pro to save compliance alerts.",
+    "signInRequired": "Sign in to save compliance alerts.",
+    "disclaimer": "Status changes are informational alerts, not a religious ruling."
   },
   "dashboard": {
     "greeting": "Welcome to Your Dashboard",

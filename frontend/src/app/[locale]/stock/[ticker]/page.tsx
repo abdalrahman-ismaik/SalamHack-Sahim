@@ -15,9 +15,11 @@ import { ArimaChart } from "@/components/ArimaChart";
 import { SectorPanel } from "@/components/SectorPanel";
 import { UpgradeGate } from "@/components/ui/UpgradeGate";
 import { SignInGateModal } from "@/components/ui/SignInGateModal";
+import { ComplianceAlertToggle } from "@/components/ComplianceAlertToggle";
 import { useUserTier } from "@/hooks/useUserTier";
 import { useSoftGate } from "@/hooks/useSoftGate";
 import { useLastViewedTicker } from "@/hooks/useLastViewedTicker";
+import { useWatchlist } from "@/hooks/useWatchlist";
 
 interface StockPageProps {
   params: {
@@ -34,12 +36,15 @@ export default function StockPage({ params }: StockPageProps) {
   const locale  = useLocale();
   const pathname = usePathname();
   const { setTicker: setLastViewedTicker } = useLastViewedTicker();
+  const { tickers, saveTicker, removeTicker } = useWatchlist();
 
   const isGuest = tier === 'guest';
+  const isInWatchlist = tickers.includes(ticker);
 
   const [score, setScore]     = useState<InvestmentReadinessScore | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState<string | null>(null);
+  const [watchlistSaving, setWatchlistSaving] = useState(false);
 
   const proSectionRef = useRef<HTMLDivElement>(null);
 
@@ -63,7 +68,7 @@ export default function StockPage({ params }: StockPageProps) {
         }
       })
       .finally(() => setLoading(false));
-  }, [ticker, t]);
+  }, [ticker, t, setLastViewedTicker]);
 
   // Soft gate: open after initial teaserData renders for guests
   const { gateOpen } = useSoftGate(!loading && !!score && isGuest);
@@ -73,6 +78,21 @@ export default function StockPage({ params }: StockPageProps) {
     yellow: t("score.medium"),
     red: t("score.low"),
   };
+
+  async function toggleWatchlist() {
+    if (!score) return;
+
+    setWatchlistSaving(true);
+    try {
+      if (isInWatchlist) {
+        await removeTicker(ticker);
+      } else {
+        await saveTicker(ticker, { name: score.name });
+      }
+    } finally {
+      setWatchlistSaving(false);
+    }
+  }
 
   return (
     <main className="min-h-screen px-4 py-8" dir="rtl">
@@ -147,6 +167,20 @@ export default function StockPage({ params }: StockPageProps) {
               <p className="mt-1 text-xs text-gray-600 italic">
                 تحليل معلوماتي مستقل، وليس نصيحة استثمارية مرخصة
               </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={toggleWatchlist}
+                disabled={watchlistSaving}
+                className="min-h-[44px] rounded-xl border border-[#C5A059]/35 bg-[#C5A059]/12 px-4 py-2 text-sm font-semibold text-[#F0D590] transition-colors hover:bg-[#C5A059]/20 disabled:cursor-wait disabled:opacity-65"
+              >
+                {isInWatchlist
+                  ? (locale === 'ar' ? 'إزالة من المتابعة' : 'Remove from watchlist')
+                  : (locale === 'ar' ? 'حفظ في المتابعة' : 'Save to watchlist')}
+              </button>
+              <ComplianceAlertToggle ticker={ticker} />
             </div>
 
             <section

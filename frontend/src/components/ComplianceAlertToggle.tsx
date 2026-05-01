@@ -10,13 +10,20 @@ interface ComplianceAlertToggleProps {
 
 export function ComplianceAlertToggle({ ticker }: ComplianceAlertToggleProps) {
   const t = useTranslations('alerts');
-  const { enabled, toggle, loading } = useComplianceAlerts(ticker);
+  const { enabled, toggle, loading, blockedReason } = useComplianceAlerts(ticker);
   const [saving, setSaving] = useState(false);
-  const [saveMsg, setSaveMsg] = useState<'success' | 'error' | null>(null);
+  const [saveMsg, setSaveMsg] = useState<'success' | 'error' | 'signin' | 'upgrade' | null>(null);
 
   async function handleToggle() {
     setSaving(true);
     setSaveMsg(null);
+    if (blockedReason) {
+      setSaving(false);
+      setSaveMsg(blockedReason);
+      setTimeout(() => setSaveMsg(null), 3000);
+      return;
+    }
+
     try {
       await toggle();
       setSaveMsg('success');
@@ -71,6 +78,12 @@ export function ComplianceAlertToggle({ ticker }: ComplianceAlertToggleProps) {
       )}
       {saveMsg === 'error' && (
         <p className="text-xs text-rose-400" role="alert">{t('saveError')}</p>
+      )}
+      {saveMsg === 'upgrade' && (
+        <p className="text-xs text-amber-300" role="status">{t('upgradeRequired')}</p>
+      )}
+      {saveMsg === 'signin' && (
+        <p className="text-xs text-amber-300" role="status">{t('signInRequired')}</p>
       )}
     </div>
   );

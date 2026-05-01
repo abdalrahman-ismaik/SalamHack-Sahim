@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { setAuthCookie, getStoredTier, setStoredTier, flagPostSignIn, setStoredProfile } from '@/lib/firebase-session';
+import { ensureUserDocument } from '@/lib/firestore-user';
 
 const schema = z.object({
   email:    z.string().email(),
@@ -42,6 +43,8 @@ export function SignInForm({ returnTo }: Props) {
       setStoredProfile({ name: cred.user.displayName, photoURL: cred.user.photoURL });
       // Preserve existing tier; default to free for first-time sign-ins
       if (!localStorage.getItem('salam_user_tier')) setStoredTier('free');
+      await ensureUserDocument(cred.user, { tier: getStoredTier(), locale: locale as 'ar' | 'en' })
+        .catch(error => console.warn('[SignInForm] Firestore user sync failed:', error));
       if (getStoredTier() === 'free') flagPostSignIn();
       const safe = safeReturnTo(returnTo, window.location.origin);
       window.location.href = safe || `/${locale}/dashboard`;
@@ -59,6 +62,8 @@ export function SignInForm({ returnTo }: Props) {
       setAuthCookie();
       setStoredProfile({ name: cred.user.displayName, photoURL: cred.user.photoURL });
       if (!localStorage.getItem('salam_user_tier')) setStoredTier('free');
+      await ensureUserDocument(cred.user, { tier: getStoredTier(), locale: locale as 'ar' | 'en' })
+        .catch(error => console.warn('[SignInForm] Firestore user sync failed:', error));
       if (getStoredTier() === 'free') flagPostSignIn();
       const safe = safeReturnTo(returnTo, window.location.origin);
       window.location.href = safe || `/${locale}/dashboard`;

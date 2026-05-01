@@ -176,7 +176,7 @@ export function FeaturesSection() {
       <div className="relative z-10 max-w-6xl mx-auto">
 
         {/* ── Section Header ── */}
-        <div className="text-center mb-20">
+        <div id="try-stock" className="scroll-mt-24 text-center mb-20">
           <p className="text-xs text-[#C5A059] font-semibold uppercase tracking-[0.2em] mb-4">
             Features
           </p>

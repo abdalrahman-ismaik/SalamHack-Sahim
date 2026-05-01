@@ -72,6 +72,10 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T007 Create base models/entities that all stories depend on
 - [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
+- [ ] T010 Configure Firestore security rules for `users/{uid}` owner-only access
+  when the feature persists user-owned MVP data (Principle XII)
+- [ ] T011 Document localStorage fallback and backend TTL cache behavior for any
+  persisted user state or service data cache
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

@@ -55,6 +55,15 @@
 - User has one Risk Profile, one lastZakatDate, one lastViewedTicker
 - Portfolio Allocation and Sector Performance are derived from watchlist holdings
 
+## MVP Storage Mapping
+- `users/{uid}` — KPI summary fields, tier/profile metadata, onboarding summary,
+  `lastZakatDate`, `lastZakatResult`, and `lastViewedTicker`
+- `users/{uid}/watchlist/{ticker}` — saved dashboard/watchlist tickers
+- `users/{uid}/risk_profile/current` — dashboard risk score source
+- `users/{uid}/alert_preferences/{ticker}` — Halal compliance alert preferences
+- Backend market/news/forecast/sector responses remain in the FastAPI in-memory
+  TTL cache and are not persisted in Firestore for the MVP.
+
 ## Validation Rules
 - All numeric fields must be >= 0
 - Risk Score must be 0–100

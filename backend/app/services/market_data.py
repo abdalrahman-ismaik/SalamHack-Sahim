@@ -8,7 +8,8 @@ Public API:
     get_fundamentals(ticker)       → dict with pe_ratio, debt_equity, revenue_growth,
                                             interest_income_ratio, debt_market_cap_ratio  (T029)
 
-All functions raise DataUnavailableError on total failure.
+All functions raise DataUnavailableError on total failure. API routes translate
+that into reduced-mode responses while Firestore user state remains readable.
 Individual fields may be None when partially unavailable.
 """
 

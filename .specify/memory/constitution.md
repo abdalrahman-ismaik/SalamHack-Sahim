@@ -1,24 +1,25 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.2.0 → 1.3.0
+Version change: 1.3.0 → 1.4.0
 Amendment rationale:
-  MINOR bump — New Principle XI (Dashboard UX & Data Visualization Standards)
-  added. Comprehensive dashboard layout architecture, Chart.js chart-type
-  selection rules, KPI card design, service card priority order, and visual
-  design language encoded as actionable implementation constraints. No existing
-  principles changed; no gates removed or weakened.
+  MINOR bump — New Principle XII (MVP Data Persistence & Cache Strategy)
+  added and Principle VII updated. Firestore is now the approved MVP store for
+  user-owned SaaS data, while backend service responses remain in the existing
+  in-memory TTL cache. This replaces the earlier no-user-storage assumption
+  without adding heavyweight backend database infrastructure.
 Modified principles:
-  None (all existing principles I–X unchanged)
+  - VII. Security & Data Privacy — expanded from "no user financial data stored"
+    to strict, minimal, owner-scoped MVP persistence
 Added sections:
-  - XI. Dashboard UX & Data Visualization Standards
-    (layout grid, zone priority order, Chart.js rules, chart-type matrix,
-     KPI card specs, service card ordering, dark-premium design language,
-     CTA navigation pattern, RTL/responsive requirements)
+  - XII. MVP Data Persistence & Cache Strategy
+    (Firestore user data boundary, owner-only paths, backend TTL cache policy,
+     localStorage fallback rules, demo-safe data minimization)
 Templates requiring updates:
-  ✅ plan-template.md — Constitution Check gate updated to reference I–XI
-  ✅ spec-template.md — No change required
-  ✅ tasks-template.md — No change required
+  ✅ plan-template.md — Constitution Check gate updated to reference I–XII
+  ✅ spec-template.md — Data persistence constraint added
+  ✅ tasks-template.md — Firestore setup/rules tasks added to foundation examples
+  ✅ README.md — Architecture and Firebase env setup updated
 Follow-up TODOs:
   - TODO(STRIPE_KEY): Add real Stripe publishable key to .env before launch
   - TODO(ENTERPRISE_CONTACT): Replace pricing contact placeholder with real form/email
@@ -114,14 +115,24 @@ upstream API outage cannot be recovered from on stage.
 ### VII. Security & Data Privacy
 
 API keys MUST be managed via environment variables — never hardcoded,
-committed to the repository, or logged. No user financial data (portfolios,
-budgets, watchlists) is stored server-side for the MVP. Search queries are
-logged anonymously (ticker symbol only, no user identity). All endpoints
-handling user input MUST validate and sanitize inputs at the API boundary.
+committed to the repository, or logged. MVP persistence is allowed only for
+demo-safe user-owned SaaS data: Firebase Auth profile metadata, locale, tier,
+onboarding preferences, risk profile, watchlist tickers, alert preferences,
+last viewed ticker, and last Zakat calculation metadata. Raw brokerage
+credentials, payment methods, real transactions, KYC/AML documents, and full
+portfolio brokerage imports MUST NOT be stored in the MVP.
+
+All persisted user records MUST live under Firestore `users/{uid}` owner-scoped
+paths protected by security rules requiring `request.auth.uid == uid`. Search
+queries and service lookups MUST remain anonymous unless the user explicitly
+saves a ticker to their watchlist. All endpoints handling user input MUST
+validate and sanitize inputs at the API boundary.
 
 **Rationale**: OWASP Top 10 compliance and responsible data stewardship.
 Public GitHub repository exposure makes accidental secret commits
-irreversible and high-risk.
+irreversible and high-risk. Firestore gives the hackathon MVP persistence
+without adding backend migration work, but the stored data boundary must stay
+small enough to explain and audit during the demo.
 
 ## Hackathon Timeline Constraints
 
@@ -585,13 +596,48 @@ Zone 4 service cards MUST maintain the same priority order in RTL — just
 horizontally mirrored. The dashboard MUST be fully functional and visually
 correct at 360px, 768px, 1280px, and 1440px viewport widths.
 
+### XII. MVP Data Persistence & Cache Strategy
+
+Firestore is the approved MVP database for user-owned application state because
+the frontend already uses Firebase Auth and the project needs fast, simple,
+NoSQL persistence before the hackathon deadline. The MVP MUST NOT introduce a
+separate backend database, ORM, migration framework, or server-managed Firestore
+service account unless a later feature explicitly requires server-authoritative
+writes.
+
+The canonical Firestore paths for MVP user data are:
+
+- `users/{uid}` — profile metadata, locale, tier, onboarding summary,
+  dashboard KPI fields, last viewed ticker, and last Zakat metadata
+- `users/{uid}/watchlist/{ticker}` — saved tickers and optional lightweight
+  display metadata
+- `users/{uid}/risk_profile/current` — latest completed risk wizard result
+- `users/{uid}/alert_preferences/{ticker}` — Pro compliance alert preferences
+
+Guest or offline-friendly state MAY use browser `localStorage` only as a
+convenience fallback for non-sensitive data such as a guest risk profile. When
+an authenticated user completes the same flow, Firestore becomes authoritative
+and the local copy is only a resilience fallback.
+
+Backend service data from market, news, Halal, gold price, forecast, and sector
+providers MUST use the existing in-memory TTL cache in `backend/app/cache.py`
+for the MVP. Persistent service-result caching in Firestore is NOT permitted
+for the demo unless the cached data is read-only to clients, has an explicit
+TTL, and cannot expose private user behavior. External API outages MUST still
+degrade gracefully per Principle VI.
+
+**Rationale**: The product needs real user continuity for dashboard and tools,
+but a hackathon MVP cannot afford database complexity. Firestore matches the
+existing auth stack, supports owner-scoped documents, and keeps the backend
+stateless for Render.com deployment.
+
 ## Governance
 
 This constitution supersedes all other team practices and verbal agreements.
 Amendments require a written rationale, a version increment, and update of
 the `Last Amended` date. All implementation tasks generated by `/speckit.tasks`
 MUST include a Constitution Check gate verifying compliance with Principles
-I–XI before any Phase 3+ task begins.
+I–XII before any Phase 3+ task begins.
 
 Principles I (Demo-Day First), III (Arabic-First), IV (Halal Integrity),
 V (Regulatory Compliance), VII (Security), and IX (Component & Accessibility)
@@ -601,6 +647,8 @@ NON-NEGOTIABLE for security; page structure may be scoped for MVP.
 Principle X (Competitive Intelligence) is ADVISORY — it guides prioritization
 but does not block shipping. Principle XI (Dashboard UX & Data Visualization)
 is NON-NEGOTIABLE for the dashboard page; chart types and zone order MUST NOT
-be changed without an explicit constitution amendment.
+be changed without an explicit constitution amendment. Principle XII (MVP Data
+Persistence & Cache Strategy) is NON-NEGOTIABLE for any feature that stores
+user or service data.
 
-**Version**: 1.3.0 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-04-29
+**Version**: 1.4.0 | **Ratified**: 2026-04-26 | **Last Amended**: 2026-05-01

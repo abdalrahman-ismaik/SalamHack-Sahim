@@ -1,6 +1,9 @@
 """Halal screener service.
 
 Primary: HalalScreener API (5s timeout)
+Provider failure falls back to the built-in AAOIFI ratio screen where possible;
+callers can show reduced-mode messaging without affecting user-owned Firestore
+state.
 """
 
 from __future__ import annotations

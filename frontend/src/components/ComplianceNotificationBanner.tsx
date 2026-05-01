@@ -49,6 +49,9 @@ export function ComplianceNotificationBanner({
                   current:  n.current_status,
                 })}
               </p>
+              <p className="mt-1 text-xs text-amber-100/70">
+                {t('disclaimer')}
+              </p>
             </div>
             <button
               type="button"

@@ -32,7 +32,7 @@ Represents a user's completed risk tolerance assessment.
 | Holding patience | 10% | q6 |
 | (spare) | — | q7, q8 optional extension slots |
 
-**Storage**: Browser `localStorage` key `ahim_risk_profile` for guests; Firestore `users/{uid}/risk_profile` for authenticated users.
+**Storage**: Browser `localStorage` key `ahim_risk_profile` for guests; Firestore `users/{uid}/risk_profile/current` for authenticated users.
 
 **State transitions**: None — a completed profile replaces any previous one.
 
@@ -67,7 +67,9 @@ Ephemeral — computed client-side, never persisted.
 
 ### 3. ZakatInput / ZakatResult
 
-Ephemeral — computed client-side, never persisted.
+Computed client-side. The full calculator form is not persisted, but the latest
+authenticated result metadata is saved on `users/{uid}` for the dashboard Zakat
+reminder (`lastZakatDate`, `lastZakatResult`).
 
 **Input:**
 
@@ -136,7 +138,11 @@ In-memory object (not persisted). Generated in `useComplianceAlerts` hook when a
 ```
 User (Firebase Auth uid)
   │
-  ├── Firestore: users/{uid}/risk_profile
+  ├── Firestore: users/{uid}
+  │       └── Dashboard profile metadata (tier, watchlistCount, lastZakatDate,
+  │           lastViewedTicker)
+  │
+  ├── Firestore: users/{uid}/risk_profile/current
   │       └── RiskProfile (1 per user)
   │
   └── Firestore: users/{uid}/alert_preferences/{ticker}

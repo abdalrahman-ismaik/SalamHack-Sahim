@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
+import { mergeUserDocument } from '@/lib/firestore-user';
 import { RiskWizard } from '@/components/RiskWizard';
 import type { RiskProfile } from '@/lib/types';
 import { getStoredRiskProfile, setStoredRiskProfile } from '@/lib/risk-profile-storage';
@@ -61,16 +62,14 @@ export default function RiskWizardPage() {
     if (uid) {
       try {
         const profileRef = doc(db, 'users', uid, 'risk_profile', 'current');
-        const userRef = doc(db, 'users', uid);
-
         await Promise.all([
           setDoc(profileRef, withUid),
-          setDoc(userRef, {
+          mergeUserDocument(uid, {
             riskProfile: String(withUid.score),
             riskProfileLabel: withUid.label,
             riskProfileAnswers: withUid.answers,
             riskProfileCompletedAt: withUid.completed_at,
-          }, { merge: true }),
+          }),
         ]);
       } catch {
         // Silently ignore — localStorage copy is already saved

@@ -80,6 +80,10 @@
 - **Tier gate**: Specify which tier (Free / Pro / Enterprise) this feature is available to.
   Free features MUST be fully functional. Pro/Enterprise gates MUST show an upgrade prompt,
   never a generic error. Tier enforcement MUST be server-side.
+- **Data persistence**: If the feature stores user-owned MVP data, specify the Firestore
+  path under `users/{uid}`, the owner-only security rule expectation, and any localStorage
+  fallback. Service/API response caching MUST remain the backend in-memory TTL cache unless
+  a persistent cache is explicitly justified.
 - **Accessibility**: All interactive elements MUST support keyboard navigation (Tab/Enter/Space/Escape)
   and ARIA attributes per Principle IX. Confirm WCAG 2.1 AA contrast compliance.
 - **Bilingual**: All labels, errors, and tooltips MUST have both Arabic and English translations

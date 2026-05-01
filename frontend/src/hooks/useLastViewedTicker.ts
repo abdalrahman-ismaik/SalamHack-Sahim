@@ -14,10 +14,11 @@
 
 'use client';
 
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { UserContext } from '@/providers/UserContext';
 import { db } from '@/lib/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
+import { saveLastViewedTicker } from '@/lib/firestore-user';
 
 interface UseLastViewedTickerResult {
   ticker: string | null;
@@ -53,17 +54,17 @@ export function useLastViewedTicker(): UseLastViewedTickerResult {
   }, [session?.id]);
 
   // Write new ticker to Firestore and update local state
-  const setTicker = async (newTicker: string) => {
+  const setTicker = useCallback(async (newTicker: string) => {
     if (!session?.id) return;
 
     try {
-      const userRef = doc(db, 'users', session.id);
-      await updateDoc(userRef, { lastViewedTicker: newTicker });
-      setTickerState(newTicker);
+      const normalized = newTicker.trim().toUpperCase();
+      await saveLastViewedTicker(session.id, normalized);
+      setTickerState(normalized);
     } catch (error) {
       console.warn('[useLastViewedTicker] Error updating ticker:', error);
     }
-  };
+  }, [session?.id]);
 
   return { ticker, setTicker };
 }

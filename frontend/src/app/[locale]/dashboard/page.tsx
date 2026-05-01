@@ -86,6 +86,7 @@ export default function DashboardPage() {
   };
 
   const complianceRate = normalizeComplianceRate(kpi.halalComplianceRate);
+  const watchlistCount = Math.max(kpi.watchlistCount, tickers.length);
   const riskScore = parseRiskScore(kpi.riskProfile);
   const riskLabel = useMemo(() => {
     if (riskScore == null) return kpi.riskProfile || t('riskUnknown');
@@ -126,7 +127,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <DashboardKPICard
                   label={t('kpi.watchlist')}
-                  value={kpi.watchlistCount > 0 ? kpi.watchlistCount : t('kpi.noWatchlistItems')}
+                  value={watchlistCount > 0 ? watchlistCount : t('kpi.noWatchlistItems')}
                   subtitle={t('kpi.watchlistSubtitle')}
                   loading={kpiLoading || watchlistLoading}
                   icon={<Eye className="h-5 w-5" aria-hidden="true" />}

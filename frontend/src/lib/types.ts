@@ -190,6 +190,52 @@ export interface UserSession {
   tier:   UserTier;
 }
 
+export type AccountTier = Exclude<UserTier, 'guest'>;
+
+export interface ZakatMetadata {
+  nisab_value: number;
+  nisab_source: 'api' | 'static';
+  gold_price_date: string;
+  zakat_due: number | null;
+  below_nisab: boolean;
+  currency: 'AED' | 'USD' | 'SAR';
+  calculated_at: string;
+}
+
+export interface UserProfile {
+  email: string | null;
+  name: string | null;
+  photoURL: string | null;
+  locale: 'ar' | 'en';
+  tier: AccountTier;
+  onboarding?: Record<string, unknown> | null;
+  investmentProfile?: Record<string, unknown> | null;
+  watchlistCount?: number;
+  halalComplianceRate?: number | null;
+  riskProfile?: string | null;
+  riskProfileLabel?: RiskLabel | string | null;
+  lastViewedTicker?: string | null;
+  lastViewedAt?: string | null;
+  lastZakatDate?: string | null;
+  lastZakatResult?: ZakatMetadata | null;
+}
+
+export interface WatchlistItem {
+  ticker: string;
+  name?: string | null;
+  exchange?: string | null;
+  halalStatus?: HalalStatus | null;
+  addedAt: string;
+  updatedAt: string;
+}
+
+export interface ServiceCacheEntry {
+  ticker: string;
+  endpoint: string;
+  value: Record<string, unknown>;
+  ttl: number;
+}
+
 export const GUEST_SESSION: UserSession = {
   id:     null,
   name:   null,

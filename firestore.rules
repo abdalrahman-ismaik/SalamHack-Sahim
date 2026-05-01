@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function userCreateIsSafe() {
+      return !request.resource.data.keys().hasAny(['tier'])
+        || request.resource.data.tier == 'free';
+    }
+
+    function userUpdatePreservesTier() {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['tier'])
+        || (resource.data.tier == null && request.resource.data.tier == 'free')
+        || request.resource.data.tier == resource.data.tier;
+    }
+
+    function hasTrustedAlertTier(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid))
+        && get(/databases/$(database)/documents/users/$(uid)).data.tier in ['pro', 'enterprise'];
+    }
+
+    function tickerIsNormalized(ticker) {
+      return ticker.matches('^[A-Z0-9.]{1,12}$');
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create: if isOwner(uid) && userCreateIsSafe();
+      allow update: if isOwner(uid) && userUpdatePreservesTier();
+
+      match /watchlist/{ticker} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && tickerIsNormalized(ticker)
+          && request.resource.data.ticker == ticker;
+      }
+
+      match /risk_profile/current {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.user_id == uid;
+      }
+
+      match /alert_preferences/{ticker} {
+        allow read: if isOwner(uid);
+        allow create, update, delete: if isOwner(uid)
+          && hasTrustedAlertTier(uid)
+          && tickerIsNormalized(ticker);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
